@@ -474,11 +474,39 @@
 
   /* Überschrift der Mahlzeit-Seite in einer Zeile */
   .hero h2 { white-space: nowrap; font-size: clamp(1.4rem, 7.2vw, 2.3rem); }
+  /* Rezeptseite, Kochmodus, Guten Appetit */
+  .hdr-back { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; color: var(--ink); font: inherit; font-weight: 700; font-size: 1.05rem; cursor: pointer; padding: 6px 8px 6px 0; }
+  .hdr-back svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; padding: 6px; box-sizing: content-box; border-radius: 50%; background: var(--glass); border: 1px solid var(--line); }
+  .hdr-back:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 12px; }
+  .btn.cta-cook, .btn.big { width: 100%; padding: 16px; font-size: 1.05rem; border-radius: 18px; }
+  .btn.cta-cook { background: linear-gradient(90deg, #ff9a73, #ffc07a); color: #1d0a02; border-color: transparent; box-shadow: 0 14px 30px -14px rgb(255 140 100 / .9); }
+  .cook { display: grid; gap: 14px; }
+  .cook-prog { display: flex; gap: 5px; }
+  .cook-prog i { flex: 1; height: 6px; border-radius: 3px; background: rgb(255 255 255 / .12); transition: background .3s; }
+  .cook-prog i.done { background: var(--brand-2); } .cook-prog i.now { background: var(--brand); }
+  .cook-card { min-height: 42vh; align-content: start; gap: 16px; padding: 22px 20px; }
+  .cook-num { font-family: var(--font-display); font-weight: 800; font-size: .95rem; color: var(--brand); letter-spacing: .02em; }
+  .cook-text { font-size: 1.35rem; line-height: 1.45; font-weight: 500; text-wrap: pretty; animation: rise .3s ease-out; }
+  .cook-nav { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 10px; }
+  .done-page { display: grid; gap: 14px; }
+  .done-hero { text-align: left; }
+  .done-title { font-size: 2.2rem; letter-spacing: -0.03em; background: linear-gradient(90deg, var(--brand), var(--zest)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .done-hero.has-hero .done-title { margin-top: -34px; position: relative; }
+  .done-hero .rhead { margin-top: 4px; }
+  .done-kcal { font-family: var(--font-display); font-size: 1.6rem; }
+  .deduct { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .deduct li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); font-size: .92rem; }
+  .deduct li:first-child { border-top: 0; }
+  .deduct li span:last-child { color: var(--muted); text-align: right; }
+  .deduct li.gone span:last-child { color: var(--zest); }
+  .deduct li.check span:last-child { color: var(--carbs); }
+  @media (prefers-reduced-motion: reduce) { .cook-text { animation: none; } }
 </style>
 
 <div class="aurora-bg" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
 <div class="wrap">
   <header class="top">
+    <button class="hdr-back" id="hdr-back" type="button" hidden aria-label="Zurück"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span id="hdr-title">Rezept</span></button>
     <h1 class="brand" aria-label="eAit"><span class="wordmark" aria-hidden="true">e<span class="a">A</span><span class="pow"></span>t</span></h1>
     <span class="sync" id="sync" hidden>Lädt …</span>
   </header>
@@ -514,8 +542,10 @@
       <div id="meal-status"></div>
     </div>
     <div id="meal-ideas" class="stack"></div>
-    <div id="meal-recipe" class="stack"></div>
   </section>
+
+  <!-- REZEPT / KOCHEN (Unterseite des aktuellen Reiters) -->
+  <section class="tab" id="tab-rv" hidden><div id="rv" class="stack"></div></section>
 
   <!-- WOCHENPLAN -->
   <section class="tab" id="tab-plan" hidden>
@@ -1169,6 +1199,7 @@
 
   // ---------------- Tabs ----------------
   function showTab(name) {
+    if (typeof view !== "undefined" && view.page && name !== "rv") { if (typeof releaseWake === "function") releaseWake(); view.page = null; view.origin = null; $("#hdr-back").hidden = true; $("header.top .brand").hidden = false; }
     document.querySelectorAll("nav.tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
     document.querySelectorAll("section.tab").forEach((s) => (s.hidden = s.id !== "tab-" + name));
     local.set("tab", name);
@@ -1253,7 +1284,7 @@
             </div></div>`;
           }).join("")}
         </article>`).join("")}`;
-    out.querySelectorAll("[data-recipe]").forEach((b) => b.addEventListener("click", () => openRecipe({ ...byId[b.dataset.recipe] })));
+    out.querySelectorAll("[data-recipe]").forEach((b) => b.addEventListener("click", () => { const r = byId[b.dataset.recipe]; openRecipePage(r, { label: "Wochenplan · " + (r.slot || "Rezept") }); }));
   }
 
   function progress(stepsList, active, error) {
@@ -1764,7 +1795,7 @@ amount 1–5 = Menge)`;
 
   function renderMeal() {
     const m = state.meal;
-    const ideasEl = $("#meal-ideas"), recEl = $("#meal-recipe");
+    const ideasEl = $("#meal-ideas");
     $("#btn-meal").textContent = m && arr(m.ideas).length ? "3 neue Ideen" : "3 Ideen holen";
     if (!m || !arr(m.ideas).length) {
       ideasEl.innerHTML = `<article class="card idea-card example">
@@ -1780,12 +1811,11 @@ amount 1–5 = Menge)`;
         </div>
       </article>
       <p class="muted small" style="padding-inline:4px">So sehen deine Ideen aus. Erst wenn du eine auswählst, schreibt eAit das ganze Rezept – das spart Nutzung.</p>`;
-      recEl.innerHTML = "";
       return;
     }
     ideasEl.innerHTML = `<div class="row" style="justify-content:space-between;padding-inline:4px"><span class="eyebrow">${esc(m.type)} · 3 Ideen für dich</span>${LEGEND}</div>` +
       m.ideas.map((r, i) => {
-        const picked = m.recipe && m.recipe.idea === i;
+        const picked = !!(m.recipes && m.recipes[i]);
         const art = r.plating ? dishSvg(r.plating, r.name) : "";
         return `<article class="card idea-card${picked ? " picked" : ""}" data-tilt>
           ${art ? `<div class="dish" data-par>${art}<span class="dish-tag">Serviervorschlag</span></div>` : ""}
@@ -1796,53 +1826,13 @@ amount 1–5 = Menge)`;
             <p class="small muted">${esc(r.description)}</p>
             <div class="meta"><span>${esc(r.prep_minutes)} Min.</span><span>${Math.round(num(r.per_serving && r.per_serving.protein_g))} g Protein</span>
               ${arr(r.uses_pantry).length ? `<span class="zest">Vorrat: ${esc(r.uses_pantry.slice(0, 3).join(", "))}</span>` : ""}</div>
-            <div class="row"><button class="btn sm ${picked ? "primary" : ""}" data-pick="${i}">${picked ? "Ausgewählt ✓" : "Rezept ansehen"}</button></div>
+            <div class="row"><button class="btn sm ${picked ? "primary" : ""}" data-pick="${i}">Rezept ansehen</button></div>
           </div>
           </div>
         </article>`;
       }).join("");
     ideasEl.querySelectorAll("[data-pick]").forEach((b) => b.addEventListener("click", () => pickIdea(Number(b.dataset.pick))));
 
-    const r = m.recipe;
-    if (!r) { recEl.innerHTML = ""; return; }
-    const ing = arr(r.ingredients);
-    const missing = ing.filter((i) => i.status !== "vorhanden");
-    const hero = r.plating ? dishSvg(r.plating, r.name, 400, 260) : "";
-    recEl.innerHTML = `<article class="card${hero ? " has-hero" : ""}" id="meal-recipe-card">
-      ${hero ? `<div class="dish dish-hero" data-par>${hero}<span class="dish-tag">Serviervorschlag</span></div>` : ""}
-      <div class="rhead">${ringHtml(r.per_serving, true)}
-        <div class="stack" style="gap:6px">
-          <span class="eyebrow">Rezept · ${esc(m.type)}</span>
-          <h2>${esc(r.name)}</h2>
-          <div class="meta"><span>${esc(r.prep_minutes)} Min.</span><span>${esc(r.servings)} ${num(r.servings) === 1 ? "Portion" : "Portionen"}</span></div>
-        </div>
-      </div>
-      <p>${esc(r.description)}</p>
-      <div><span class="eyebrow">Pro Portion</span>${mvalsHtml(r.per_serving)}</div>
-      <h3>Zutaten</h3>
-      <div>${ing.map((i) => `<div class="ingr">
-          <span>${esc(i.name)}${i.status === "vorhanden" ? `<span class="pill have">zu Hause</span>` : i.status === "teilweise" ? `<span class="pill part">teilweise da</span>` : ""}
-            ${i.note && i.status === "teilweise" ? `<span class="note">${esc(i.note)}</span>` : ""}</span>
-          <span class="amt">${esc(fmt(i.amount))} ${esc(i.unit)}</span></div>`).join("")}</div>
-      <div class="row" style="justify-content:space-between">
-        <p class="small"><strong>${missing.length ? `Noch zu kaufen: ${missing.length} ${missing.length === 1 ? "Zutat" : "Zutaten"}` : "Alles zu Hause – du kannst direkt loslegen."}</strong></p>
-        ${missing.length ? `<button class="btn sm" id="btn-meal-shop">Auf die Einkaufsliste</button>` : ""}
-      </div>
-      <h3>Zubereitung</h3>
-      <ol class="steps-list">${arr(r.steps).map((s) => `<li><span>${esc(s)}</span></li>`).join("")}</ol>
-      ${r.tip ? `<p class="small muted"><strong>Tipp:</strong> ${esc(r.tip)}</p>` : ""}
-    </article>`;
-    const shopBtn = $("#btn-meal-shop");
-    if (shopBtn) shopBtn.addEventListener("click", () => {
-      let added = 0;
-      for (const i of missing) {
-        const ex = state.shopping.find((s) => s.name.toLowerCase() === i.name.toLowerCase() && s.unit === i.unit);
-        if (ex) { ex.amount += i.amount; ex.checked = false; }
-        else { state.shopping.push({ name: i.name, amount: i.amount, unit: i.unit, category: i.category || "Sonstiges", status: i.status, note: i.note, checked: false }); }
-        added++;
-      }
-      persist("shopping"); renderShop(); toast(`${added} ${added === 1 ? "Zutat" : "Zutaten"} auf die Einkaufsliste gesetzt`);
-    });
   }
 
   $("#btn-meal").addEventListener("click", async () => {
@@ -1856,7 +1846,7 @@ amount 1–5 = Menge)`;
     const seen = prev && prev.type === type ? arr(prev.seen).slice(-12) : [];
     const mk = mealKcal(p, type);
     btn.disabled = true;
-    st.innerHTML = ""; $("#meal-recipe").innerHTML = ""; $("#meal-ideas").innerHTML = SKELETON;
+    st.innerHTML = ""; $("#meal-ideas").innerHTML = SKELETON;
     try {
       const res = await askJson(`Du bist Köchin und Ernährungsberaterin. Schlage 3 deutlich unterschiedliche, gesunde und leckere Gerichte für ${type} vor, auf Deutsch.
 
@@ -1879,7 +1869,7 @@ ${PLATING_SPEC}}]}`,
         name: str(i.name), description: str(i.description), prep_minutes: num(i.prep_minutes), per_serving: i.per_serving, uses_pantry: arr(i.uses_pantry).map(str), plating: cleanPlating(i.plating),
       }));
       if (!ideas.length) throw new AskError("empty", "eAit hat keine Ideen geliefert. Bitte erneut versuchen.");
-      state.meal = { type, mode, wishes, ideas, recipe: null, seen: [...seen, ...ideas.map((i) => i.name)] };
+      state.meal = { type, mode, wishes, ideas, recipes: {}, seen: [...seen, ...ideas.map((i) => i.name)] };
       persist("meal"); renderMeal(); st.innerHTML = "";
     } catch (e) {
       st.innerHTML = `<p class="error small">${esc(e.message)}</p>`; renderMeal();
@@ -1890,12 +1880,13 @@ ${PLATING_SPEC}}]}`,
   async function pickIdea(idx) {
     const m = state.meal, idea = m && m.ideas[idx];
     if (!idea || picking) return;
-    if (m.recipe && m.recipe.idea === idx) { $("#meal-recipe-card").scrollIntoView({ behavior: "smooth" }); return; }
+    m.recipes = m.recipes || {};
+    if (!m.recipes[idx] && m.recipe && m.recipe.idea === idx) m.recipes[idx] = m.recipe; // ältere Daten
+    const label = "Rezept · " + m.type;
+    if (m.recipes[idx]) { openRecipePage(m.recipes[idx], { label }); return; }
     const p = prof();
     picking = true;
-    document.querySelectorAll("[data-pick]").forEach((b) => (b.disabled = true));
-    $("#meal-recipe").innerHTML = `<div class="card"><ul class="steps"><li class="active"><span class="dot"></span>eAit schreibt das Rezept für „${esc(idea.name)}“ …</li></ul></div>`;
-    $("#meal-recipe").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    recipeLoading(idea.name, { label });
     try {
       const r = await askJson(`Du bist Köchin. Schreibe das vollständige Rezept für dieses Gericht, auf Deutsch:
 "${idea.name}" – ${idea.description} (${m.type}, ca. ${Math.round(num(idea.per_serving && idea.per_serving.kcal))} kcal pro Portion)
@@ -1920,16 +1911,16 @@ Antworte NUR mit JSON: {"name":"…","description":"1–2 Sätze","prep_minutes"
         status: STATUS.includes(i.status) ? i.status : "fehlt", note: str(i.note),
       }));
       if (!ingredients.length || !arr(r.steps).length) throw new AskError("invalid_json", "Das Rezept war unvollständig. Bitte erneut auswählen.");
-      m.recipe = {
+      m.recipes[idx] = {
         idea: idx, name: str(r.name) || idea.name, description: str(r.description) || idea.description,
         prep_minutes: num(r.prep_minutes, idea.prep_minutes), servings: num(r.servings, p.persons),
         per_serving: r.per_serving || idea.per_serving, ingredients, steps: arr(r.steps).map(str), tip: str(r.tip), plating: idea.plating || null,
       };
       persist("meal"); renderMeal();
-      $("#meal-recipe-card").scrollIntoView({ behavior: "smooth" });
+      if (view.page === "recipe") openRecipePage(m.recipes[idx], { label });
     } catch (e) {
-      $("#meal-recipe").innerHTML = `<div class="card"><p class="error small">${esc(e.message)}</p></div>`;
-      document.querySelectorAll("[data-pick]").forEach((b) => (b.disabled = false));
+      if (view.page === "recipe") $("#rv").innerHTML = `<div class="card"><p class="error small">${esc(e.message)}</p></div>`;
+      else toast(e.message);
     } finally { picking = false; }
   }
 
@@ -2360,6 +2351,229 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
     ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !ov.hidden) close(); });
   })();
+
+  // ---------------- Rezeptseite, Kochmodus, Guten Appetit ----------------
+  // Eigene Seiten innerhalb des aktuellen Reiters; der Pfeil oben links führt eine Ebene zurück.
+  const view = { origin: null, scroll: 0, recipe: null, ctx: null, step: 0, page: null, result: null, undo: null };
+  let wake = null;
+  const releaseWake = () => { try { wake && wake.release(); } catch { /* egal */ } wake = null; };
+
+  function openView(page) {
+    if (!view.page) { view.origin = local.get("tab", "meal"); view.scroll = window.scrollY; }
+    view.page = page;
+    document.querySelectorAll("section.tab").forEach((s) => (s.hidden = s.id !== "tab-rv"));
+    document.querySelectorAll("nav.tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === view.origin)));
+    $("#hdr-back").hidden = false; $("header.top .brand").hidden = true;
+    window.scrollTo({ top: 0 });
+  }
+  function closeView() {
+    releaseWake();
+    const origin = view.origin || "meal", y = view.scroll;
+    view.page = null; view.origin = null;
+    $("#hdr-back").hidden = true; $("header.top .brand").hidden = false;
+    showTab(origin);
+    requestAnimationFrame(() => window.scrollTo({ top: y }));
+  }
+  $("#hdr-back").addEventListener("click", () => {
+    if (view.page === "cook") { releaseWake(); renderRecipePage(); }
+    else closeView();
+  });
+
+  // --- Vorrat zuordnen und Mengen umrechnen ---
+  const normName = (s) => str(s).toLowerCase().replace(/[^a-zäöüß ]/g, " ").replace(/\s+/g, " ").trim();
+  function findPantry(name) {
+    const n = normName(name); if (!n) return -1;
+    const words = n.split(" ").filter((w) => w.length >= 4);
+    let best = -1, score = 0;
+    state.pantry.forEach((p, i) => {
+      const q = normName(p.name); if (!q) return;
+      let sc = 0;
+      if (q === n) sc = 3;
+      else if (q.includes(n) || n.includes(q)) sc = 2;
+      else if (words.some((w) => q.split(" ").some((v) => v.length >= 4 && (v.startsWith(w.slice(0, 5)) || w.startsWith(v.slice(0, 5)))))) sc = 1;
+      if (sc > score) { score = sc; best = i; }
+    });
+    return best;
+  }
+  // Basisvorrat erkennen, auch zusammengesetzt: "Olivenöl" passt zu "Öl", "Meersalz" zu "Salz".
+  const isStaple = (name) => {
+    const st = normName(staplesText(prof())).split(" ").filter((x) => x.length >= 2), n = normName(name);
+    return !!n && n.split(" ").some((w) => st.some((x) => w === x || (x.length >= 3 ? w.includes(x) : w.endsWith(x))));
+  };
+  const UNIT = {
+    g: ["m", 1], gramm: ["m", 1], kg: ["m", 1000], ml: ["m", 1], l: ["m", 1000], liter: ["m", 1000], el: ["m", 15], tl: ["m", 5],
+    stück: ["c", 1], stk: ["c", 1], st: ["c", 1], stueck: ["c", 1], bund: ["bund", 1], dose: ["dose", 1], dosen: ["dose", 1],
+    packung: ["pack", 1], pck: ["pack", 1], packungen: ["pack", 1], becher: ["becher", 1], glas: ["glas", 1], gläser: ["glas", 1], flasche: ["flasche", 1], flaschen: ["flasche", 1],
+  };
+  const UNIT_LABEL = { m: null, c: "Stück", bund: "Bund", dose: "Dose", pack: "Packung", becher: "Becher", glas: "Glas", flasche: "Flasche" };
+  function parseQty(text) {
+    const m = str(text).toLowerCase().replace(",", ".").match(/(\d+(?:\.\d+)?)\s*([a-zäöü]+)?/);
+    if (!m) return null;
+    const u = UNIT[m[2] || "stück"] || (m[2] ? null : UNIT["stück"]);
+    if (!u) return null;
+    return { fam: u[0], base: Number(m[1]) * u[1], unit: m[2] || "Stück" };
+  }
+  function fmtRest(fam, base, origUnit) {
+    if (fam === "m") {
+      const vol = /^(ml|l|liter)$/.test(origUnit), big = base >= 1000;
+      return big ? `${fmt(base / 1000)} ${vol ? "l" : "kg"}` : `${Math.round(base)} ${vol ? "ml" : "g"}`;
+    }
+    return `${fmt(base)} ${UNIT_LABEL[fam]}`;
+  }
+
+  // Zieht die Zutaten eines gekochten Rezepts vom Vorrat ab und protokolliert jede Zeile.
+  function deductFromPantry(r) {
+    const log = [];
+    for (const ing of arr(r.ingredients)) {
+      if (/^prise/i.test(ing.unit) || isStaple(ing.name)) continue;
+      const idx = findPantry(ing.name); if (idx < 0) continue;
+      const item = state.pantry[idx], have = parseQty(item.quantity);
+      const need = parseQty(`${ing.amount} ${ing.unit || "Stück"}`);
+      if (!have || !need || have.fam !== need.fam || !(need.base > 0)) { log.push({ name: item.name, kind: "check", text: `Menge prüfen (${item.quantity || "ohne Angabe"}, gebraucht ${fmt(ing.amount)} ${ing.unit})` }); continue; }
+      const rest = have.base - need.base;
+      if (rest <= have.base * 0.05 || rest <= 0) { state.pantry.splice(idx, 1); log.push({ name: item.name, kind: "gone", text: "aufgebraucht" }); }
+      else { item.quantity = fmtRest(have.fam, rest, have.unit); log.push({ name: item.name, kind: "rest", text: `noch ${item.quantity}` }); }
+    }
+    return log;
+  }
+
+  // --- Rezeptseite ---
+  function openRecipePage(r, ctx) { view.recipe = r; view.ctx = ctx || {}; openView("recipe"); renderRecipePage(); }
+  function recipeLoading(name, ctx) {
+    view.recipe = null; view.ctx = ctx || {}; openView("recipe");
+    $("#rv").innerHTML = `<div class="card"><ul class="steps"><li class="active"><span class="dot"></span>eAit schreibt das Rezept für „${esc(name)}“ …</li></ul></div>`;
+  }
+  function ingStatus(i) {
+    const found = findPantry(i.name) >= 0 || isStaple(i.name);
+    return found ? (i.status === "teilweise" ? "teilweise" : "vorhanden") : "fehlt";
+  }
+  function renderRecipePage() {
+    const r = view.recipe; if (!r) return;
+    view.page = "recipe"; $("#hdr-title").textContent = view.ctx.label || "Rezept";
+    const ing = arr(r.ingredients).map((i) => ({ ...i, st: ingStatus(i) }));
+    const missing = ing.filter((i) => i.st !== "vorhanden");
+    const hero = r.plating ? dishSvg(r.plating, r.name, 400, 260) : "";
+    $("#rv").innerHTML = `<article class="card${hero ? " has-hero" : ""}">
+      ${hero ? `<div class="dish dish-hero" data-par>${hero}<span class="dish-tag">Serviervorschlag</span></div>` : ""}
+      <div class="rhead">${ringHtml(r.per_serving, true)}
+        <div class="stack" style="gap:6px">
+          <span class="eyebrow">${esc(view.ctx.label || "Rezept")}</span>
+          <h2>${esc(r.name)}</h2>
+          <div class="meta"><span>${esc(r.prep_minutes)} Min.</span><span>${esc(r.servings)} ${num(r.servings) === 1 ? "Portion" : "Portionen"}</span></div>
+        </div>
+      </div>
+      <p>${esc(r.description)}</p>
+      <div><span class="eyebrow">Pro Portion</span>${mvalsHtml(r.per_serving)}</div>
+      <h3>Zutaten</h3>
+      <div>${ing.map((i) => `<div class="ingr">
+          <span>${esc(i.name)}${i.st === "vorhanden" ? `<span class="pill have">zu Hause</span>` : i.st === "teilweise" ? `<span class="pill part">teilweise da</span>` : ""}
+            ${i.note && i.st === "teilweise" ? `<span class="note">${esc(i.note)}</span>` : ""}</span>
+          <span class="amt">${esc(fmt(i.amount))} ${esc(i.unit)}</span></div>`).join("")}</div>
+      <div class="row" style="justify-content:space-between">
+        <p class="small"><strong>${missing.length ? `Noch zu kaufen: ${missing.length} ${missing.length === 1 ? "Zutat" : "Zutaten"}` : "Alles zu Hause – du kannst direkt loslegen."}</strong></p>
+        ${missing.length ? `<button class="btn sm" id="btn-rv-shop">Auf die Einkaufsliste</button>` : ""}
+      </div>
+      <h3>Zubereitung</h3>
+      <ol class="steps-list">${arr(r.steps).map((s) => `<li><span>${esc(s)}</span></li>`).join("")}</ol>
+      ${r.tip ? `<p class="small muted"><strong>Tipp:</strong> ${esc(r.tip)}</p>` : ""}
+    </article>
+    ${arr(r.steps).length ? `<button class="btn cta-cook" id="btn-cook-start">Jetzt kochen</button>` : ""}`;
+    const shopBtn = $("#btn-rv-shop");
+    if (shopBtn) shopBtn.addEventListener("click", () => {
+      for (const i of missing) {
+        const ex = state.shopping.find((s) => s.name.toLowerCase() === i.name.toLowerCase() && s.unit === i.unit);
+        if (ex) { ex.amount += i.amount; ex.checked = false; }
+        else state.shopping.push({ name: i.name, amount: i.amount, unit: i.unit, category: i.category || "Sonstiges", status: i.st, note: i.note || "", checked: false });
+      }
+      persist("shopping"); renderShop(); toast(`${missing.length} ${missing.length === 1 ? "Zutat" : "Zutaten"} auf die Einkaufsliste gesetzt`);
+    });
+    const go = $("#btn-cook-start");
+    if (go) go.addEventListener("click", () => { view.step = 0; renderCookStep(); });
+    window.scrollTo({ top: 0 });
+  }
+
+  // --- Kochmodus ---
+  function renderCookStep() {
+    const r = view.recipe, steps = arr(r.steps), n = steps.length, i = Math.max(0, Math.min(n - 1, view.step));
+    view.page = "cook"; view.step = i; $("#hdr-title").textContent = "Jetzt kochen";
+    if (!wake && navigator.wakeLock) navigator.wakeLock.request("screen").then((w) => { wake = w; }, () => {});
+    const text = steps[i], low = normName(text);
+    const used = arr(r.ingredients).filter((g) => { const w = normName(g.name).split(" ").filter((x) => x.length >= 4); return w.some((x) => low.includes(x.slice(0, Math.max(4, x.length - 2)))); });
+    const last = i === n - 1;
+    $("#rv").innerHTML = `<div class="cook">
+      <div class="cook-prog" aria-hidden="true">${steps.map((_, k) => `<i class="${k < i ? "done" : k === i ? "now" : ""}"></i>`).join("")}</div>
+      <span class="eyebrow">${esc(r.name)}</span>
+      <div class="card cook-card">
+        <span class="cook-num">Schritt ${i + 1} von ${n}</span>
+        <p class="cook-text">${esc(text)}</p>
+        ${used.length ? `<div class="meta">${used.map((g) => `<span>${esc(g.name)} · ${esc(fmt(g.amount))} ${esc(g.unit)}</span>`).join("")}</div>` : ""}
+      </div>
+      <div class="cook-nav">
+        ${last ? `<button class="btn primary big" id="cook-done">Fertig</button>`
+          : `${i > 0 ? `<button class="btn big" id="cook-prev">Vorheriger Schritt</button>` : ""}<button class="btn primary big" id="cook-next">Nächster Schritt</button>`}
+      </div>
+    </div>`;
+    const prev = $("#cook-prev"), next = $("#cook-next"), done = $("#cook-done");
+    if (prev) prev.addEventListener("click", () => { view.step--; renderCookStep(); });
+    if (next) next.addEventListener("click", () => { view.step++; renderCookStep(); });
+    if (done) done.addEventListener("click", finishCooking);
+    window.scrollTo({ top: 0 });
+  }
+  // Wischen im Kochmodus
+  let touchX = null;
+  $("#rv").addEventListener("touchstart", (e) => { if (view.page === "cook") touchX = e.touches[0].clientX; }, { passive: true });
+  $("#rv").addEventListener("touchend", (e) => {
+    if (view.page !== "cook" || touchX == null) return;
+    const dx = e.changedTouches[0].clientX - touchX; touchX = null;
+    const n = arr(view.recipe.steps).length;
+    if (dx < -60 && view.step < n - 1) { view.step++; renderCookStep(); }
+    else if (dx > 60 && view.step > 0 && view.step < n - 1) { view.step--; renderCookStep(); }
+  }, { passive: true });
+
+  // --- Fertig: Vorrat abziehen, Guten Appetit ---
+  function finishCooking() {
+    releaseWake();
+    view.undo = JSON.parse(JSON.stringify(state.pantry));
+    view.result = deductFromPantry(view.recipe);
+    persist("pantry"); renderPantry();
+    renderDone();
+  }
+  function renderDone() {
+    const r = view.recipe, ps = r.per_serving || {}, sv = Math.max(1, num(r.servings, 1)), log = view.result || [];
+    view.page = "done"; $("#hdr-title").textContent = "Guten Appetit";
+    const art = r.plating ? dishSvg(r.plating, r.name, 400, 240) : "";
+    $("#rv").innerHTML = `<div class="done-page">
+      <div class="card done-hero${art ? " has-hero" : ""}">
+        ${art ? `<div class="dish dish-hero">${art}</div>` : ""}
+        <h2 class="done-title">Guten Appetit!</h2>
+        <p class="muted">${esc(r.name)}</p>
+        <div class="rhead">${ringHtml(ps, true)}
+          <div class="stack" style="gap:4px"><span class="eyebrow">Pro Portion</span>
+            <strong class="done-kcal">${Math.round(num(ps.kcal))} kcal</strong>
+            ${sv > 1 ? `<span class="small muted">Gesamt (${sv} Portionen): ${Math.round(num(ps.kcal) * sv)} kcal</span>` : ""}</div>
+        </div>
+        ${mvalsHtml(ps)}
+        ${LEGEND}
+      </div>
+      <div class="card">
+        <h3>Aus dem Vorrat abgezogen</h3>
+        ${log.length ? `<ul class="deduct">${log.map((l) => `<li class="${l.kind}"><span>${esc(l.name)}</span><span>${esc(l.text)}</span></li>`).join("")}</ul>`
+          : `<p class="small muted">Keine der Zutaten stand in deinem Vorrat – nichts abgezogen.</p>`}
+        ${log.some((l) => l.kind === "check") ? `<p class="small muted">Bei markierten Einträgen konnte eAit die Menge nicht sicher umrechnen. Passe sie unter <button class="linkish" id="done-pantry">Vorrat</button> an.</p>` : ""}
+        ${log.length ? `<div class="row"><button class="btn sm ghost" id="done-undo">Rückgängig</button></div>` : ""}
+      </div>
+      <button class="btn primary big" id="done-back">Zurück zur Übersicht</button>
+    </div>`;
+    $("#done-back").addEventListener("click", closeView);
+    const undo = $("#done-undo");
+    if (undo) undo.addEventListener("click", () => {
+      state.pantry = view.undo || state.pantry; persist("pantry"); renderPantry();
+      view.result = []; renderDone(); toast("Vorrat wiederhergestellt");
+    });
+    const vp = $("#done-pantry");
+    if (vp) vp.addEventListener("click", () => { view.page = null; view.origin = null; $("#hdr-back").hidden = true; $("header.top .brand").hidden = false; showTab("fridge"); });
+    window.scrollTo({ top: 0 });
+  }
 
   // ---------------- Start ----------------
   function renderAll() { fillForm(); fillTrainingForm(); renderTraining(); renderBody(); renderHint(); renderMealHint(); renderPlan(); renderShop(); renderPantry(); renderMeal(); }
