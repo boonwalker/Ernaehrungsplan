@@ -1,0 +1,755 @@
+{
+ "porridge": {
+  "file": "photos/porridge.jpg",
+  "label": "Porridge mit Beeren",
+  "tags": [
+   "porridge",
+   "haferbrei",
+   "oats",
+   "hafer",
+   "overnight"
+  ],
+  "title": "Breakfast porridge",
+  "creator": "Denna Jones",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/95267793@N00/2732313297"
+ },
+ "joghurt-bowl": {
+  "file": "photos/joghurt-bowl.jpg",
+  "label": "Joghurt-Bowl",
+  "tags": [
+   "joghurt",
+   "skyr",
+   "quark",
+   "granola",
+   "müsli",
+   "muesli",
+   "bowl mit beeren"
+  ],
+  "title": "Berries berry blackberries - Credit to https://homegets.com/",
+  "creator": "homegets.com",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/141436406@N04/47134268492"
+ },
+ "pancakes": {
+  "file": "photos/pancakes.jpg",
+  "label": "Pancakes",
+  "tags": [
+   "pancake",
+   "pfannkuchen",
+   "eierkuchen",
+   "crêpe",
+   "waffel"
+  ],
+  "title": "Delicious looking pancakes covered berries",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/3282956/free-photo-image-strawberry-pancake-dessert-breakfast"
+ },
+ "ruehrei": {
+  "file": "photos/ruehrei.jpg",
+  "label": "Rührei mit Toast",
+  "tags": [
+   "rührei",
+   "ruehrei",
+   "eier",
+   "ei ",
+   "spiegelei"
+  ],
+  "title": "Rührei mit Toast",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/5941291/free-public-domain-cc0-photo"
+ },
+ "omelett": {
+  "file": "photos/omelett.jpg",
+  "label": "Omelett",
+  "tags": [
+   "omelett",
+   "omelette",
+   "frittata",
+   "tortilla"
+  ],
+  "title": "omelette",
+  "creator": "dailyfood",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/28970677@N04/2704159199"
+ },
+ "avocado-toast": {
+  "file": "photos/avocado-toast.jpg",
+  "label": "Avocado-Toast mit Ei",
+  "tags": [
+   "avocado",
+   "toast",
+   "stulle",
+   "brot"
+  ],
+  "title": "Healthy Avocado Breakfast",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/5970474/healthy-avocado-breakfast"
+ },
+ "smoothie": {
+  "file": "photos/smoothie.jpg",
+  "label": "Smoothie",
+  "tags": [
+   "smoothie",
+   "shake",
+   "drink",
+   "saft"
+  ],
+  "title": "green smoothie",
+  "creator": "anasegota",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.flickr.com/photos/150121377@N03/33508210293"
+ },
+ "smoothie-bowl": {
+  "file": "photos/smoothie-bowl.jpg",
+  "label": "Smoothie-Bowl",
+  "tags": [
+   "smoothie bowl",
+   "acai",
+   "açaí"
+  ],
+  "title": "Free berries smoothie bowl",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/5927584/photo-image-public-domain-blue-fruit"
+ },
+ "chia": {
+  "file": "photos/chia.jpg",
+  "label": "Chia-Pudding",
+  "tags": [
+   "chia",
+   "pudding"
+  ],
+  "title": "Cups yogurt parfaits fresh kiwi",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/3282714/free-photo-image-pudding-breakfast-yogurt"
+ },
+ "shakshuka": {
+  "file": "photos/shakshuka.jpg",
+  "label": "Shakshuka",
+  "tags": [
+   "shakshuka",
+   "shakshouka"
+  ],
+  "title": "Shakshuka",
+  "creator": "joyosity",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/33993074@N00/14288893837"
+ },
+ "obstsalat": {
+  "file": "photos/obstsalat.jpg",
+  "label": "Obstsalat",
+  "tags": [
+   "obstsalat",
+   "obst",
+   "früchte",
+   "fruit"
+  ],
+  "title": "Background berries blueberries - Credit to https://homegets.com/",
+  "creator": "homegets.com",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/141436406@N04/44228640582"
+ },
+ "sandwich": {
+  "file": "photos/sandwich.jpg",
+  "label": "Sandwich",
+  "tags": [
+   "sandwich",
+   "bagel",
+   "brötchen",
+   "panini"
+  ],
+  "title": "Food Sandwich",
+  "creator": "Jay Mantri",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://stocksnap.io/photo/food-sandwich-K5T076FWTJ"
+ },
+ "lachs": {
+  "file": "photos/lachs.jpg",
+  "label": "Lachs",
+  "tags": [
+   "lachs",
+   "salmon"
+  ],
+  "title": "Grilled Food",
+  "creator": "Malidate Van",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://stocksnap.io/photo/grilled-food-FWJC3SUNGR"
+ },
+ "fisch": {
+  "file": "photos/fisch.jpg",
+  "label": "Fischfilet",
+  "tags": [
+   "fisch",
+   "kabeljau",
+   "dorsch",
+   "seelachs",
+   "forelle",
+   "fish",
+   "pangasius",
+   "zander"
+  ],
+  "title": "Cod Baked in Foil with Leeks and Carrots",
+  "creator": "thebittenword.com",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/22198928@N00/3523324839"
+ },
+ "garnelen": {
+  "file": "photos/garnelen.jpg",
+  "label": "Garnelen",
+  "tags": [
+   "garnele",
+   "shrimp",
+   "scampi",
+   "krabben",
+   "meeresfrüchte"
+  ],
+  "title": "Noodles Cooking",
+  "creator": "Tim Sullivan",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://stocksnap.io/photo/noodles-cooking-30DIV2QY3M"
+ },
+ "haehnchen": {
+  "file": "photos/haehnchen.jpg",
+  "label": "Hähnchen",
+  "tags": [
+   "hähnchen",
+   "haehnchen",
+   "huhn",
+   "chicken",
+   "pute",
+   "truthahn",
+   "geflügel"
+  ],
+  "title": "24a.Franklins.Hyattsville.MD.12April2006",
+  "creator": "Elvert Barnes",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/95413346@N00/127918877"
+ },
+ "curry": {
+  "file": "photos/curry.jpg",
+  "label": "Curry mit Reis",
+  "tags": [
+   "curry",
+   "dal",
+   "dhal",
+   "korma",
+   "masala"
+  ],
+  "title": "A plated meal with creamy butter chicken in a white bowl, served with steamed white rice topped with green onions. It includes two sides: onion-tomato salad and red chili sauce, served on a square plate over a wooden table.",
+  "creator": "Mohammed Kateregga",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://wordpress.org/photos/photo/8369c4ba63/"
+ },
+ "wok": {
+  "file": "photos/wok.jpg",
+  "label": "Wok-Gemüse",
+  "tags": [
+   "wok",
+   "pfanne",
+   "stir",
+   "gebraten",
+   "teriyaki"
+  ],
+  "title": "Chicken Noodle Stir Fry",
+  "creator": "AndyRobertsPhotos",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/21372046@N00/5596019713"
+ },
+ "bratreis": {
+  "file": "photos/bratreis.jpg",
+  "label": "Gebratener Reis",
+  "tags": [
+   "bratreis",
+   "fried rice",
+   "reispfanne",
+   "reis"
+  ],
+  "title": "A close-up of a serving of chicken fried rice, featuring fluffy white rice mixed with diced carrots, scrambled eggs, and pieces of chicken, garnished with chopped green onions. The dish is presented in a black bowl, with a slightly blurred background emphasizing the texture and ingredients of the fried rice. It was captured in Kozhikode, Kerala.",
+  "creator": "Bigul Malayi",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://wordpress.org/photos/photo/429680fd3b/"
+ },
+ "nudelsuppe": {
+  "file": "photos/nudelsuppe.jpg",
+  "label": "Nudelsuppe",
+  "tags": [
+   "ramen",
+   "pho",
+   "nudelsuppe",
+   "udon"
+  ],
+  "title": "Ramen Noodles",
+  "creator": "Foodie Girl",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://stocksnap.io/photo/ramen-noodles-KKMQPWQK6H"
+ },
+ "asianudeln": {
+  "file": "photos/asianudeln.jpg",
+  "label": "Asiatische Nudeln",
+  "tags": [
+   "mie",
+   "nudeln asiatisch",
+   "pad thai",
+   "glasnudeln",
+   "soba"
+  ],
+  "title": "Asian noodle",
+  "creator": "Jakub Kapusnak",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/448015/asian-inspired-fried-noodles"
+ },
+ "pasta-tomate": {
+  "file": "photos/pasta-tomate.jpg",
+  "label": "Pasta mit Tomatensoße",
+  "tags": [
+   "pasta",
+   "penne",
+   "nudeln",
+   "spaghetti",
+   "tomatensoße",
+   "tomatensauce",
+   "rigatoni"
+  ],
+  "title": "Mmm... cherry tomatoes on pasta",
+  "creator": "jeffreyw",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/7927684@N03/14530170849"
+ },
+ "bolognese": {
+  "file": "photos/bolognese.jpg",
+  "label": "Spaghetti Bolognese",
+  "tags": [
+   "bolognese",
+   "ragù",
+   "ragu",
+   "hackfleischsoße"
+  ],
+  "title": "Spaghetti Bolognese",
+  "creator": "chooyutshing",
+  "license": "Public Domain Mark",
+  "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+  "source_url": "https://www.flickr.com/photos/25802865@N08/54706781448"
+ },
+ "pesto": {
+  "file": "photos/pesto.jpg",
+  "label": "Pasta mit Pesto",
+  "tags": [
+   "pesto"
+  ],
+  "title": "Pasta mit Pesto",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/5943969/free-public-domain-cc0-photo"
+ },
+ "lasagne": {
+  "file": "photos/lasagne.jpg",
+  "label": "Lasagne",
+  "tags": [
+   "lasagne",
+   "lasagna"
+  ],
+  "title": "Lasagna Food",
+  "creator": "Daria Nepriakhina",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://stocksnap.io/photo/lasagna-food-0FAEA43A95"
+ },
+ "risotto": {
+  "file": "photos/risotto.jpg",
+  "label": "Risotto",
+  "tags": [
+   "risotto"
+  ],
+  "title": "Leto Caffe, London, United Kingdom",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/3298426/free-photo-image-bowl-cc0-citrus-fruit"
+ },
+ "bowl": {
+  "file": "photos/bowl.jpg",
+  "label": "Bowl",
+  "tags": [
+   "bowl",
+   "buddha",
+   "poke"
+  ],
+  "title": "1888455838",
+  "creator": "f0976531950131",
+  "license": "Public Domain Mark",
+  "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+  "source_url": "https://www.flickr.com/photos/203130278@N08/54970565705"
+ },
+ "quinoa": {
+  "file": "photos/quinoa.jpg",
+  "label": "Couscous-/Quinoa-Salat",
+  "tags": [
+   "quinoa",
+   "bulgur",
+   "couscous",
+   "taboulé",
+   "tabouleh"
+  ],
+  "title": "Free quiona salad, vegetable meal",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/5921341/photo-image-flower-public-domain-plant"
+ },
+ "salat": {
+  "file": "photos/salat.jpg",
+  "label": "Grüner Salat",
+  "tags": [
+   "salat",
+   "salad",
+   "rucola",
+   "spinat"
+  ],
+  "title": "Salad Lettuce",
+  "creator": "Jeffrey Betts",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://stocksnap.io/photo/salad-lettuce-Z0133GNPXT"
+ },
+ "caesar": {
+  "file": "photos/caesar.jpg",
+  "label": "Hähnchen-Salat",
+  "tags": [
+   "caesar",
+   "hähnchensalat"
+  ],
+  "title": "Chicken Salad for White Rice",
+  "creator": "Dennis S. Hurd",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.flickr.com/photos/43296902@N00/32563407927"
+ },
+ "griech-salat": {
+  "file": "photos/griech-salat.jpg",
+  "label": "Griechischer Salat",
+  "tags": [
+   "griechisch",
+   "feta",
+   "hirtenkäse",
+   "bauernsalat"
+  ],
+  "title": "Griechischer Salat",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/5945418/free-public-domain-cc0-photo"
+ },
+ "linsensuppe": {
+  "file": "photos/linsensuppe.jpg",
+  "label": "Linsensuppe",
+  "tags": [
+   "linsen",
+   "linse",
+   "lentil",
+   "eintopf"
+  ],
+  "title": "Bowl Soup",
+  "creator": "Foodie Girl",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://stocksnap.io/photo/bowl-soup-WOZ7PQGMMI"
+ },
+ "gemuesesuppe": {
+  "file": "photos/gemuesesuppe.jpg",
+  "label": "Gemüsesuppe",
+  "tags": [
+   "suppe",
+   "soup",
+   "cremesuppe",
+   "kürbissuppe",
+   "minestrone"
+  ],
+  "title": "Free clear vegetable soup bowl",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/5924545/photo-image-public-domain-food-water"
+ },
+ "chili": {
+  "file": "photos/chili.jpg",
+  "label": "Chili",
+  "tags": [
+   "chili",
+   "bohnen"
+  ],
+  "title": "Plate of Chili Con Carne",
+  "creator": "Markus Spiske",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/431877/free-photo-image-hunger-chili-carne"
+ },
+ "wrap": {
+  "file": "photos/wrap.jpg",
+  "label": "Wrap",
+  "tags": [
+   "wrap",
+   "burrito",
+   "quesadilla",
+   "fajita"
+  ],
+  "title": "Healthy vegetarian wrap with spinach",
+  "creator": "Jakub Kapusnak",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/448073/free-photo-image-wrap-burrito-food"
+ },
+ "tacos": {
+  "file": "photos/tacos.jpg",
+  "label": "Tacos",
+  "tags": [
+   "taco"
+  ],
+  "title": "Fish Tacos Pronto!",
+  "creator": "cogdogblog",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.flickr.com/photos/37996646802@N01/46808436981"
+ },
+ "burger": {
+  "file": "photos/burger.jpg",
+  "label": "Burger",
+  "tags": [
+   "burger"
+  ],
+  "title": "Burger à la Marc&Ben",
+  "creator": "brenkee",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.flickr.com/photos/55128416@N05/25039204229"
+ },
+ "steak": {
+  "file": "photos/steak.jpg",
+  "label": "Steak",
+  "tags": [
+   "steak",
+   "rind",
+   "beef",
+   "rumpsteak"
+  ],
+  "title": "Steak Asparagus",
+  "creator": "Snapwire",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://stocksnap.io/photo/steak-asparagus-JMJZKYXUWD"
+ },
+ "ofengemuese": {
+  "file": "photos/ofengemuese.jpg",
+  "label": "Ofengemüse",
+  "tags": [
+   "ofengemüse",
+   "ofen",
+   "blech",
+   "geröstet",
+   "geroestet"
+  ],
+  "title": "Roasting Vegetables: Broccoli, Carrots, Potatoes, And Purple Cauliflower",
+  "creator": "Jennifer Bourn",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://wordpress.org/photos/photo/3466206d62/"
+ },
+ "suesskartoffel": {
+  "file": "photos/suesskartoffel.jpg",
+  "label": "Süßkartoffel",
+  "tags": [
+   "süßkartoffel",
+   "suesskartoffel",
+   "sweet potato"
+  ],
+  "title": "20160923-AMS-LSC-0115",
+  "creator": "USDAgov",
+  "license": "Public Domain Mark",
+  "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+  "source_url": "https://www.flickr.com/photos/41284017@N08/31082405690"
+ },
+ "kartoffeln": {
+  "file": "photos/kartoffeln.jpg",
+  "label": "Ofenkartoffeln",
+  "tags": [
+   "kartoffel",
+   "potato",
+   "rösti",
+   "pellkartoffel"
+  ],
+  "title": "Free roast potatoes pan image",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/5917456/image-public-domain-nature-food"
+ },
+ "gnocchi": {
+  "file": "photos/gnocchi.jpg",
+  "label": "Gnocchi",
+  "tags": [
+   "gnocchi"
+  ],
+  "title": "Homemade Gnocchi with Peas and Parmesan",
+  "creator": "o.tacke",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.flickr.com/photos/89882948@N05/22821294690"
+ },
+ "pizza": {
+  "file": "photos/pizza.jpg",
+  "label": "Pizza",
+  "tags": [
+   "pizza",
+   "flammkuchen"
+  ],
+  "title": "BBQ Chicken Pizza",
+  "creator": "Cole Kennedy",
+  "license": "Public Domain Mark",
+  "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+  "source_url": "https://www.flickr.com/photos/123529748@N03/18092872879"
+ },
+ "tofu": {
+  "file": "photos/tofu.jpg",
+  "label": "Tofu-Gericht",
+  "tags": [
+   "tofu",
+   "tempeh",
+   "seitan"
+  ],
+  "title": "Pasta tofu dish",
+  "creator": "ella.o",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/155807330@N05/46757280821"
+ },
+ "falafel": {
+  "file": "photos/falafel.jpg",
+  "label": "Falafel & Hummus",
+  "tags": [
+   "falafel",
+   "hummus",
+   "kichererbse",
+   "chickpea"
+  ],
+  "title": "tripoli appetizer plate",
+  "creator": "goodiesfirst",
+  "license": "CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "source_url": "https://www.flickr.com/photos/49215102@N00/3520035693"
+ },
+ "paprika-gefuellt": {
+  "file": "photos/paprika-gefuellt.jpg",
+  "label": "Gefüllte Paprika",
+  "tags": [
+   "gefüllt",
+   "gefuellt",
+   "stuffed"
+  ],
+  "title": "Closeup stuffed peppers",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/6033121/photo-image-public-domain-red-food"
+ },
+ "frikadellen": {
+  "file": "photos/frikadellen.jpg",
+  "label": "Fleischbällchen",
+  "tags": [
+   "frikadelle",
+   "bällchen",
+   "köttbullar",
+   "meatball",
+   "hackbällchen"
+  ],
+  "title": "Swedish Meatballs",
+  "creator": "Cole Kennedy",
+  "license": "Public Domain Mark",
+  "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+  "source_url": "https://www.flickr.com/photos/123529748@N03/19977952081"
+ },
+ "auflauf": {
+  "file": "photos/auflauf.jpg",
+  "label": "Auflauf",
+  "tags": [
+   "auflauf",
+   "gratin",
+   "überbacken"
+  ],
+  "title": "Auflauf",
+  "creator": "",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.rawpixel.com/image/5941063/free-public-domain-cc0-photo"
+ },
+ "sushi": {
+  "file": "photos/sushi.jpg",
+  "label": "Sushi",
+  "tags": [
+   "sushi",
+   "maki"
+  ],
+  "title": "Sushi & Stuff",
+  "creator": "o.tacke",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.flickr.com/photos/89882948@N05/22723166628"
+ },
+ "energyballs": {
+  "file": "photos/energyballs.jpg",
+  "label": "Energy Balls",
+  "tags": [
+   "energy ball",
+   "energiekugel",
+   "protein ball",
+   "bliss"
+  ],
+  "title": "energy balls",
+  "creator": "anasegota",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://www.flickr.com/photos/150121377@N03/34277553406"
+ },
+ "rohkost": {
+  "file": "photos/rohkost.jpg",
+  "label": "Rohkost-Snack",
+  "tags": [
+   "rohkost",
+   "gemüsesticks",
+   "dip",
+   "crudités",
+   "snack"
+  ],
+  "title": "A close-up view of multiple small bowls filled with hummus and a colorful arrangement of sliced vegetables. The bowls contain vibrant strips of yellow, red, and green bell peppers, along with orange carrot sticks and green cucumber slices, all artfully arranged and sprinkled with a dusting of paprika.",
+  "creator": "Nilo Velez",
+  "license": "CC0 1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source_url": "https://wordpress.org/photos/photo/53685c112c/"
+ }
+}
