@@ -83,7 +83,7 @@
   nav.tabs {
     position: fixed; z-index: 10; left: 50%; transform: translateX(-50%);
     bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(520px, calc(100% - 24px));
-    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 6px;
+    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; padding: 6px;
     background: var(--nav-bg); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4);
     border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow);
   }
@@ -293,6 +293,29 @@
   .tablewrap .x { border: 0; background: none; color: var(--muted); cursor: pointer; font: inherit; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
+  /* Profil-Unterreiter */
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--surface-2); border-radius: 999px; }
+  .seg button { border: 0; background: none; font: inherit; font-weight: 700; color: var(--muted); padding: 9px 12px; border-radius: 999px; cursor: pointer; }
+  .seg button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+  .seg button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+  /* Training */
+  .fb-box { border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: grid; gap: 6px; }
+  .fb-list { margin: 0; padding-left: 1.1rem; display: grid; gap: 5px; font-size: .9rem; }
+  .tchip { font-weight: 700; }
+  .meta span.tchip.kraft { background: var(--brand-soft); color: var(--brand); }
+  .meta span.tchip.ausdauer { background: var(--zest-soft); color: var(--zest); }
+  .meta span.tchip.mobil { background: var(--surface-2); color: var(--protein); }
+  .meta span.tchip.ruhe, .tchip.ruhe { background: var(--surface-2); color: var(--muted); font-size: .75rem; border-radius: 999px; padding: 3px 9px; }
+  .card.rest { box-shadow: none; background: transparent; border: 1px dashed var(--line); padding-block: 12px; }
+  .session.done { opacity: .7; }
+  .session.done h3 { text-decoration: line-through; }
+  .session details summary { cursor: pointer; font-weight: 600; font-size: .9rem; color: var(--brand); }
+  .ex-list { margin: 10px 0 0; padding: 0; list-style: none; counter-reset: e; display: grid; gap: 10px; }
+  .ex-list li { counter-increment: e; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
+  .ex-list li::before { content: counter(e); width: 26px; height: 26px; border-radius: 8px; background: var(--surface-2); font-weight: 700; font-size: .8rem; display: grid; place-items: center; }
+  .ex-list li div { display: grid; gap: 2px; }
+
   /* Serviervorschlag */
   .idea-card { padding: 0; overflow: hidden; gap: 0; }
   .idea-card .idea { padding: 16px 18px 18px; }
@@ -383,6 +406,33 @@
     <div id="plan-out" class="stack"></div>
   </section>
 
+  <!-- TRAINING -->
+  <section class="tab" id="tab-train" hidden>
+    <div class="page-head"><span class="eyebrow">Training</span><h2>Bewegung passend zu deinem Ziel</h2></div>
+    <div class="card">
+      <div class="grid2">
+        <label for="tr-days">Trainingstage pro Woche
+          <select id="tr-days"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select>
+        </label>
+        <label for="tr-minutes">Dauer pro Einheit
+          <select id="tr-minutes"><option value="20">20 Min.</option><option value="30">30 Min.</option><option value="45" selected>45 Min.</option><option value="60">60 Min.</option><option value="90">90 Min.</option></select>
+        </label>
+        <label for="tr-place">Wo trainierst du?
+          <select id="tr-place"><option value="zuhause">Zuhause ohne Geräte</option><option value="hanteln">Zuhause mit Kurzhanteln/Bändern</option><option value="studio">Fitnessstudio</option><option value="draussen">Draußen</option></select>
+        </label>
+        <label for="tr-level">Erfahrung
+          <select id="tr-level"><option value="einsteiger">Einsteiger</option><option value="fortgeschritten">Fortgeschritten</option><option value="erfahren">Erfahren</option></select>
+        </label>
+      </div>
+      <label for="tr-limits">Einschränkungen <span class="hint">(optional)</span><input id="tr-limits" placeholder="z. B. Knieprobleme, kein Springen" /></label>
+      <div class="fb-box" id="tr-feedback"></div>
+      <div class="row"><button class="btn primary" id="btn-training">Trainingswoche erstellen</button></div>
+      <div id="tr-status"></div>
+      <p class="small muted">Allgemeine Empfehlungen – bei Beschwerden oder Vorerkrankungen vorher ärztlich abklären.</p>
+    </div>
+    <div id="tr-out" class="stack"></div>
+  </section>
+
   <!-- EINKAUF -->
   <section class="tab" id="tab-shop" hidden>
     <div class="page-head"><span class="eyebrow">Einkauf</span><h2>Deine Einkaufsliste</h2></div>
@@ -438,6 +488,11 @@
   <!-- PROFIL -->
   <section class="tab" id="tab-profile" hidden>
     <div class="page-head"><span class="eyebrow">Profil</span><h2>Über dich</h2></div>
+    <div class="seg" id="pf-seg" role="tablist" aria-label="Profilbereiche">
+      <button role="tab" data-sub="goals" aria-selected="true">Ziele</button>
+      <button role="tab" data-sub="progress" aria-selected="false">Fortschritt</button>
+    </div>
+    <div id="pf-progress" class="stack" hidden>
     <div class="card" id="body-card">
       <div class="row" style="justify-content:space-between"><h3>Waage &amp; Fortschritt</h3><span class="eyebrow">Feedback-Loop</span></div>
       <p class="muted small">Trag am besten einmal pro Woche, morgens vor dem Frühstück, die Werte deiner Körperwaage ein. eAit wertet den Trend aus und passt Kalorien und Protein deiner Rezeptvorschläge an dein Ziel an.</p>
@@ -454,6 +509,8 @@
         <div class="tablewrap"><table><thead><tr><th>Datum</th><th>Gewicht</th><th>Fett</th><th>Muskeln</th><th><span class="sr">Löschen</span></th></tr></thead><tbody id="body-table"></tbody></table></div>
       </details>
     </div>
+    </div>
+    <div id="pf-goals" class="stack">
     <form class="card" id="profile">
       <p class="muted small">Je mehr eAit über dich weiß, desto besser passen die Vorschläge. Alles ist optional.</p>
       <label for="p-goal">Ziel
@@ -511,12 +568,14 @@
       </label>
       <div class="row"><button class="btn primary" type="submit">Profil speichern</button></div>
     </form>
+    </div>
   </section>
 </div>
 
 <nav class="tabs" role="tablist" aria-label="Bereiche">
   <button role="tab" id="t-meal" data-tab="meal" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v18M4.5 3v5a2.5 2.5 0 0 0 5 0V3M17.5 21V3c-2.2 1.2-3.5 3.6-3.5 7v3h3.5" /></svg>Mahlzeit</button>
   <button role="tab" id="t-plan" data-tab="plan" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M4 10h16M9 3v4M15 3v4" /></svg>Woche</button>
+  <button role="tab" id="t-train" data-tab="train" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11" /></svg>Training</button>
   <button role="tab" id="t-shop" data-tab="shop" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></svg>Einkauf</button>
   <button role="tab" id="t-fridge" data-tab="fridge" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2.5" /><path d="M6 10h12M9.5 6v2M9.5 13v3" /></svg>Vorrat</button>
   <button role="tab" id="t-profile" data-tab="profile" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4.5 20.5c1.4-3.6 4.4-5.5 7.5-5.5s6.1 1.9 7.5 5.5" /></svg>Profil</button>
@@ -548,8 +607,8 @@
   };
 
   // ---------------- Zustand & Speicherung ----------------
-  const KEYS = ["profile", "pantry", "plan", "shopping", "meal", "body"];
-  const DEFAULTS = { profile: {}, pantry: [], plan: null, shopping: [], meal: null, body: { entries: [] } };
+  const KEYS = ["profile", "pantry", "plan", "shopping", "meal", "body", "training"];
+  const DEFAULTS = { profile: {}, pantry: [], plan: null, shopping: [], meal: null, body: { entries: [] }, training: null };
   const state = {};
   for (const k of KEYS) state[k] = local.get(k, DEFAULTS[k]);
 
@@ -852,7 +911,7 @@
     if (last && num(last.weightKg) && num(state.profile.weightKg) !== num(last.weightKg)) {
       state.profile = { ...state.profile, weightKg: num(last.weightKg) }; persist("profile");
     }
-    fillForm(); renderBody(); renderMealHint(); renderHint();
+    fillForm(); renderBody(); renderMealHint(); renderHint(); if (typeof renderTraining === "function") renderTraining();
   }
 
   $("#body-form").addEventListener("submit", (e) => {
@@ -1676,16 +1735,165 @@ Antworte NUR mit JSON: {"name":"…","description":"1–2 Sätze","prep_minutes"
   { const h = new Date().getHours(); $("#greet").textContent = h < 11 ? "Guten Morgen!" : h < 17 ? "Hallo!" : "Guten Abend!"; }
   if (state.meal && state.meal.mode) $("#meal-mode").value = state.meal.mode;
 
+  // ---------------- Training ----------------
+  const TR_DEFAULT = { days: 3, minutes: 45, place: "zuhause", level: "einsteiger", limits: "" };
+  const trSettings = () => ({ ...TR_DEFAULT, ...(state.training && state.training.settings) });
+  const trHistory = () => arr(state.training && state.training.history);
+  const PLACE = { zuhause: "Zuhause ohne Geräte", hanteln: "Zuhause mit Kurzhanteln/Bändern", studio: "Fitnessstudio", draussen: "Draußen (Laufen, Rad, Park)" };
+
+  // Wie viele der geplanten Einheiten wurden in den letzten 14 Tagen erledigt?
+  // Bewertet wird erst, wenn seit dem ersten Plan mindestens eine Woche vergangen ist – und nur, was bis heute fällig war.
+  function adherence() {
+    const s = trSettings(), start = state.training && state.training.since;
+    const elapsed = start ? Math.min(14, Math.floor((toDate(today()) - toDate(start)) / DAY)) : 0;
+    const since = new Date(Date.now() - elapsed * DAY).toISOString().slice(0, 10);
+    const done = trHistory().filter((h) => h.date >= since).length;
+    const planned = Math.max(1, Math.round((num(s.days, 3) * elapsed) / 7));
+    return { done, planned, rate: done / planned, hasData: elapsed >= 7 };
+  }
+
+  // Trainings-Feedback aus Waagen-Trend und Trainingstreue, regelbasiert wie bei der Ernährung.
+  function trainingFeedback(p) {
+    const a = currentAdapt(p), tr = a.trend, ad = adherence(), out = [];
+    if (p.goal === "abnehmen") {
+      out.push("Krafttraining 2–3× pro Woche, um Muskeln im Defizit zu halten; dazu viel Alltagsbewegung.");
+      if (tr && tr.rel > -0.25) out.push("Gewicht sinkt kaum → zusätzlich eine lockere Ausdauereinheit und ca. 8.000–10.000 Schritte am Tag.");
+      if (tr && tr.muscle != null && tr.muscle < -0.1) out.push("Muskelmasse sinkt → Krafteinheiten priorisieren, schwere Grundübungen, Satzzahl halten statt mehr Cardio.");
+      const t = targets(p);
+      if (t && t.floor) out.push("Kalorien-Untergrenze erreicht → weiterer Fortschritt kommt jetzt über Bewegung: eine Einheit mehr oder täglich ca. 2.000 Schritte zusätzlich.");
+    } else if (p.goal === "muskelaufbau") {
+      out.push("Kraft im Fokus: jede Muskelgruppe 2× pro Woche, 10–20 Sätze pro Woche, Gewichte schrittweise steigern.");
+      if (tr && tr.muscle != null && tr.muscle <= 0) out.push("Muskelmasse steigt nicht → progressive Überlastung: Gewicht oder Wiederholungen jede Woche leicht erhöhen.");
+      if (tr && tr.fat != null && tr.muscle != null && tr.fat > 0.1 && tr.fat > tr.muscle) out.push("Fett steigt schneller als Muskeln → 1–2 kurze, lockere Ausdauereinheiten ergänzen.");
+    } else {
+      out.push("Ausgewogen: ca. 150 Minuten Bewegung pro Woche plus 2× Kraft für den ganzen Körper.");
+      if (tr && tr.muscle != null && tr.muscle < -0.1) out.push("Muskelmasse sinkt → eine zusätzliche Krafteinheit einplanen.");
+    }
+    if (ad.hasData && ad.rate < 0.6) out.push(`Zuletzt ${ad.done} von ${ad.planned} Einheiten geschafft → Plan realistischer: kürzere oder weniger Einheiten.`);
+    else if (ad.hasData && ad.rate >= 1) out.push(`Alle geplanten Einheiten geschafft (${ad.done}/${ad.planned}) → leichte Steigerung möglich.`);
+    return out;
+  }
+
+  function fillTrainingForm() {
+    const s = trSettings();
+    $("#tr-days").value = String(s.days); $("#tr-minutes").value = String(s.minutes);
+    $("#tr-place").value = s.place; $("#tr-level").value = s.level; $("#tr-limits").value = s.limits;
+  }
+  function readTrainingForm() {
+    return { days: Number($("#tr-days").value), minutes: Number($("#tr-minutes").value), place: $("#tr-place").value, level: $("#tr-level").value, limits: $("#tr-limits").value.trim() };
+  }
+  ["#tr-days", "#tr-minutes", "#tr-place", "#tr-level", "#tr-limits"].forEach((id) => $(id).addEventListener("change", () => {
+    state.training = { ...(state.training || {}), settings: readTrainingForm() }; persist("training"); renderTraining();
+  }));
+
+  const TYPE_CLASS = { Kraft: "kraft", Ausdauer: "ausdauer", Mobilität: "mobil", Ruhe: "ruhe" };
+  function renderTraining() {
+    const p = prof(), fb = trainingFeedback(p), ad = adherence();
+    $("#tr-feedback").innerHTML = `<span class="eyebrow">Feedback · ${esc(GOAL_SHORT[p.goal])}</span>
+      <ul class="fb-list">${fb.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>
+      ${currentAdapt(p).trend ? "" : `<p class="small muted">Mit Messungen unter <button class="linkish" data-goto="profile" data-sub="progress">Profil › Fortschritt</button> wird das Feedback genauer.</p>`}`;
+    const plan = state.training && state.training.plan;
+    const out = $("#tr-out");
+    if (!plan) {
+      out.innerHTML = `<div class="card example"><div class="row" style="justify-content:space-between"><h3>Montag · Ganzkörper A</h3><span class="tag-example">Beispiel</span></div>
+        <div class="meta"><span class="tchip kraft">Kraft</span><span>40 Min.</span><span>mittel</span></div>
+        <p class="small muted">Kniebeugen 3×10 · Liegestütze 3×8 · Rudern 3×10 · Ausfallschritte 3×8 je Seite · Plank 3×40 s</p></div>`;
+      return;
+    }
+    const sessions = arr(plan.days).filter((d) => d.type !== "Ruhe");
+    const doneCount = sessions.filter((d) => d.done).length;
+    out.innerHTML = `<div class="card">
+        <span class="eyebrow">Diese Woche</span>
+        <p>${esc(plan.summary)}</p>
+        <div class="row" style="justify-content:space-between"><span class="small"><strong>${doneCount} von ${sessions.length}</strong> Einheiten erledigt</span>${ad.hasData ? `<span class="small muted">Letzte ${ad.planned >= num(trSettings().days) * 2 ? "2 Wochen" : "Tage"}: ${ad.done}/${ad.planned}</span>` : ""}</div>
+        <div class="progress"><i style="width:${sessions.length ? (doneCount / sessions.length) * 100 : 0}%"></i></div>
+      </div>` + arr(plan.days).map((d, i) => d.type === "Ruhe"
+        ? `<div class="card rest"><div class="row" style="justify-content:space-between"><h3>${esc(d.day)}</h3><span class="tchip ruhe">Ruhe</span></div>${d.title ? `<p class="small muted">${esc(d.title)}</p>` : ""}</div>`
+        : `<article class="card session${d.done ? " done" : ""}">
+          <div class="row" style="justify-content:space-between;align-items:flex-start">
+            <div class="stack" style="gap:4px"><span class="eyebrow">${esc(d.day)}</span><h3>${esc(d.title)}</h3></div>
+            <label class="check small"><input type="checkbox" data-done="${i}" ${d.done ? "checked" : ""} /> Erledigt</label>
+          </div>
+          <div class="meta"><span class="tchip ${TYPE_CLASS[d.type] || "kraft"}">${esc(d.type)}</span><span>${esc(d.minutes)} Min.</span><span>${esc(d.intensity)}</span></div>
+          <details><summary>${arr(d.exercises).length} Übungen</summary>
+            <ol class="ex-list">${arr(d.exercises).map((e) => `<li><div><strong>${esc(e.name)}</strong><span class="muted small">${[e.sets ? esc(e.sets) + " Sätze" : "", e.reps ? esc(e.reps) : "", e.rest ? "Pause " + esc(e.rest) : ""].filter(Boolean).join(" · ")}</span>${e.note ? `<span class="small">${esc(e.note)}</span>` : ""}</div></li>`).join("")}</ol>
+          </details>
+        </article>`).join("") + (arr(plan.tips).length ? `<div class="card"><span class="eyebrow">Tipps</span><ul class="fb-list">${plan.tips.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>` : "");
+    out.querySelectorAll("[data-done]").forEach((cb) => cb.addEventListener("change", () => {
+      const d = state.training.plan.days[Number(cb.dataset.done)];
+      d.done = cb.checked;
+      const key = state.training.plan.id + ":" + cb.dataset.done;
+      let h = trHistory().filter((x) => x.key !== key);
+      if (cb.checked) h = [...h, { key, date: today(), title: d.title, minutes: num(d.minutes) }];
+      state.training.history = h.slice(-200);
+      persist("training"); renderTraining();
+      if (cb.checked) toast("Stark! Einheit eingetragen");
+    }));
+  }
+
+  $("#btn-training").addEventListener("click", async () => {
+    const btn = $("#btn-training"), st = $("#tr-status"), p = prof(), s = readTrainingForm(), lb = latestBody();
+    state.training = { ...(state.training || {}), settings: s }; persist("training");
+    btn.disabled = true;
+    st.innerHTML = `<ul class="steps"><li class="active"><span class="dot"></span>eAit stellt deine Trainingswoche zusammen …</li></ul>`;
+    try {
+      const prev = state.training.plan;
+      const res = await askJson(`Du bist erfahrene Personal Trainerin. Erstelle einen Trainingsplan für Montag bis Sonntag auf Deutsch.
+
+PERSON
+Ziel: ${GOAL[p.goal]}
+${p.sex ? "Geschlecht: " + p.sex + "\n" : ""}${p.age ? "Alter: " + p.age + "\n" : ""}${lb ? `Letzte Messung: ${fmt(lb.weightKg)} kg${lb.fatPct ? ", " + fmt(lb.fatPct) + " % Körperfett" : ""}${lb.muscleKg ? ", " + fmt(lb.muscleKg) + " kg Muskelmasse" : ""}` : p.weightKg ? "Gewicht: " + p.weightKg + " kg" : ""}
+Erfahrung: ${s.level}
+Trainingstage: ${s.days} pro Woche, je ca. ${s.minutes} Minuten
+Ort/Ausstattung: ${PLACE[s.place]}
+${s.limits ? "Einschränkungen (unbedingt berücksichtigen): " + s.limits : ""}
+
+FEEDBACK AUS WAAGE UND TRAININGSTREUE (umsetzen!)
+${trainingFeedback(p).map((l) => "- " + l).join("\n")}
+${prev ? "Letzte Woche: " + arr(prev.days).filter((d) => d.type !== "Ruhe").map((d) => d.title).join(", ") + " – variieren und leicht steigern." : ""}
+
+REGELN
+- Genau 7 Tage, genau ${s.days} Trainingstage, die übrigen type "Ruhe" (title: kurzer Erholungstipp, exercises leer).
+- type nur: Kraft, Ausdauer, Mobilität, Ruhe. intensity nur: leicht, mittel, hoch.
+- 4–7 Übungen pro Einheit inkl. kurzem Aufwärmen, mit Sätzen, Wiederholungen oder Dauer, Pause und einem kurzen Technik-Hinweis.
+- Sicher und für die Erfahrung passend; keine Übungen, die die Einschränkungen belasten.
+
+Antworte NUR mit JSON: {"summary":"2 Sätze zum Fokus der Woche","days":[{"day":"Montag","type":"Kraft","title":"Ganzkörper A","minutes":${s.minutes},"intensity":"mittel",
+"exercises":[{"name":"Kniebeugen","sets":3,"reps":"8–10","rest":"90 s","note":"Knie über den Zehen, Rücken gerade"}]}],"tips":["max. 3 kurze Tipps"]}`,
+        { cache: false });
+      const days = arr(res && res.days).filter((d) => d && d.day).slice(0, 7).map((d) => ({
+        day: str(d.day), type: ["Kraft", "Ausdauer", "Mobilität", "Ruhe"].includes(d.type) ? d.type : "Kraft", title: str(d.title),
+        minutes: num(d.minutes, s.minutes), intensity: str(d.intensity) || "mittel", done: false,
+        exercises: arr(d.exercises).filter((e) => e && e.name).map((e) => ({ name: str(e.name), sets: str(e.sets), reps: str(e.reps), rest: str(e.rest), note: str(e.note) })),
+      }));
+      if (days.length < 7) throw new AskError("invalid_json", "Der Trainingsplan war unvollständig. Bitte erneut versuchen.");
+      state.training = { ...state.training, since: state.training.since || today(), plan: { id: Date.now().toString(36), summary: str(res.summary), days, tips: arr(res.tips).map(str).slice(0, 3) } };
+      persist("training"); renderTraining(); st.innerHTML = "";
+    } catch (e) {
+      st.innerHTML = `<p class="error small">${esc(e.message)}</p>`;
+    } finally { btn.disabled = false; }
+  });
+
+  // Profil-Unterreiter
+  function showSub(name) {
+    document.querySelectorAll("#pf-seg button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.sub === name)));
+    $("#pf-goals").hidden = name !== "goals"; $("#pf-progress").hidden = name !== "progress";
+    local.set("sub", name);
+  }
+  document.querySelectorAll("#pf-seg button").forEach((b) => b.addEventListener("click", () => showSub(b.dataset.sub)));
+  document.addEventListener("click", (e) => { const g = e.target.closest("[data-sub]"); if (g && g.dataset.goto) showSub(g.dataset.sub); });
+
   // ---------------- Start ----------------
-  function renderAll() { fillForm(); renderBody(); renderHint(); renderMealHint(); renderPlan(); renderShop(); renderPantry(); renderMeal(); }
+  function renderAll() { fillForm(); fillTrainingForm(); renderTraining(); renderBody(); renderHint(); renderMealHint(); renderPlan(); renderShop(); renderPantry(); renderMeal(); }
   $("#hide-have").checked = !!local.get("hideHave", false);
   renderAll();
-  { const t = local.get("tab", "meal"); showTab(["meal", "plan", "shop", "fridge", "profile"].includes(t) ? t : "meal"); }
+  showSub(local.get("sub", "goals") === "progress" ? "progress" : "goals");
+  { const t = local.get("tab", "meal"); showTab(["meal", "plan", "train", "shop", "fridge", "profile"].includes(t) ? t : "meal"); }
   initRemote();
 
   getSample().then(async (sample) => {
     if (!sample) {
-      for (const id of ["#btn-plan", "#btn-meal", "#btn-match"]) $(id).disabled = true;
+      for (const id of ["#btn-plan", "#btn-meal", "#btn-match", "#btn-training"]) $(id).disabled = true;
       $("#btn-scan").hidden = true; $(".drop").hidden = true; $("#scan-unavailable").hidden = false;
       for (const h of ["#plan-hint", "#meal-hint"]) $(h).insertAdjacentHTML("afterend", `<p class="error small">eAit funktioniert nur über den geteilten Link, wenn du angemeldet bist.</p>`);
       return;
