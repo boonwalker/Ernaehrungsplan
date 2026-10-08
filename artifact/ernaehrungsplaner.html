@@ -542,6 +542,14 @@
   .hdr-profile:hover { border-color: rgb(111 224 163 / .55); }
   .hdr-profile[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #04140b; }
   .hdr-profile:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  /* Kopier-Knopf neben der Überschrift */
+  .title-row { display: flex; align-items: center; gap: 12px; }
+  .icon-btn { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; cursor: pointer;
+    background: var(--glass); border: 1px solid var(--line); color: var(--ink); transition: border-color .2s, background .2s, color .2s; }
+  .icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .icon-btn:hover { border-color: rgb(111 224 163 / .55); }
+  .icon-btn.done { background: var(--brand); border-color: var(--brand); color: #04140b; }
+  .icon-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 </style>
 
 <div class="aurora-bg" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
@@ -637,13 +645,15 @@
 
   <!-- EINKAUF -->
   <section class="tab" id="tab-shop" hidden>
-    <div class="page-head"><span class="eyebrow">Einkauf</span><h2>Deine Einkaufsliste</h2></div>
+    <div class="page-head"><span class="eyebrow">Einkauf</span>
+      <div class="title-row"><h2>Deine Einkaufsliste</h2>
+        <button class="icon-btn" id="btn-copy" type="button" aria-label="Einkaufsliste kopieren" title="Einkaufsliste kopieren"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" /><path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9" /></svg></button>
+      </div></div>
     <div class="card">
       <p class="summary muted small" id="shop-summary"></p>
       <div class="progress" id="shop-progress" hidden><i></i></div>
       <div class="row">
         <button class="btn sm" id="btn-match">Mit Vorrat abgleichen</button>
-        <button class="btn sm" id="btn-copy">Liste kopieren</button>
         <button class="btn sm danger" id="btn-shop-reset">Einkaufsliste zurücksetzen</button>
       </div>
       <div class="row" id="shop-reset-confirm" hidden>
@@ -1557,7 +1567,10 @@ Synonyme beachten. Antworte NUR mit JSON: {"matches":[{"index":0,"status":"fehlt
     const fb = $("#copy-fallback");
     const fallback = () => { fb.value = text; fb.hidden = false; fb.focus(); fb.select(); toast("Text markiert – jetzt kopieren"); };
     try {
-      navigator.clipboard.writeText(text).then(() => { fb.hidden = true; toast("Liste kopiert"); }, fallback);
+      navigator.clipboard.writeText(text).then(() => {
+        fb.hidden = true; toast("Einkaufsliste kopiert");
+        const b = $("#btn-copy"); b.classList.add("done"); setTimeout(() => b.classList.remove("done"), 1200);
+      }, fallback);
     } catch { fallback(); }
   });
 
