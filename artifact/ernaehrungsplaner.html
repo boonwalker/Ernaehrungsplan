@@ -463,14 +463,14 @@
 <div class="wrap">
   <header class="top">
     <h1 class="brand" aria-label="eAit"><span class="wordmark" aria-hidden="true">e<span class="a">A</span><span class="pow"></span>t</span></h1>
-    <span class="sync" id="sync">Lädt …</span>
+    <span class="sync" id="sync" hidden>Lädt …</span>
   </header>
 
   <!-- MAHLZEIT -->
   <section class="tab" id="tab-meal">
     <div class="hero">
       <div>
-        <h2><span id="greet">Hallo.</span><br><em>Worauf hast du Lust?</em></h2>
+        <h2><em>Worauf hast du Lust?</em></h2>
       </div>
       <p class="goal" id="meal-hint"></p>
       <fieldset class="chips" id="meal-chips">
@@ -1921,7 +1921,7 @@ Antworte NUR mit JSON: {"name":"…","description":"1–2 Sätze","prep_minutes"
   document.querySelectorAll('input[name="mealtype"]').forEach((r) => r.addEventListener("change", () => {
     $("#meal-type").value = r.value; $("#meal-type").dispatchEvent(new Event("change"));
   }));
-  { const h = new Date().getHours(); $("#greet").textContent = h < 11 ? "Guten Morgen." : h < 17 ? "Hallo." : "Guten Abend."; }
+
   if (state.meal && state.meal.mode) $("#meal-mode").value = state.meal.mode;
 
   // ---------------- Training ----------------
