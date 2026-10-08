@@ -5,46 +5,31 @@
 <style>
   /* Layout: App-Spalte (max. 720px) mit schwebender Navigationsleiste unten, Begrüßungs-Hero oben, Karten mit Makro-Ringen. */
   :root {
-    --bg: #f3f5f0;
-    --surface: #ffffff;
-    --surface-2: #edf1ea;
-    --ink: #13201a;
-    --muted: #5d6c63;
-    --line: #e0e6dc;
-    --brand: #17603f;
-    --brand-2: #0d4229;
-    --brand-ink: #ffffff;
-    --brand-soft: #dbeee2;
-    --zest: #ff6a3d;
-    --zest-soft: #ffe7dd;
-    --danger: #b3261e;
-    --protein: #8b3f7d;
-    --carbs: #e2a52f;
-    --fat: #6f9a3b;
-    --hero-glow: rgb(255 106 61 / .55);
-    --shadow: 0 1px 2px rgb(19 32 26 / .05), 0 12px 32px -18px rgb(19 32 26 / .28);
-    --nav-bg: rgb(255 255 255 / .82);
+    --bg: #06120c;
+    --solid: #0d1c15;
+    --glass: rgb(255 255 255 / .065);
+    --surface: #0f1f17;
+    --surface-2: rgb(255 255 255 / .06);
+    --ink: #eaf5ee;
+    --muted: #9fb8a9;
+    --line: rgb(255 255 255 / .13);
+    --brand: #6fe0a3;
+    --brand-2: #2f9d63;
+    --brand-ink: #04140b;
+    --brand-soft: rgb(111 224 163 / .14);
+    --zest: #ff9a73;
+    --zest-soft: rgb(255 154 115 / .14);
+    --danger: #ff8a80;
+    --protein: #d08dc3;
+    --carbs: #f0c35e;
+    --fat: #a6cf6c;
+    --hero-glow: rgb(255 138 99 / .35);
+    --shadow: 0 1px 0 rgb(255 255 255 / .04) inset, 0 22px 44px -26px rgb(0 0 0 / .85);
+    --nav-bg: rgb(10 24 17 / .72);
     --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
     --font-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
     --r-lg: 22px;
     --r-md: 14px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #0e1310; --surface: #161d18; --surface-2: #1d2620; --ink: #e7eee9; --muted: #9aaa9f; --line: #253028;
-      --brand: #5fd394; --brand-2: #2f9d63; --brand-ink: #07160d; --brand-soft: #173325;
-      --zest: #ff8a63; --zest-soft: #3b2217; --danger: #f2827a;
-      --protein: #d08dc3; --carbs: #f0c35e; --fat: #a6cf6c; --hero-glow: rgb(255 138 99 / .35);
-      --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 14px 36px -18px rgb(0 0 0 / .7); --nav-bg: rgb(22 29 24 / .85);
-      color-scheme: dark;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #0e1310; --surface: #161d18; --surface-2: #1d2620; --ink: #e7eee9; --muted: #9aaa9f; --line: #253028;
-    --brand: #5fd394; --brand-2: #2f9d63; --brand-ink: #07160d; --brand-soft: #173325;
-    --zest: #ff8a63; --zest-soft: #3b2217; --danger: #f2827a;
-    --protein: #d08dc3; --carbs: #f0c35e; --fat: #a6cf6c; --hero-glow: rgb(255 138 99 / .35);
-    --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 14px 36px -18px rgb(0 0 0 / .7); --nav-bg: rgb(22 29 24 / .85);
     color-scheme: dark;
   }
 
@@ -355,11 +340,79 @@
   .tags span { font-size: .75rem; background: var(--brand-soft); color: var(--brand); border-radius: 999px; padding: 3px 9px; font-weight: 600; }
 
   .toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 11px 18px; border-radius: 999px; font-size: .9rem; font-weight: 600; z-index: 20; max-width: calc(100vw - 32px); box-shadow: var(--shadow); }
+  /* ===== Aurora: dunkles Waldgrün, Farbnebel, Glaskarten (Standard-Design) ===== */
+  .aurora-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--bg); }
+  .aurora-bg i { position: absolute; width: 70vmax; height: 70vmax; max-width: 640px; max-height: 640px; border-radius: 50%; filter: blur(80px); will-change: transform; }
+  .aurora-bg .g1 { background: #1f8f5f; left: -22vmax; top: -18vmax; opacity: .5; animation: drift 16s ease-in-out infinite alternate; }
+  .aurora-bg .g2 { background: #ff7a50; right: -30vmax; top: 18vh; opacity: .26; animation: drift 21s ease-in-out infinite alternate-reverse; }
+  .aurora-bg .g3 { background: #2a6fd6; left: 5vw; bottom: -30vmax; opacity: .2; animation: drift 25s ease-in-out infinite alternate; }
+  @keyframes drift { to { transform: translate(8vmax, 10vmax) scale(1.15); } }
+
+  header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 8; margin-inline: -16px; padding: 16px 16px 12px; transition: background .3s, border-color .3s; border-bottom: 1px solid transparent; }
+  header.top.scrolled { background: rgb(6 18 12 / .6); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); border-bottom-color: var(--line); }
+  header.top .brand { font-size: 28px; transform-origin: left center; transition: transform .3s; }
+  header.top.scrolled .brand { transform: scale(.8); }
+  .sync { background: var(--glass); border-color: var(--line); }
+
+  .card, .glass { background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(20px) saturate(1.3); -webkit-backdrop-filter: blur(20px) saturate(1.3); border-radius: 26px; box-shadow: var(--shadow); }
+  .card.example { outline-color: var(--line); }
+  .card.rest { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+
+  /* Begrüßung als Glas mit Verlaufsschrift */
+  .hero { background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(20px) saturate(1.3); -webkit-backdrop-filter: blur(20px) saturate(1.3); color: var(--ink); }
+  .hero::after { background: rgb(111 224 163 / .06); }
+  .hero .greet { color: var(--muted); opacity: 1; }
+  .hero h2 { color: var(--ink); font-size: 2.3rem; line-height: 1.02; letter-spacing: -0.04em; }
+  .hero h2 em { font-style: normal; background: linear-gradient(90deg, var(--brand), var(--zest)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero label, .hero .hint, .hero .goal { color: var(--muted); }
+  .hero .goal strong { color: var(--ink); }
+  .hero select, .hero input { background: rgb(255 255 255 / .07); border-color: var(--line); color: var(--ink); }
+  .hero select option, select option { color: #eaf5ee; background: #0f1f17; }
+  .hero input::placeholder { color: var(--muted); }
+  .hero .btn.primary, .btn.cta { background: linear-gradient(90deg, #ff9a73, #ffc07a); border-color: transparent; color: #1d0a02; box-shadow: 0 14px 30px -14px rgb(255 140 100 / .9); }
+  .hero .error { color: #ffb4a0; }
+  .hero .steps li { color: var(--muted); } .hero .active .dot { border-color: var(--brand); border-top-color: transparent; }
+  .chips label { background: rgb(255 255 255 / .07); border-color: var(--line); color: var(--ink); }
+  .chips input:checked + label { background: var(--ink); color: #06120c; border-color: var(--ink); }
+
+  input, select, textarea { background: rgb(255 255 255 / .06); border-color: var(--line); color: var(--ink); }
+  input::placeholder, textarea::placeholder { color: rgb(159 184 169 / .7); }
+  button.btn { background: rgb(255 255 255 / .07); border-color: var(--line); color: var(--ink); }
+  button.btn:hover { border-color: rgb(255 255 255 / .3); }
+  button.primary { background: linear-gradient(180deg, #7ff0b2, #3fb878); color: #04140b; border-color: transparent; box-shadow: 0 12px 26px -14px rgb(111 224 163 / .8); }
+  button.ghost { background: none; border-color: transparent; color: var(--brand); }
+
+  nav.tabs { background: rgb(10 24 17 / .72); border-color: var(--line); }
+  nav.tabs button[aria-selected="true"] { color: #06120c; background: var(--brand); }
+
+  .ring > div { background: var(--solid); }
+  .has-hero .rhead .ring { box-shadow: 0 0 0 5px var(--solid); }
+  .dish-hero::after { background: linear-gradient(transparent, var(--solid)); }
+  .has-hero { background: var(--solid); }
+  dialog { background: var(--solid); border: 1px solid var(--line); }
+  .seg { background: rgb(255 255 255 / .06); border: 1px solid var(--line); }
+  .seg button[aria-selected="true"] { background: rgb(255 255 255 / .14); color: var(--ink); box-shadow: none; }
+  .pantry .x { background: rgb(255 255 255 / .1); }
+  .drop { background: rgb(255 255 255 / .04); border-color: var(--line); }
+  .toast { background: var(--ink); color: #06120c; }
+  .spark .end { box-shadow: 0 0 0 2px var(--solid); }
+  .thumb, .dish { background: #1a2a21; }
+
+  /* Bewegung beim Scrollen: Bilder langsamer als Karten, Karten richten sich beim Hereinscrollen auf */
+  [data-par] svg { height: 124%; margin-top: -12%; transform: translateY(var(--par, 0px)); will-change: transform; }
+  [data-tilt] { transform: perspective(900px) rotateX(var(--tilt, 0deg)) scale(var(--tsc, 1)); transform-origin: center top; will-change: transform; }
+  @media (prefers-reduced-motion: reduce) {
+    .aurora-bg i { animation: none; }
+    [data-par] svg { transform: none; }
+    [data-tilt] { transform: none; }
+    header.top .brand, header.top { transition: none; }
+  }
 </style>
 
+<div class="aurora-bg" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
 <div class="wrap">
   <header class="top">
-    <h1 class="brand" aria-label="eAit"><span class="brand-mark" aria-hidden="true"><span class="glyphs">A<span class="pow"></span></span></span><span class="wordmark" aria-hidden="true">e<span class="a">A</span><span class="pow"></span>t</span></h1>
+    <h1 class="brand" aria-label="eAit"><span class="wordmark" aria-hidden="true">e<span class="a">A</span><span class="pow"></span>t</span></h1>
     <span class="sync" id="sync">Lädt …</span>
   </header>
 
@@ -367,8 +420,7 @@
   <section class="tab" id="tab-meal">
     <div class="hero">
       <div>
-        <p class="greet" id="greet">Hallo!</p>
-        <h2>Was gibt's zu essen?</h2>
+        <h2><span id="greet">Hallo.</span><br><em>Worauf hast du Lust?</em></h2>
       </div>
       <p class="goal" id="meal-hint"></p>
       <fieldset class="chips" id="meal-chips">
@@ -1073,7 +1125,7 @@
         ${LEGEND}
       </div>
       ${arr(plan.days).map((d) => `
-        <article class="card day">
+        <article class="card day" data-tilt>
           <header><h3>${esc(d.day)}</h3>${macroHtml(d.totals)}</header>
           ${arr(d.meals).map((m) => {
             const r = byId[m.recipe_id];
@@ -1589,7 +1641,7 @@ amount 1–5 = Menge)`;
     $("#btn-meal").textContent = m && arr(m.ideas).length ? "3 neue Ideen" : "3 Ideen holen";
     if (!m || !arr(m.ideas).length) {
       ideasEl.innerHTML = `<article class="card idea-card example">
-        <div class="dish">${dishSvg(EXAMPLE_PLATING, "Ofen-Gnocchi")}<span class="dish-tag">Serviervorschlag</span></div>
+        <div class="dish" data-par>${dishSvg(EXAMPLE_PLATING, "Ofen-Gnocchi")}<span class="dish-tag">Serviervorschlag</span></div>
         <div class="idea">
         ${ringHtml({ kcal: 620, protein_g: 24, carbs_g: 78, fat_g: 22 })}
         <div class="body">
@@ -1608,8 +1660,8 @@ amount 1–5 = Menge)`;
       m.ideas.map((r, i) => {
         const picked = m.recipe && m.recipe.idea === i;
         const art = r.plating ? dishSvg(r.plating, r.name) : "";
-        return `<article class="card idea-card${picked ? " picked" : ""}">
-          ${art ? `<div class="dish">${art}<span class="dish-tag">Serviervorschlag</span></div>` : ""}
+        return `<article class="card idea-card${picked ? " picked" : ""}" data-tilt>
+          ${art ? `<div class="dish" data-par>${art}<span class="dish-tag">Serviervorschlag</span></div>` : ""}
           <div class="idea">
           ${ringHtml(r.per_serving)}
           <div class="body">
@@ -1630,7 +1682,7 @@ amount 1–5 = Menge)`;
     const missing = ing.filter((i) => i.status !== "vorhanden");
     const hero = r.plating ? dishSvg(r.plating, r.name, 400, 260) : "";
     recEl.innerHTML = `<article class="card${hero ? " has-hero" : ""}" id="meal-recipe-card">
-      ${hero ? `<div class="dish dish-hero">${hero}<span class="dish-tag">Serviervorschlag</span></div>` : ""}
+      ${hero ? `<div class="dish dish-hero" data-par>${hero}<span class="dish-tag">Serviervorschlag</span></div>` : ""}
       <div class="rhead">${ringHtml(r.per_serving, true)}
         <div class="stack" style="gap:6px">
           <span class="eyebrow">Rezept · ${esc(m.type)}</span>
@@ -1760,7 +1812,7 @@ Antworte NUR mit JSON: {"name":"…","description":"1–2 Sätze","prep_minutes"
   document.querySelectorAll('input[name="mealtype"]').forEach((r) => r.addEventListener("change", () => {
     $("#meal-type").value = r.value; $("#meal-type").dispatchEvent(new Event("change"));
   }));
-  { const h = new Date().getHours(); $("#greet").textContent = h < 11 ? "Guten Morgen!" : h < 17 ? "Hallo!" : "Guten Abend!"; }
+  { const h = new Date().getHours(); $("#greet").textContent = h < 11 ? "Guten Morgen." : h < 17 ? "Hallo." : "Guten Abend."; }
   if (state.meal && state.meal.mode) $("#meal-mode").value = state.meal.mode;
 
   // ---------------- Training ----------------
@@ -1837,7 +1889,7 @@ Antworte NUR mit JSON: {"name":"…","description":"1–2 Sätze","prep_minutes"
         <div class="progress"><i style="width:${sessions.length ? (doneCount / sessions.length) * 100 : 0}%"></i></div>
       </div>` + arr(plan.days).map((d, i) => d.type === "Ruhe"
         ? `<div class="card rest"><div class="row" style="justify-content:space-between"><h3>${esc(d.day)}</h3><span class="tchip ruhe">Ruhe</span></div>${d.title ? `<p class="small muted">${esc(d.title)}</p>` : ""}</div>`
-        : `<article class="card session${d.done ? " done" : ""}">
+        : `<article class="card session${d.done ? " done" : ""}" data-tilt>
           <div class="row" style="justify-content:space-between;align-items:flex-start">
             <div class="stack" style="gap:4px"><span class="eyebrow">${esc(d.day)}</span><h3>${esc(d.title)}</h3></div>
             <label class="check small"><input type="checkbox" data-done="${i}" ${d.done ? "checked" : ""} /> Erledigt</label>
@@ -2113,6 +2165,32 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
     catch (e) { box.innerHTML = `<p class="error small">${esc(e.message)}</p>`; }
     finally { btn.disabled = false; }
   });
+
+  // ---------------- Aurora: Scroll-Effekte ----------------
+  const reduceMotion = (() => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch { return false; } })();
+  let fxTick = false;
+  function scrollFx() {
+    fxTick = false;
+    const y = window.scrollY, H = window.innerHeight;
+    $("header.top").classList.toggle("scrolled", y > 8);
+    if (reduceMotion) return;
+    const hello = document.querySelector("#tab-meal:not([hidden]) .hero h2");
+    if (hello) { hello.style.transform = `translateY(${(-Math.min(y, 300) * .25).toFixed(1)}px)`; hello.style.opacity = String(Math.max(.25, 1 - y / 360)); }
+    document.querySelectorAll("section.tab:not([hidden]) [data-par]").forEach((el) => {
+      const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > H) return;
+      const k = Math.max(-1, Math.min(1, (r.top + r.height / 2 - H / 2) / H));
+      el.style.setProperty("--par", (k * -26).toFixed(1) + "px");
+    });
+    document.querySelectorAll("section.tab:not([hidden]) [data-tilt]").forEach((el) => {
+      const r = el.getBoundingClientRect(), t = Math.max(0, Math.min(1, (r.top - H * .62) / (H * .38)));
+      el.style.setProperty("--tilt", (t * 12).toFixed(2) + "deg"); el.style.setProperty("--tsc", (1 - t * .05).toFixed(3));
+    });
+  }
+  const requestFx = () => { if (!fxTick) { fxTick = true; requestAnimationFrame(scrollFx); } };
+  window.addEventListener("scroll", requestFx, { passive: true });
+  window.addEventListener("resize", requestFx);
+  // Nach jedem Neuzeichnen neue Karten erfassen
+  new MutationObserver(requestFx).observe(document.querySelector(".wrap"), { childList: true, subtree: true });
 
   // ---------------- Start ----------------
   function renderAll() { fillForm(); fillTrainingForm(); renderTraining(); renderBody(); renderHint(); renderMealHint(); renderPlan(); renderShop(); renderPantry(); renderMeal(); }
