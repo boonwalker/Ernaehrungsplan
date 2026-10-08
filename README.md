@@ -16,7 +16,14 @@ deines Kühlschranks erkennt sie, was du schon zu Hause hast.
 
 Profil, Vorrat, Plan und Einkaufsliste werden lokal im Browser gespeichert.
 
-## Starten
+## Zwei Varianten
+
+- **Claude-Artifact (ohne API-Schlüssel):** `artifact/ernaehrungsplaner.html` läuft als Seite in Claude
+  und fragt Claude über das Konto der Person, die sie öffnet. Daten werden privat im Claude-Konto gespeichert.
+  Veröffentlicht unter <https://claude.ai/artifact/TbriwMUSPNzmRP6dTGHmMt>.
+- **Eigener Server (mit API-Schlüssel):** die Node-App unten.
+
+## Starten (Server-Variante)
 
 Voraussetzungen: Node.js ≥ 22 und ein API-Schlüssel von <https://console.anthropic.com/>.
 
