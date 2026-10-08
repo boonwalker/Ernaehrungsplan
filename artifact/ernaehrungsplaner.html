@@ -558,6 +558,13 @@
   .pick-meal { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; padding: 5px 12px 5px 6px; border-radius: 999px; border: 1px solid var(--line); background: rgb(255 255 255 / .05); font-size: .82rem; font-weight: 600; color: var(--muted); cursor: pointer; width: max-content; }
   .pick-meal.on { color: var(--brand); border-color: rgb(111 224 163 / .45); background: var(--brand-soft); }
   .pick-meal input[type="checkbox"] { width: 20px; height: 20px; border-radius: 6px; }
+  .pick-ask { display: grid; gap: 8px; margin-top: 8px; padding: 10px 12px; border-radius: 16px; border: 1px solid rgb(111 224 163 / .45); background: var(--brand-soft); max-width: 300px; }
+  .pick-ask .portions { max-width: 210px; }
+  .wk-ctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .wk-ctl .portions { width: 180px; }
+  .seg button { white-space: nowrap; }
+  select.invalid { border-color: var(--zest) !important; box-shadow: 0 0 0 3px rgb(255 154 115 / .25); }
+  .seg-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; margin-left: 4px; border-radius: 999px; background: var(--brand); color: #04140b; font-size: .72rem; font-weight: 800; vertical-align: 1px; }
 </style>
 
 <div class="aurora-bg" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
@@ -608,6 +615,11 @@
   <!-- WOCHENPLAN -->
   <section class="tab" id="tab-plan" hidden>
     <div class="page-head"><span class="eyebrow">Wochenplan</span><h2>Die ganze Woche, durchgeplant</h2></div>
+    <div class="seg" id="plan-seg" role="tablist" aria-label="Wochenplan-Bereiche">
+      <button role="tab" data-psub="plan" aria-selected="true">Planen</button>
+      <button role="tab" data-psub="week" aria-selected="false">Deine Woche <span class="seg-count" id="plan-count" hidden></span></button>
+    </div>
+    <div id="plan-plan" class="stack">
     <div class="card">
       <p class="muted small" id="plan-hint"></p>
       <label for="plan-wishes">Wünsche für diese Woche <span class="hint">(optional)</span>
@@ -622,6 +634,8 @@
       <div id="plan-progress" hidden></div>
     </div>
     <div id="plan-out" class="stack"></div>
+    </div>
+    <div id="plan-week" class="stack" hidden></div>
   </section>
 
   <!-- TRAINING -->
@@ -736,19 +750,6 @@
     </div>
     </div>
     <div id="pf-goals" class="stack">
-    <div class="card" id="import-card">
-      <div class="row" style="justify-content:space-between"><h3>Von einer anderen KI umziehen</h3><span class="eyebrow">Abkürzung</span></div>
-      <p class="muted small">Du hast schon mit ChatGPT oder einer anderen KI an Ernährung und Training gearbeitet? Hol dir dort eine Zusammenfassung und füge sie hier ein. eAit stellt daraus Ziele, Training und Fortschritt ein.</p>
-      <ol class="imp-steps">
-        <li><div><strong>Prompt kopieren</strong><span class="small muted">und im bisherigen Fitness-Chat der anderen KI einfügen.</span>
-          <div class="row"><button class="btn sm primary" type="button" id="btn-imp-copy">Prompt kopieren</button><button class="btn sm ghost" type="button" id="btn-imp-show">Prompt ansehen</button></div>
-          <textarea id="imp-prompt" rows="8" readonly hidden aria-label="Prompt für die andere KI"></textarea></div></li>
-        <li><div><strong>Antwort hier einfügen</strong><span class="small muted">Kopiere die komplette Antwort der anderen KI.</span>
-          <textarea id="imp-text" rows="5" placeholder="### EAIT-PROFIL v1 …" aria-label="Zusammenfassung der anderen KI"></textarea>
-          <div class="row"><button class="btn sm" type="button" id="btn-imp-read">Auswerten</button></div></div></li>
-      </ol>
-      <div id="imp-preview"></div>
-    </div>
     <form class="card" id="profile">
       <p class="muted small">Je mehr eAit über dich weiß, desto besser passen die Vorschläge. Alles ist optional.</p>
       <label for="p-goal">Ziel
@@ -790,6 +791,14 @@
         <label for="p-meals">Mahlzeiten pro Tag
           <select id="p-meals" name="mealsPerDay"><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
         </label>
+        <label for="p-combo" id="p-combo-wrap" hidden>Welche zwei Mahlzeiten?
+          <select id="p-combo" name="mealCombo">
+            <option value="">Bitte wählen …</option>
+            <option value="Frühstück+Mittagessen">Frühstück + Mittagessen</option>
+            <option value="Frühstück+Abendessen">Frühstück + Abendessen</option>
+            <option value="Mittagessen+Abendessen">Mittagessen + Abendessen</option>
+          </select>
+        </label>
         <label for="p-persons">Personen <input id="p-persons" name="persons" type="number" min="1" max="8" value="1" inputmode="numeric" /></label>
         <label for="p-time">Kochzeit
           <select id="p-time" name="cookingTime"><option value="schnell">Schnell, bis 20 Min.</option><option value="mittel" selected>Normal, bis 40 Min.</option><option value="aufwendig">Darf aufwendig sein</option></select>
@@ -809,6 +818,19 @@
       </label>
       <div class="row"><button class="btn primary" type="submit">Profil speichern</button></div>
     </form>
+    <div class="card" id="import-card">
+      <div class="row" style="justify-content:space-between"><h3>Von einer anderen KI umziehen</h3><span class="eyebrow">Abkürzung</span></div>
+      <p class="muted small">Du hast schon mit ChatGPT oder einer anderen KI an Ernährung und Training gearbeitet? Hol dir dort eine Zusammenfassung und füge sie hier ein. eAit stellt daraus Ziele, Training und Fortschritt ein.</p>
+      <ol class="imp-steps">
+        <li><div><strong>Prompt kopieren</strong><span class="small muted">und im bisherigen Fitness-Chat der anderen KI einfügen.</span>
+          <div class="row"><button class="btn sm primary" type="button" id="btn-imp-copy">Prompt kopieren</button><button class="btn sm ghost" type="button" id="btn-imp-show">Prompt ansehen</button></div>
+          <textarea id="imp-prompt" rows="8" readonly hidden aria-label="Prompt für die andere KI"></textarea></div></li>
+        <li><div><strong>Antwort hier einfügen</strong><span class="small muted">Kopiere die komplette Antwort der anderen KI.</span>
+          <textarea id="imp-text" rows="5" placeholder="### EAIT-PROFIL v1 …" aria-label="Zusammenfassung der anderen KI"></textarea>
+          <div class="row"><button class="btn sm" type="button" id="btn-imp-read">Auswerten</button></div></div></li>
+      </ol>
+      <div id="imp-preview"></div>
+    </div>
     <p class="small muted" style="text-align:center">Fotos: freie Symbolbilder · <button class="linkish" type="button" id="btn-credits">Bildnachweise</button></p>
     </div>
   </section>
@@ -1016,6 +1038,9 @@
     halten: "Gewicht halten, ausgewogen",
   };
   const GOAL_SHORT = { gesund: "gesund & lecker", abnehmen: "Abnehmen", muskelaufbau: "Muskelaufbau", halten: "Gewicht halten" };
+  const COMBOS = ["Frühstück+Mittagessen", "Frühstück+Abendessen", "Mittagessen+Abendessen"];
+  // Feste Mahlzeiten bei 2 pro Tag, sonst null
+  const mealSlots = (p) => (num(p.mealsPerDay) === 2 && COMBOS.includes(p.mealCombo) ? p.mealCombo.split("+") : null);
   const prof = () => ({ goal: "gesund", activity: "leicht", diet: "omnivor", mealsPerDay: 3, persons: 1, cookingTime: "mittel", budget: "normal", ...state.profile });
 
   function profileText(p) {
@@ -1026,7 +1051,7 @@
       t ? `Tagesziel pro Person: ca. ${t.kcal} kcal, ${t.protein_g} g Protein, ${t.carbs_g} g Kohlenhydrate, ${t.fat_g} g Fett`
         : "Keine Körperdaten – normale, ausgewogene Portionen (Orientierung ca. 2000 kcal pro Tag).",
       "Ernährungsform: " + p.diet,
-      "Mahlzeiten pro Tag: " + p.mealsPerDay,
+      "Mahlzeiten pro Tag: " + p.mealsPerDay + (mealSlots(p) ? " (" + mealSlots(p).join(" und ") + ")" : ""),
       "Personen: " + p.persons,
       "Kochzeit: " + ({ schnell: "möglichst bis 20 Minuten", mittel: "bis etwa 40 Minuten", aufwendig: "darf aufwendiger sein" }[p.cookingTime] || "normal"),
       "Budget: " + p.budget,
@@ -1234,8 +1259,8 @@
     return p;
   }
   function fillForm() {
-    for (const el of form.elements) if (el.name && state.profile[el.name] != null) el.value = state.profile[el.name];
-    renderTargets(readForm());
+    for (const el of form.elements) if (el.name) el.value = state.profile[el.name] != null ? state.profile[el.name] : el.name === "mealCombo" ? "" : el.value;
+    syncCombo(); renderTargets(readForm());
   }
   function targetHtml(t) {
     return `<div class="target">
@@ -1248,10 +1273,15 @@
     const t = targets({ goal: "gesund", activity: "leicht", ...p });
     $("#p-targets").innerHTML = t ? `<span class="eyebrow">Dein Tagesziel</span>${targetHtml(t)}` : "";
   }
-  form.addEventListener("input", () => renderTargets(readForm()));
+  // Bei 2 Mahlzeiten muss feststehen, welche es sind.
+  const syncCombo = () => { const two = $("#p-meals").value === "2"; $("#p-combo-wrap").hidden = !two; $("#p-combo").classList.toggle("invalid", false); };
+  form.addEventListener("input", () => { syncCombo(); renderTargets(readForm()); });
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const next = readForm(), prev = state.profile;
+    if (num(next.mealsPerDay) === 2) {
+      if (!COMBOS.includes(next.mealCombo)) { $("#p-combo").classList.add("invalid"); $("#p-combo").focus(); toast("Bitte wähle, welche zwei Mahlzeiten du isst"); return; }
+    } else delete next.mealCombo;
     next.goalSince = prev.goal && next.goal !== prev.goal ? today() : prev.goalSince || null;
     state.profile = next; persist("profile"); renderHint(); renderMealHint(); renderBody(); toast("Profil gespeichert");
   });
@@ -1259,7 +1289,7 @@
   function renderHint() {
     const p = prof();
     $("#plan-hint").innerHTML = Object.keys(state.profile).length
-      ? `Ziel: <strong>${esc(GOAL_SHORT[p.goal])}</strong> · ${esc(p.diet)} · ${esc(p.mealsPerDay)} Mahlzeiten · ${esc(p.persons)} ${p.persons == 1 ? "Person" : "Personen"}`
+      ? `Ziel: <strong>${esc(GOAL_SHORT[p.goal])}</strong> · ${esc(p.diet)} · ${mealSlots(p) ? esc(mealSlots(p).join(" + ")) : esc(p.mealsPerDay) + " Mahlzeiten"} · ${esc(p.persons)} ${p.persons == 1 ? "Person" : "Personen"}`
       : `Noch kein Profil – der Plan wird ausgewogen ohne Kalorienziel. <button class="linkish" data-goto="profile">Profil anlegen</button>`;
   }
 
@@ -1319,7 +1349,41 @@
     ],
   };
 
+  // Wochenplan in zwei Unterreitern: „Planen“ zeigt die Vorschläge zum Abhaken,
+  // „Deine Woche“ nur die übernommenen Mahlzeiten mit ihren Portionen.
+  let pickAsk = null; // offene Portionsfrage: { key: "Tag:Mahlzeit" | "all", n }
+  const planById = () => Object.fromEntries(arr(state.plan && state.plan.recipes).map((r) => [r.id, r]));
+  const inWeek = (m) => (state.plan && state.plan.selectable ? !!m.picked : true);
+  const clampPor = (n) => Math.max(1, Math.min(12, Math.round(num(n, 1))));
+  const defPortions = () => clampPor(state.plan && (state.plan.lastPortions || state.plan.persons));
+  const mealPortions = (m) => clampPor(num(m.portions, num(state.plan && state.plan.persons, 1)));
+  const portWord = (n) => (n === 1 ? "Portion" : "Portionen");
+  const stepperHtml = (n, attrs) => `<div class="portions" role="group" aria-label="Portionen" ${attrs}>
+      <button type="button" data-d="-1" aria-label="Eine Portion weniger"${n <= 1 ? " disabled" : ""}>−</button>
+      <span><b>${n}</b> ${portWord(n)}</span>
+      <button type="button" data-d="1" aria-label="Eine Portion mehr"${n >= 12 ? " disabled" : ""}>+</button></div>`;
+  const askHtml = (q, n) => `<div class="pick-ask"><span class="small"><strong>${q}</strong></span>
+      ${stepperHtml(n, "data-ask-por")}
+      <div class="row"><button class="btn sm primary" type="button" data-ask-ok>Übernehmen</button><button class="btn sm ghost" type="button" data-ask-cancel>Abbrechen</button></div></div>`;
+  const savePlan = () => { persist("plan"); persist("shopping"); renderShop(); };
+  const keepY = (fn) => { const y = window.scrollY; fn(); window.scrollTo({ top: y }); };
+
+  function showPlanSub(name) {
+    document.querySelectorAll("#plan-seg button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.psub === name)));
+    $("#plan-plan").hidden = name !== "plan"; $("#plan-week").hidden = name !== "week";
+    local.set("psub", name);
+  }
+  document.querySelectorAll("#plan-seg button").forEach((b) => b.addEventListener("click", () => { showPlanSub(b.dataset.psub); window.scrollTo({ top: 0 }); }));
+
+  // Rezeptseite zu einer Mahlzeit des Plans: zeigt deren Portionen, „Einkaufen“ übernimmt bzw. passt sie an.
+  function openPlanMeal(m, label) {
+    const r = planById()[m.recipe_id]; if (!r) return;
+    r.portions = m.picked ? mealPortions(m) : defPortions();
+    openRecipePage(r, { label, meal: m });
+  }
+
   function renderPlan() {
+    renderWeek();
     const out = $("#plan-out"), plan = state.plan;
     if (!plan) {
       out.innerHTML = `<article class="card day example">
@@ -1329,14 +1393,18 @@
       </article>`;
       return;
     }
-    const byId = Object.fromEntries(arr(plan.recipes).map((r) => [r.id, r]));
-    const sel = !!plan.selectable, allMeals = arr(plan.days).flatMap((d) => arr(d.meals)), picked = allMeals.filter((m) => m.picked).length;
+    const byId = planById();
+    const sel = !!plan.selectable, allMeals = arr(plan.days).flatMap((d) => arr(d.meals)).filter((m) => byId[m.recipe_id]);
+    const picked = allMeals.filter((m) => m.picked).length;
+    const pickCtl = (m, key) => pickAsk && pickAsk.key === key ? askHtml("Für wie viele Portionen?", pickAsk.n)
+      : `<label class="pick-meal${m.picked ? " on" : ""}"><input type="checkbox" data-pick-meal="${key}"${m.picked ? " checked" : ""} /> ${m.picked ? `Übernommen · ${mealPortions(m)} ${portWord(mealPortions(m))}` : "Übernehmen"}</label>`;
     out.innerHTML = `
       <div class="card">
-        <span class="eyebrow">Deine Woche</span>
+        <span class="eyebrow">Vorschläge</span>
         <p>${esc(plan.summary)}</p>
-        ${sel ? `<div class="pick-sum"><span class="small"><strong>${picked} von ${allMeals.length}</strong> Mahlzeiten übernommen – nur deren Zutaten stehen auf der Einkaufsliste.</span>
-          <div class="row"><button class="btn sm" type="button" data-pick-all="1">Alle übernehmen</button><button class="btn sm ghost" type="button" data-pick-all="0"${picked ? "" : " disabled"}>Keine</button></div></div>` : ""}
+        ${sel ? `<div class="pick-sum"><span class="small"><strong>${picked} von ${allMeals.length}</strong> Mahlzeiten übernommen – nur sie stehen in „Deine Woche“ und auf der Einkaufsliste.</span>
+          ${pickAsk && pickAsk.key === "all" ? askHtml("Wie viele Portionen pro Mahlzeit?", pickAsk.n)
+            : `<div class="row"><button class="btn sm" type="button" data-pick-all="1"${picked === allMeals.length ? " disabled" : ""}>Alle übernehmen</button><button class="btn sm ghost" type="button" data-pick-all="0"${picked ? "" : " disabled"}>Keine</button></div>`}</div>` : ""}
         ${plan.daily_target ? `<span class="eyebrow">Ziel pro Tag</span>${targetHtml({
           kcal: Math.round(num(plan.daily_target.kcal)), protein_g: Math.round(num(plan.daily_target.protein_g)),
           carbs_g: Math.round(num(plan.daily_target.carbs_g)), fat_g: Math.round(num(plan.daily_target.fat_g)) })}` : ""}
@@ -1346,48 +1414,119 @@
         <article class="card day" data-tilt>
           <header><h3>${esc(d.day)}</h3>${macroHtml(d.totals)}</header>
           ${arr(d.meals).map((m, mi) => {
-            const r = byId[m.recipe_id];
+            const r = byId[m.recipe_id], key = `${di}:${mi}`;
             const tArt = r ? dishArt(r, 200, 200, m.slot) : null;
-            const thumb = tArt ? `<button class="thumb" data-recipe="${esc(r.id)}" aria-label="${esc(r.name)} ansehen">${tArt.html}</button>` : "";
+            const thumb = tArt ? `<button class="thumb" data-open="${key}" aria-label="${esc(r.name)} ansehen">${tArt.html}</button>` : "";
             return `<div class="meal${thumb ? " has-thumb" : ""}"><span class="slot">${esc(m.slot)}</span>${thumb}<div>
-              ${r ? `<button class="linkish" data-recipe="${esc(r.id)}">${esc(r.name)}</button>` : esc(m.recipe_id)}
+              ${r ? `<button class="linkish" data-open="${key}">${esc(r.name)}</button>` : esc(m.recipe_id)}
               ${r ? `<div class="macros"><span>${esc(r.prep_minutes)} Min.</span></div>${macroHtml(r.per_serving)}` : ""}
               ${m.note ? `<div class="note">${esc(m.note)}</div>` : ""}
-              ${sel && r ? `<label class="pick-meal${m.picked ? " on" : ""}"><input type="checkbox" data-pick-meal="${di}:${mi}"${m.picked ? " checked" : ""} /> ${m.picked ? "Übernommen" : "Übernehmen"}</label>` : ""}
+              ${sel && r ? pickCtl(m, key) : ""}
             </div></div>`;
           }).join("")}
         </article>`).join("")}`;
-    out.querySelectorAll("[data-recipe]").forEach((b) => b.addEventListener("click", () => { const r = byId[b.dataset.recipe]; openRecipePage(r, { label: "Wochenplan · " + (r.slot || "Rezept") }); }));
+    const mealAt = (key) => { const [di, mi] = key.split(":").map(Number); return plan.days[di].meals[mi]; };
+    out.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => {
+      const m = mealAt(b.dataset.open); openPlanMeal(m, "Wochenplan · " + (m.slot || "Rezept"));
+    }));
+    // Abhaken fragt zuerst nach der Portionenzahl; erst „Übernehmen“ setzt die Zutaten auf die Liste.
     out.querySelectorAll("[data-pick-meal]").forEach((cb) => cb.addEventListener("change", () => {
-      const [di, mi] = cb.dataset.pickMeal.split(":").map(Number);
-      setMealPicked(plan.days[di].meals[mi], byId, cb.checked);
-      persist("plan"); persist("shopping"); renderShop();
-      const y = window.scrollY; renderPlan(); window.scrollTo({ top: y });
+      if (cb.checked) { pickAsk = { key: cb.dataset.pickMeal, n: defPortions() }; keepY(renderPlan); return; }
+      setMealPicked(mealAt(cb.dataset.pickMeal), false); savePlan(); keepY(renderPlan);
+    }));
+    out.querySelectorAll("[data-ask-por] [data-d]").forEach((b) => b.addEventListener("click", () => {
+      pickAsk.n = clampPor(pickAsk.n + Number(b.dataset.d)); keepY(renderPlan);
+    }));
+    out.querySelectorAll("[data-ask-cancel]").forEach((b) => b.addEventListener("click", () => { pickAsk = null; keepY(renderPlan); }));
+    out.querySelectorAll("[data-ask-ok]").forEach((b) => b.addEventListener("click", () => {
+      const { key, n } = pickAsk; pickAsk = null; plan.lastPortions = n;
+      if (key === "all") {
+        let c = 0;
+        for (const m of allMeals) if (!m.picked) { setMealPicked(m, true, n); c++; }
+        toast(`${c} ${c === 1 ? "Mahlzeit" : "Mahlzeiten"} für je ${n} ${portWord(n)} übernommen`);
+      } else {
+        setMealPicked(mealAt(key), true, n);
+        toast(`Für ${n} ${portWord(n)} übernommen – steht jetzt in „Deine Woche“`);
+      }
+      savePlan(); keepY(renderPlan);
     }));
     out.querySelectorAll("[data-pick-all]").forEach((b) => b.addEventListener("click", () => {
-      const on = b.dataset.pickAll === "1";
-      for (const d of arr(plan.days)) for (const m of arr(d.meals)) if (byId[m.recipe_id]) setMealPicked(m, byId, on);
-      persist("plan"); persist("shopping"); renderShop(); renderPlan();
-      toast(on ? "Alle Mahlzeiten übernommen" : "Auswahl aufgehoben – Zutaten von der Liste genommen");
+      if (b.dataset.pickAll === "1") { pickAsk = { key: "all", n: defPortions() }; keepY(renderPlan); return; }
+      for (const m of allMeals) setMealPicked(m, false);
+      pickAsk = null; savePlan(); keepY(renderPlan);
+      toast("Auswahl aufgehoben – Zutaten von der Liste genommen");
     }));
   }
 
-  // Eine Mahlzeit übernehmen: ihr Anteil am Rezept (Meal-Prep-Rezepte reichen für mehrere Mahlzeiten)
-  // kommt auf die Einkaufsliste – ohne das, was laut Vorrat schon da ist. Beim Abwählen wird genau das wieder entfernt.
-  function setMealPicked(m, byId, on) {
-    if (!!m.picked === on) return;
-    if (on) {
-      const r = byId[m.recipe_id]; if (!r) return;
-      const f = Math.max(1, num(state.plan.persons, 1)) / Math.max(1, num(r.servings, 1));
-      const items = arr(r.ingredients).filter((i) => !isStaple(i.name) && ingStatus(i) === "fehlt")
-        .map((i) => ({ name: i.name, unit: i.unit, category: i.category || "Sonstiges", amount: scaleAmount(i.amount, i.unit, f), st: "fehlt" }));
-      addToShopping(items, 1);
-      m.added = items.map(({ name, unit, amount }) => ({ name, unit, amount }));
-      m.picked = true;
-    } else {
-      addToShopping(arr(m.added), -1);
-      m.added = []; m.picked = false;
+  // „Deine Woche“: nur die übernommenen Mahlzeiten, Portionen direkt anpassbar.
+  function renderWeek() {
+    const out = $("#plan-week"), plan = state.plan, byId = planById();
+    const days = arr(plan && plan.days).map((d, di) => ({ d, di, ms: arr(d.meals).map((m, mi) => ({ m, mi, r: byId[m.recipe_id] })).filter((x) => x.r && inWeek(x.m)) }));
+    const count = days.reduce((a, x) => a + x.ms.length, 0);
+    const badge = $("#plan-count"); badge.hidden = !count; badge.textContent = count;
+    if (!count) {
+      out.innerHTML = `<div class="card"><span class="eyebrow">Deine Woche</span><h3>Noch nichts übernommen</h3>
+        <p class="muted small">${plan ? "Hake unter „Planen“ die Mahlzeiten ab, die du wirklich kochen willst. Sie erscheinen dann hier als dein Wochenplan." : "Lass dir unter „Planen“ einen Wochenplan vorschlagen und übernimm die Mahlzeiten, die dir gefallen."}</p>
+        <div class="row"><button class="btn primary" type="button" data-psub-go>Zu „Planen“</button></div></div>`;
+      out.querySelector("[data-psub-go]").addEventListener("click", () => { showPlanSub("plan"); window.scrollTo({ top: 0 }); });
+      return;
     }
+    const sel = !!plan.selectable, active = days.filter((x) => x.ms.length);
+    const portions = active.reduce((a, x) => a + x.ms.reduce((b, { m }) => b + mealPortions(m), 0), 0);
+    const sum = (ms) => ["kcal", "protein_g", "carbs_g", "fat_g"].reduce((o, k) => ({ ...o, [k]: ms.reduce((a, { r }) => a + num(r.per_serving && r.per_serving[k]), 0) }), {});
+    out.innerHTML = `
+      <div class="card">
+        <span class="eyebrow">Deine Woche</span>
+        <p><strong>${count} ${count === 1 ? "Mahlzeit" : "Mahlzeiten"}</strong> an ${active.length} ${active.length === 1 ? "Tag" : "Tagen"}${sel ? ` · ${portions} ${portWord(portions)} insgesamt` : ""}</p>
+        <p class="small muted">Tippe auf ein Gericht für Rezept und Kochmodus.${sel ? " Mit − und + änderst du die Portionen, die Einkaufsliste rechnet mit." : ""}</p>
+        ${LEGEND}
+      </div>
+      ${active.map(({ d, di, ms }) => `
+        <article class="card day" data-tilt>
+          <header><h3>${esc(d.day)}</h3>${macroHtml(sum(ms))}</header>
+          ${ms.map(({ m, mi, r }) => {
+            const key = `${di}:${mi}`, art = dishArt(r, 200, 200, m.slot), n = mealPortions(m);
+            return `<div class="meal${art ? " has-thumb" : ""}"><span class="slot">${esc(m.slot)}</span>
+              ${art ? `<button class="thumb" data-wk-open="${key}" aria-label="${esc(r.name)} ansehen">${art.html}</button>` : ""}<div>
+              <button class="linkish" data-wk-open="${key}">${esc(r.name)}</button>
+              <div class="macros"><span>${esc(r.prep_minutes)} Min.</span></div>${macroHtml(r.per_serving)}
+              ${m.note ? `<div class="note">${esc(m.note)}</div>` : ""}
+              ${sel ? `<div class="wk-ctl">${stepperHtml(n, `data-wk-por="${key}"`)}<button class="btn sm ghost" type="button" data-wk-rm="${key}">Entfernen</button></div>` : ""}
+            </div></div>`;
+          }).join("")}
+        </article>`).join("")}`;
+    const mealAt = (key) => { const [di, mi] = key.split(":").map(Number); return plan.days[di].meals[mi]; };
+    out.querySelectorAll("[data-wk-open]").forEach((b) => b.addEventListener("click", () => {
+      const [di] = b.dataset.wkOpen.split(":").map(Number), m = mealAt(b.dataset.wkOpen);
+      openPlanMeal(m, `${plan.days[di].day} · ${m.slot || "Rezept"}`);
+    }));
+    out.querySelectorAll("[data-wk-por] [data-d]").forEach((b) => b.addEventListener("click", () => {
+      const m = mealAt(b.closest("[data-wk-por]").dataset.wkPor);
+      setMealPicked(m, true, mealPortions(m) + Number(b.dataset.d)); savePlan(); keepY(renderPlan);
+    }));
+    out.querySelectorAll("[data-wk-rm]").forEach((b) => b.addEventListener("click", () => {
+      setMealPicked(mealAt(b.dataset.wkRm), false); savePlan(); keepY(renderPlan);
+      toast("Aus deiner Woche entfernt – Zutaten von der Einkaufsliste genommen");
+    }));
+  }
+
+  // Eine Mahlzeit übernehmen: ihr Rezept für n Portionen kommt auf die Einkaufsliste – ohne das,
+  // was laut Vorrat schon da ist. Beim Abwählen oder Ändern wird genau das vorher Eingetragene wieder entfernt.
+  function setMealPicked(m, on, n) {
+    if (!on) {
+      if (m.picked) addToShopping(arr(m.added), -1);
+      m.added = []; m.picked = false;
+      return;
+    }
+    const r = planById()[m.recipe_id]; if (!r) return;
+    if (m.picked) setMealPicked(m, false);
+    n = clampPor(n === undefined ? defPortions() : n);
+    const f = n / basePortions(r);
+    const items = arr(r.ingredients).filter((i) => !isStaple(i.name) && ingStatus(i) === "fehlt")
+      .map((i) => ({ name: i.name, unit: i.unit, category: i.category || "Sonstiges", amount: scaleAmount(i.amount, i.unit, f), st: "fehlt" }));
+    addToShopping(items, 1);
+    m.added = items.map(({ name, unit, amount }) => ({ name, unit, amount }));
+    m.picked = true; m.portions = n;
   }
 
   function progress(stepsList, active, error) {
@@ -1432,7 +1571,7 @@ BASISVORRAT (immer im Haus)
 ${staplesText(p)}
 ${wishes ? "\nWÜNSCHE FÜR DIESE WOCHE\n" + wishes + "\n" : ""}
 REGELN
-- Jeder Tag hat genau ${p.mealsPerDay} Mahlzeiten (slot: Frühstück, Mittagessen, Abendessen oder Snack).
+${mealSlots(p) ? `- Jeder Tag hat genau 2 Mahlzeiten: ${mealSlots(p).join(" und ")} (slot genau so benennen, keine anderen Mahlzeiten).` : `- Jeder Tag hat genau ${p.mealsPerDay} Mahlzeiten (slot: Frühstück, Mittagessen, Abendessen oder Snack).`}
 - Höchstens 14 verschiedene Rezepte: nutze Meal-Prep und Reste (dann in "note" vermerken, sonst note leer).
 - Gesund, abwechslungsreich, wirklich lecker, Zutaten aus dem normalen deutschen Supermarkt.
 - servings eines Rezepts = ${p.persons} × Anzahl der Mahlzeiten im Plan, in denen das Rezept vorkommt.
@@ -1480,6 +1619,7 @@ Antworte NUR mit JSON: {"recipes":[{"id":"r1","ingredients":[{"name":"…","amou
       // Die Einkaufsliste bleibt unberührt: Mahlzeiten werden einzeln abgehakt und erst dann übernommen.
       for (const d of skeleton.days) for (const m of arr(d.meals)) { m.picked = false; m.added = []; }
       state.plan = { summary: str(skeleton.summary), daily_target: skeleton.daily_target, recipes, days: skeleton.days, persons: num(p.persons, 1), selectable: true };
+      pickAsk = null; showPlanSub("plan");
       persist("plan");
       progress(STEPS, 2);
       setTimeout(() => ($("#plan-progress").hidden = true), 1500);
@@ -2609,6 +2749,16 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
     // Einkaufen: fehlende Zutaten für die gewählten Portionen auf die Liste, dann zur Einkaufsliste.
     // Wurde das Rezept schon mit anderer Portionenzahl eingetragen, wird nur die Differenz angepasst.
     $("#rv").querySelectorAll('[data-act="shop"]').forEach((b) => b.addEventListener("click", () => {
+      const mm = view.ctx.meal;
+      if (mm && state.plan && state.plan.selectable) {
+        if (mm.picked && mealPortions(mm) === P) toast("Steht schon in deiner Woche und auf der Einkaufsliste");
+        else {
+          const was = mm.picked; setMealPicked(mm, true, P); state.plan.lastPortions = P;
+          persist("plan"); persist("shopping"); renderShop(); renderPlan();
+          toast(was ? `Auf ${P} ${portWord(P)} angepasst` : `In deine Woche übernommen – ${P} ${portWord(P)}`);
+        }
+        showTab("shop"); return;
+      }
       if (!missing.length) { toast("Alles zu Hause – nichts einzukaufen"); return; }
       const prev = r.onList === true ? basePortions(r) : num(r.onList, 0);
       if (prev === P) toast("Die Zutaten stehen schon auf deiner Einkaufsliste");
@@ -2762,6 +2912,7 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
   function renderAll() { fillForm(); fillTrainingForm(); renderTraining(); renderBody(); renderHint(); renderMealHint(); renderPlan(); renderShop(); renderPantry(); renderMeal(); }
   renderAll();
   showSub(local.get("sub", "goals") === "progress" ? "progress" : "goals");
+  showPlanSub(local.get("psub", "plan") === "week" ? "week" : "plan");
   { const t = local.get("tab", "meal"); showTab(["meal", "plan", "train", "shop", "fridge", "profile"].includes(t) ? t : "meal"); }
   initRemote();
 
