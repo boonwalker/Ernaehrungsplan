@@ -66,7 +66,7 @@
   .brand-mark .glyphs { font-family: var(--font-display); font-weight: 800; font-size: .95em; line-height: 1; display: inline-flex; transform: translate(.06em, .03em); }
   .wordmark { font-family: var(--font-display); font-weight: 800; letter-spacing: .012em; display: inline-flex; line-height: 1; }
   .wordmark .a { color: var(--brand); }
-  .pow { position: relative; display: inline-block; width: .2em; margin: 0 .04em 0 .03em; }
+  .pow { position: relative; display: inline-block; width: .2em; margin: 0 .04em 0 -.035em; }
   .pow::before { /* Strich des ⁱ */
     content: ""; position: absolute; left: .05em; top: .2em; width: .105em; height: .3em; border-radius: .03em; background: currentColor;
   }
@@ -292,6 +292,25 @@
   .tablewrap td { padding: 7px 8px 7px 0; border-top: 1px solid var(--line); white-space: nowrap; }
   .tablewrap .x { border: 0; background: none; color: var(--muted); cursor: pointer; font: inherit; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* Serviervorschlag */
+  .idea-card { padding: 0; overflow: hidden; gap: 0; }
+  .idea-card .idea { padding: 16px 18px 18px; }
+  .idea-card.picked { outline: 2px solid var(--brand); }
+  .dish { position: relative; aspect-ratio: 5 / 3; max-width: 100%; overflow: hidden; background: #dfe5db; }
+  .dish svg { display: block; width: 100%; height: 100%; }
+  .dish-tag { position: absolute; left: 12px; bottom: 10px; font-size: .68rem; font-weight: 700; letter-spacing: .04em; color: #1c2a20; background: rgb(255 255 255 / .78); backdrop-filter: blur(6px); border-radius: 999px; padding: 3px 9px; }
+  .has-hero { padding-top: 0; overflow: hidden; }
+  .dish-hero { margin: 0 -18px; width: calc(100% + 36px); max-width: none; aspect-ratio: 400 / 260; }
+  .dish-hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(transparent, var(--surface)); pointer-events: none; }
+  .has-hero .dish-tag, dialog .dish-tag { bottom: auto; top: 12px; }
+  .has-hero .rhead { margin-top: -54px; position: relative; }
+  .has-hero .rhead .ring { box-shadow: 0 0 0 5px var(--surface); }
+  dialog .dish-hero { margin: -20px -20px 0; width: calc(100% + 40px); aspect-ratio: 400 / 240; }
+  .meal.has-thumb { grid-template-columns: 96px 52px minmax(0, 1fr); }
+  .thumb { width: 52px; height: 52px; border-radius: 14px; overflow: hidden; border: 0; padding: 0; cursor: pointer; background: #dfe5db; }
+  .thumb svg { width: 100%; height: 100%; display: block; }
+  @media (max-width: 420px) { .meal.has-thumb { grid-template-columns: 52px minmax(0, 1fr); } .meal.has-thumb .slot { grid-column: 1 / -1; } }
 
   /* Rezept-Dialog */
   dialog { border: 0; border-radius: var(--r-lg); padding: 0; width: min(640px, calc(100vw - 32px)); max-height: 88vh; background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
@@ -915,7 +934,9 @@
   function openRecipe(r) {
     if (!r) return;
     const ing = arr(r.ingredients), steps = arr(r.steps);
+    const art = r.plating ? dishSvg(r.plating, r.name, 400, 240) : "";
     $("#recipe-body").innerHTML = `
+      ${art ? `<div class="dish dish-hero">${art}<span class="dish-tag">Serviervorschlag</span></div>` : ""}
       <div class="row" style="justify-content:space-between"><span class="eyebrow">${esc(r.slot || "Rezept")}</span>
         <button class="btn sm" id="recipe-close">Schließen</button></div>
       <h2>${esc(r.name)}</h2>
@@ -969,7 +990,8 @@
           <header><h3>${esc(d.day)}</h3>${macroHtml(d.totals)}</header>
           ${arr(d.meals).map((m) => {
             const r = byId[m.recipe_id];
-            return `<div class="meal"><span class="slot">${esc(m.slot)}</span><div>
+            const thumb = r && r.plating ? `<button class="thumb" data-recipe="${esc(r.id)}" aria-label="${esc(r.name)} ansehen">${dishSvg(r.plating, r.name, 200, 200)}</button>` : "";
+            return `<div class="meal${thumb ? " has-thumb" : ""}"><span class="slot">${esc(m.slot)}</span>${thumb}<div>
               ${r ? `<button class="linkish" data-recipe="${esc(r.id)}">${esc(r.name)}</button>` : esc(m.recipe_id)}
               ${r ? `<div class="macros"><span>${esc(r.prep_minutes)} Min.</span></div>${macroHtml(r.per_serving)}` : ""}
               ${m.note ? `<div class="note">${esc(m.note)}</div>` : ""}
@@ -1030,7 +1052,8 @@ REGELN
 
 Antworte NUR mit einem JSON-Objekt in genau dieser Form:
 {"summary":"2–3 Sätze zur Idee des Plans","daily_target":{"kcal":0,"protein_g":0,"carbs_g":0,"fat_g":0},
-"recipes":[{"id":"r1","name":"…","description":"1 Satz","slot":"Frühstück","prep_minutes":15,"servings":2,"per_serving":{"kcal":0,"protein_g":0,"carbs_g":0,"fat_g":0},"tags":["proteinreich"]}],
+"recipes":[{"id":"r1","name":"…","description":"1 Satz","slot":"Frühstück","prep_minutes":15,"servings":2,"per_serving":{"kcal":0,"protein_g":0,"carbs_g":0,"fat_g":0},"tags":["proteinreich"],
+${PLATING_SPEC}}],
 "days":[{"day":"Montag","meals":[{"slot":"Frühstück","recipe_id":"r1","note":""}],"totals":{"kcal":0,"protein_g":0,"carbs_g":0,"fat_g":0}}]}`,
         { signal, cache: false });
       if (!validSkeleton(skeleton)) throw new AskError("invalid_json", "Der Plan war unvollständig. Bitte erneut versuchen.");
@@ -1093,6 +1116,7 @@ Antworte NUR mit JSON: {"items":[{"name":"…","amount":1,"unit":"Stück","categ
       const items = arr(shop && shop.items).filter((i) => i && i.name);
       if (!items.length) throw new AskError("invalid_json", "Die Einkaufsliste war leer. Bitte erneut versuchen.");
 
+      for (const r of recipes) r.plating = cleanPlating(r.plating);
       state.plan = { summary: str(skeleton.summary), daily_target: skeleton.daily_target, recipes, days: skeleton.days };
       state.shopping = items.map((i) => ({
         name: str(i.name), amount: num(i.amount), unit: str(i.unit), category: str(i.category) || "Sonstiges",
@@ -1274,6 +1298,154 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
     });
   }
 
+  // ---------------- Serviervorschlag: gezeichnetes Bild des angerichteten Gerichts ----------------
+  // Die KI liefert nur eine kurze Beschreibung (Gefäß, Basis, Komponenten mit Farbe und Form); gezeichnet wird hier.
+  const SHAPES = ["chunks", "slices", "round", "grains", "leaves", "strips", "noodles", "dollop", "fillet", "drizzle", "crumbs"];
+  const VESSELS = ["teller", "schüssel", "glas", "brett"];
+  const FALLBACK = { chunks: "#d98c4a", slices: "#e2574c", round: "#c9a35a", grains: "#efe6cf", leaves: "#5d9b45", strips: "#e9a23b",
+    noodles: "#efd08a", dollop: "#f4f1ea", fillet: "#e7a07a", drizzle: "#7a4a2a", crumbs: "#3f6b2c" };
+
+  function hashStr(s) { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function rng(seed) { let a = seed || 1; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  const hex = (c, f) => (/^#[0-9a-f]{6}$/i.test(String(c || "")) ? String(c) : f);
+  function shade(c, amt) {
+    const n = parseInt(c.slice(1), 16), k = amt < 0 ? 0 : 255, p = Math.abs(amt);
+    const ch = (v) => Math.round(v + (k - v) * p);
+    return "#" + [n >> 16, (n >> 8) & 255, n & 255].map((v) => ch(v).toString(16).padStart(2, "0")).join("");
+  }
+  function cleanPlating(pl) {
+    if (!pl || typeof pl !== "object") return null;
+    const items = arr(pl.items).filter((i) => i && SHAPES.includes(i.shape)).slice(0, 7)
+      .map((i) => ({ name: str(i.name), shape: i.shape, color: hex(i.color, FALLBACK[i.shape]), amount: Math.max(1, Math.min(5, Math.round(num(i.amount, 2)))) }));
+    if (!items.length) return null;
+    return { vessel: VESSELS.includes(pl.vessel) ? pl.vessel : "teller", base: hex(pl.base, ""), items };
+  }
+  const PLATING_SPEC = `"plating":{"vessel":"teller|schüssel|glas|brett","base":"#hex der Basis/Soße oder leer","items":[{"name":"Lachs","shape":"fillet","color":"#e9906a","amount":1}]}
+(plating = so sieht das fertig angerichtete Gericht von oben aus: 3–7 sichtbare Komponenten mit realistischer Farbe im gegarten Zustand;
+shape nur: chunks (Würfel/Stücke), slices (Scheiben), round (Kugeln, Beeren, Kichererbsen), grains (Reis, Quinoa, Couscous), leaves (Salat, Spinat, Kräuter),
+strips (Streifen), noodles (Nudeln), dollop (Klecks: Joghurt, Hummus, Avocadocreme), fillet (Fleisch-/Fischstück, Ei, Toast), drizzle (Soße/Öl/Honig darüber), crumbs (Samen, Nüsse, Kräuterstreusel);
+amount 1–5 = Menge)`;
+
+  function dishSvg(plIn, seedText, w = 400, h = 240) {
+    const pl = cleanPlating(plIn);
+    if (!pl) return "";
+    const R = rng(hashStr(seedText + pl.items.map((i) => i.name).join()));
+    const id = "d" + hashStr(seedText + w + h).toString(36);
+    const cx = w / 2, cy = h / 2 + 4, PR = Math.min(h * 0.43, w * (w / h < 1.2 ? 0.45 : 0.3));
+    const out = [];
+    const f = (n) => n.toFixed(1);
+    const defs = `<defs>
+      <linearGradient id="${id}t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9ece4"/><stop offset="1" stop-color="#cfd6cb"/></linearGradient>
+      <radialGradient id="${id}l" cx=".3" cy=".2" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${id}p" cx=".5" cy=".45" r=".6"><stop offset=".72" stop-color="#ffffff"/><stop offset="1" stop-color="#e6e8e2"/></radialGradient>
+      <radialGradient id="${id}b" cx=".5" cy=".42" r=".62"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></radialGradient>
+      <filter id="${id}s" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.3" flood-color="#2a1a0a" flood-opacity=".28"/></filter>
+      <filter id="${id}S" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#1c2a20" flood-opacity=".28"/></filter>
+    </defs>`;
+    // Tisch, Licht, Serviette und Gabel
+    out.push(`<rect width="${w}" height="${h}" fill="url(#${id}t)"/>`);
+    for (let i = 0; i < 40; i++) out.push(`<circle cx="${f(R() * w)}" cy="${f(R() * h)}" r="${f(.6 + R())}" fill="#000" opacity="${f(.03 + R() * .03)}"/>`);
+    out.push(`<g transform="rotate(-12 ${f(cx - PR * 1.25)} ${f(cy + PR * .5)})"><rect x="${f(cx - PR * 1.75)}" y="${f(cy - PR * .2)}" width="${f(PR * .9)}" height="${f(PR * 1.1)}" rx="6" fill="#f6efe2"/>
+      <rect x="${f(cx - PR * 1.75)}" y="${f(cy - PR * .05)}" width="${f(PR * .9)}" height="5" fill="#e07a52" opacity=".55"/></g>`);
+    const fx = cx + PR * 1.28;
+    out.push(`<g fill="#b9bfb6" opacity=".9"><rect x="${f(fx - 2.5)}" y="${f(cy - PR * .35)}" width="5" height="${f(PR * 1.15)}" rx="2.5"/>
+      ${[-7, -2.3, 2.3, 7].map((dx) => `<rect x="${f(fx + dx - 1.2)}" y="${f(cy - PR * .78)}" width="2.4" height="${f(PR * .38)}" rx="1.2"/>`).join("")}
+      <rect x="${f(fx - 8.5)}" y="${f(cy - PR * .45)}" width="17" height="10" rx="5"/></g>`);
+
+    // Gefäß
+    let FR; // Radius der Fläche fürs Essen
+    if (pl.vessel === "glas") return glassSvg(pl, id, defs, out, w, h, R, f);
+    if (pl.vessel === "brett") {
+      out.push(`<g filter="url(#${id}S)" transform="rotate(-6 ${cx} ${cy})"><rect x="${f(cx - PR * 1.15)}" y="${f(cy - PR * .78)}" width="${f(PR * 2.3)}" height="${f(PR * 1.56)}" rx="18" fill="#c08a55"/>
+        <rect x="${f(cx + PR * 1.1)}" y="${f(cy - 9)}" width="${f(PR * .32)}" height="18" rx="9" fill="#b37d49"/></g>
+        <g transform="rotate(-6 ${cx} ${cy})" stroke="#a46f3e" stroke-width="1.2" fill="none" opacity=".5">${[0, 1, 2, 3].map((i) => `<path d="M${f(cx - PR)} ${f(cy - PR * .5 + i * PR * .33)} q ${f(PR)} ${f(-8 + R() * 16)} ${f(PR * 2)} 0"/>`).join("")}</g>`);
+      FR = PR * .78;
+    } else if (pl.vessel === "schüssel") {
+      const bowl = ["#f3eee4", "#e3ebee", "#33443b", "#e9dccb", "#f1e6dc"][Math.floor(R() * 5)];
+      out.push(`<circle cx="${cx}" cy="${cy}" r="${f(PR)}" fill="${bowl}" filter="url(#${id}S)"/>
+        <circle cx="${cx}" cy="${cy}" r="${f(PR * .9)}" fill="${shade(bowl, -.08)}"/>`);
+      FR = PR * .86;
+    } else {
+      out.push(`<circle cx="${cx}" cy="${cy}" r="${f(PR)}" fill="url(#${id}p)" filter="url(#${id}S)"/>
+        <circle cx="${cx}" cy="${cy}" r="${f(PR * .78)}" fill="none" stroke="#e3e6df" stroke-width="1.5"/>`);
+      FR = PR * .76;
+    }
+    // Basis (Soße, Reis, Joghurt …)
+    if (pl.base) out.push(`${pl.vessel === "schüssel" ? `<circle cx="${cx}" cy="${cy}" r="${f(FR)}" fill="${pl.base}"/><circle cx="${cx}" cy="${cy}" r="${f(FR)}" fill="url(#${id}b)"/>` : `<path d="${blob(cx, cy, FR * .9, R, 14, .08)}" fill="${pl.base}"/>`}
+      <path d="${blob(cx - FR * .12, cy - FR * .14, FR * .5, R, 10, .15)}" fill="${shade(pl.base, .18)}" opacity=".5"/>`);
+
+    // Komponenten verteilen: Hauptstück in die Mitte, der Rest in Sektoren drumherum, Garnitur obendrauf
+    const top = pl.items.filter((i) => i.shape === "drizzle" || i.shape === "crumbs");
+    const main = pl.items.filter((i) => !top.includes(i));
+    const centerIdx = main.findIndex((i) => i.shape === "fillet" || i.shape === "dollop");
+    const center = centerIdx >= 0 ? main.splice(centerIdx, 1)[0] : null;
+    const g = [];
+    const a0 = R() * Math.PI * 2;
+    if (pl.vessel === "brett") {
+      // Auf dem Brett liegen die Komponenten nebeneinander, das Hauptstück (z. B. Toast) unten drunter.
+      const all = center ? [center, ...main] : main;
+      all.forEach((it, k) => g.push(drawItem(it, cx + (k - (all.length - 1) / 2) * FR * .55 + (k ? 0 : 0), cy + (k % 2 ? FR * .12 : -FR * .08), FR * (k ? .55 : .9), R, f)));
+    } else {
+      main.forEach((it, k) => {
+        const ang = a0 + (k / Math.max(1, main.length)) * Math.PI * 2;
+        const rad = center || main.length > 1 ? FR * .48 : 0;
+        const s = main.length > 1 || center ? FR * (main.length > 4 ? .62 : .74) : FR * .95;
+        g.push(drawItem(it, cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad, s, R, f));
+      });
+      if (center) g.push(drawItem(center, cx, cy, FR * (main.length ? .72 : .95), R, f));
+    }
+    out.push(`<g filter="url(#${id}s)">${g.join("")}</g>`);
+    for (const it of top) out.push(drawItem(it, cx, cy, FR * .85, R, f));
+    out.push(`<rect width="${w}" height="${h}" fill="url(#${id}l)"/>`);
+    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Serviervorschlag (Illustration)">${defs}${out.join("")}</svg>`;
+  }
+
+  function blob(cx, cy, r, R, n, jit) {
+    const pts = [];
+    for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2, rr = r * (1 - jit + R() * jit * 2); pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); }
+    let d = "";
+    for (let i = 0; i < n; i++) {
+      const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+      if (!i) d += `M${p1[0].toFixed(1)} ${p1[1].toFixed(1)}`;
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+    }
+    return d + "Z";
+  }
+
+  function drawItem(it, x, y, s, R, f) {
+    const c = it.color, dk = shade(c, -.22), lt = shade(c, .3), n = it.amount, o = [];
+    const spot = (spread) => { const a = R() * Math.PI * 2, d = Math.sqrt(R()) * s * spread; return [x + Math.cos(a) * d, y + Math.sin(a) * d]; };
+    switch (it.shape) {
+      case "chunks": for (let i = 0; i < 9 + n * 4; i++) { const [px, py] = spot(.5), z = s * (.2 + R() * .08); o.push(`<rect x="${f(px - z / 2)}" y="${f(py - z / 2)}" width="${f(z)}" height="${f(z * (.8 + R() * .3))}" rx="${f(z * .28)}" fill="${c}" stroke="${dk}" stroke-width=".8" transform="rotate(${f(R() * 90)} ${f(px)} ${f(py)})"/>`); } break;
+      case "slices": for (let i = 0; i < 3 + n * 2; i++) { const [px, py] = spot(.4), r = s * (.18 + R() * .04); o.push(`<circle cx="${f(px)}" cy="${f(py)}" r="${f(r)}" fill="${c}"/><circle cx="${f(px)}" cy="${f(py)}" r="${f(r * .72)}" fill="${lt}" opacity=".7"/>${[0, 1, 2, 3].map((k) => `<circle cx="${f(px + Math.cos(k * 1.57 + .4) * r * .35)}" cy="${f(py + Math.sin(k * 1.57 + .4) * r * .35)}" r="${f(r * .09)}" fill="${dk}" opacity=".6"/>`).join("")}`); } break;
+      case "round": for (let i = 0; i < 16 + n * 6; i++) { const [px, py] = spot(.5), r = s * (.075 + R() * .03); o.push(`<circle cx="${f(px)}" cy="${f(py)}" r="${f(r)}" fill="${c}"/><circle cx="${f(px - r * .35)}" cy="${f(py - r * .35)}" r="${f(r * .3)}" fill="#fff" opacity=".45"/>`); } break;
+      case "grains": o.push(`<path d="${blob(x, y, s * .58, R, 10, .12)}" fill="${c}"/>`); for (let i = 0; i < 70 + n * 20; i++) { const [px, py] = spot(.52); o.push(`<ellipse cx="${f(px)}" cy="${f(py)}" rx="${f(s * .035)}" ry="${f(s * .018)}" fill="${i % 3 ? lt : dk}" opacity=".8" transform="rotate(${f(R() * 180)} ${f(px)} ${f(py)})"/>`); } break;
+      case "leaves": for (let i = 0; i < 8 + n * 4; i++) { const [px, py] = spot(.5), l = s * (.18 + R() * .1), col = R() > .5 ? c : shade(c, R() > .5 ? .15 : -.12); o.push(`<g transform="translate(${f(px)} ${f(py)}) rotate(${f(R() * 360)})"><path d="M0 ${f(-l)} C${f(l * .65)} ${f(-l * .4)} ${f(l * .6)} ${f(l * .5)} 0 ${f(l)} C${f(-l * .6)} ${f(l * .5)} ${f(-l * .65)} ${f(-l * .4)} 0 ${f(-l)}Z" fill="${col}"/><path d="M0 ${f(-l * .8)} L0 ${f(l * .85)}" stroke="${dk}" stroke-width=".8" opacity=".6"/></g>`); } break;
+      case "strips": for (let i = 0; i < 8 + n * 3; i++) { const [px, py] = spot(.42), L = s * (.5 + R() * .2), t = s * .085; o.push(`<rect x="${f(px - L / 2)}" y="${f(py - t / 2)}" width="${f(L)}" height="${f(t)}" rx="${f(t / 2)}" fill="${c}" stroke="${dk}" stroke-width=".6" transform="rotate(${f(R() * 180)} ${f(px)} ${f(py)})"/>`); } break;
+      case "noodles": o.push(`<path d="${blob(x, y, s * .5, R, 10, .1)}" fill="${shade(c, -.06)}"/>`); for (let i = 0; i < 36 + n * 8; i++) { const [px, py] = spot(.42), a = R() * Math.PI, L = s * .42, dx = Math.cos(a) * L, dy = Math.sin(a) * L; o.push(`<path d="M${f(px - dx)} ${f(py - dy)} C${f(px - dx * .3 + dy * .4)} ${f(py - dy * .3 - dx * .4)} ${f(px + dx * .3 - dy * .4)} ${f(py + dy * .3 + dx * .4)} ${f(px + dx)} ${f(py + dy)}" fill="none" stroke="${i % 4 ? c : dk}" stroke-width="${f(s * .045)}" stroke-linecap="round"/>`); } break;
+      case "dollop": o.push(`<path d="${blob(x, y, s * (.34 + n * .04), R, 9, .14)}" fill="${c}"/>${Array.from({ length: n * 4 }, () => { const [px, py] = spot(.3); return `<circle cx="${f(px)}" cy="${f(py)}" r="${f(s * .03)}" fill="${dk}" opacity=".35"/>`; }).join("")}<path d="${blob(x - s * .05, y - s * .06, s * .14, R, 7, .2)}" fill="${lt}" opacity=".8"/><path d="M${f(x - s * .12)} ${f(y + s * .02)} q ${f(s * .12)} ${f(-s * .12)} ${f(s * .22)} 0" stroke="${dk}" stroke-width="1" fill="none" opacity=".35"/>`); break;
+      case "fillet": for (let i = 0; i < Math.min(3, n); i++) { const [px, py] = i ? spot(.3) : [x, y], rw = s * (.55 - i * .06), rh = rw * .64, rot = R() * 60 - 30; o.push(`<g transform="rotate(${f(rot)} ${f(px)} ${f(py)})"><path d="${blob(px, py, 1, R, 8, .1).replace(/(-?\d+\.?\d*) (-?\d+\.?\d*)/g, (m, a, b) => `${f(px + (a - px) * rw)} ${f(py + (b - py) * rh)}`)}" fill="${c}" stroke="${dk}" stroke-width="1.2"/>${[-1, 0, 1].map((k) => `<path d="M${f(px - rw * .55)} ${f(py + k * rh * .4 - rh * .25)} l ${f(rw * 1.1)} ${f(rh * .5)}" stroke="${dk}" stroke-width="${f(s * .04)}" stroke-linecap="round" opacity=".45"/>`).join("")}<ellipse cx="${f(px - rw * .3)}" cy="${f(py - rh * .35)}" rx="${f(rw * .3)}" ry="${f(rh * .15)}" fill="#fff" opacity=".18"/></g>`); } break;
+      case "drizzle": for (let k = 0; k < 2; k++) { const y0 = y - s * .25 + k * s * .32; let d = `M${f(x - s * .7)} ${f(y0 + s * .15)}`; for (let i = 0; i < 4; i++) d += ` c ${f(s * .12)} ${f(-s * (.12 + R() * .08))} ${f(s * .24)} ${f(s * (.12 + R() * .08))} ${f(s * .35)} ${f(-s * .06)}`; o.push(`<path d="${d}" fill="none" stroke="${c}" stroke-width="${f(2 + n * .5)}" stroke-linecap="round" opacity=".85"/>`); } break;
+      case "crumbs": for (let i = 0; i < 26 + n * 10; i++) { const [px, py] = spot(.85); o.push(`<ellipse cx="${f(px)}" cy="${f(py)}" rx="${f(1 + R() * 1.6)}" ry="${f(.8 + R())}" fill="${R() > .3 ? c : lt}" transform="rotate(${f(R() * 180)} ${f(px)} ${f(py)})"/>`); } break;
+    }
+    return o.join("");
+  }
+
+  function glassSvg(pl, id, defs, out, w, h, R, f) {
+    const cx = w / 2, top = h * .16, bot = h * .9, tw = h * .36, bw = h * .27;
+    const fill = pl.base || pl.items[0].color;
+    out.push(`<ellipse cx="${cx}" cy="${f(bot + 2)}" rx="${f(bw * .9)}" ry="7" fill="#1c2a20" opacity=".18"/>
+      <path d="M${f(cx - tw / 2)} ${f(top)} L${f(cx - bw / 2)} ${f(bot)} Q${cx} ${f(bot + 8)} ${f(cx + bw / 2)} ${f(bot)} L${f(cx + tw / 2)} ${f(top)}Z" fill="#ffffff" opacity=".55" stroke="#ffffff" stroke-width="2"/>
+      <path d="M${f(cx - tw / 2 * .93)} ${f(top + h * .1)} L${f(cx - bw / 2 * .93)} ${f(bot - 3)} Q${cx} ${f(bot + 4)} ${f(cx + bw / 2 * .93)} ${f(bot - 3)} L${f(cx + tw / 2 * .93)} ${f(top + h * .1)}Z" fill="${fill}"/>
+      <path d="M${f(cx - tw / 2 * .93 + 4)} ${f(top + h * .12)} L${f(cx - bw / 2 * .93 + 4)} ${f(bot - 8)}" stroke="#fff" stroke-width="5" opacity=".35" stroke-linecap="round"/>
+      <rect x="${f(cx + tw * .12)}" y="${f(top - h * .12)}" width="6" height="${f(h * .5)}" rx="3" fill="#e07a52" transform="rotate(14 ${f(cx + tw * .12)} ${f(top)})"/>`);
+    const tops = pl.items.filter((i) => i.color !== fill).slice(0, 4);
+    const g = tops.map((it, k) => drawItem({ ...it, amount: Math.min(2, it.amount) }, cx - tw * .25 + k * tw * .17, top + h * .1, h * .14, R, f));
+    out.push(`<g filter="url(#${id}s)">${g.join("")}</g><rect width="${w}" height="${h}" fill="url(#${id}l)"/>`);
+    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Serviervorschlag (Illustration)">${defs}${out.join("")}</svg>`;
+  }
+
   // ---------------- Mahlzeit: erst 3 kurze Ideen, dann nur das gewählte Rezept ausarbeiten ----------------
   const STATUS = ["vorhanden", "teilweise", "fehlt"];
 
@@ -1318,6 +1490,9 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
       <div><strong>${Math.round(num(m && m.carbs_g))} g</strong><span><b style="background:var(--carbs)"></b>Kohlenhydr.</span></div>
       <div><strong>${Math.round(num(m && m.fat_g))} g</strong><span><b style="background:var(--fat)"></b>Fett</span></div></div>`;
   }
+  const EXAMPLE_PLATING = { vessel: "schüssel", base: "", items: [
+    { name: "Gnocchi", shape: "chunks", color: "#e9c77f", amount: 4 }, { name: "Kirschtomaten", shape: "round", color: "#d8432f", amount: 3 },
+    { name: "Feta", shape: "dollop", color: "#f6f2e8", amount: 2 }, { name: "Basilikum", shape: "leaves", color: "#3f8a3a", amount: 2 }, { name: "Olivenöl", shape: "drizzle", color: "#c9a83a", amount: 1 }] };
   const SKELETON = `<span class="eyebrow">eAit überlegt …</span>` + [1, 2, 3].map(() => `<div class="card skeleton" aria-hidden="true">
       <div class="b r"></div><div class="stack"><div class="b" style="height:18px;width:70%"></div><div class="b" style="height:12px"></div><div class="b" style="height:12px;width:50%"></div></div></div>`).join("");
 
@@ -1326,13 +1501,16 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
     const ideasEl = $("#meal-ideas"), recEl = $("#meal-recipe");
     $("#btn-meal").textContent = m && arr(m.ideas).length ? "3 neue Ideen" : "3 Ideen holen";
     if (!m || !arr(m.ideas).length) {
-      ideasEl.innerHTML = `<article class="card idea example">
+      ideasEl.innerHTML = `<article class="card idea-card example">
+        <div class="dish">${dishSvg(EXAMPLE_PLATING, "Ofen-Gnocchi")}<span class="dish-tag">Serviervorschlag</span></div>
+        <div class="idea">
         ${ringHtml({ kcal: 620, protein_g: 24, carbs_g: 78, fat_g: 22 })}
         <div class="body">
           <div class="row" style="justify-content:space-between"><span class="eyebrow">Abendessen</span><span class="tag-example">Beispiel</span></div>
           <h3>Ofen-Gnocchi mit Kirschtomaten und Feta</h3>
           <p class="small muted">Alles auf ein Blech, nach 25 Minuten fertig.</p>
           <div class="meta"><span>25 Min.</span><span>24 g Protein</span></div>
+        </div>
         </div>
       </article>
       <p class="muted small" style="padding-inline:4px">So sehen deine Ideen aus. Erst wenn du eine auswählst, schreibt eAit das ganze Rezept – das spart Nutzung.</p>`;
@@ -1342,7 +1520,10 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
     ideasEl.innerHTML = `<div class="row" style="justify-content:space-between;padding-inline:4px"><span class="eyebrow">${esc(m.type)} · 3 Ideen für dich</span>${LEGEND}</div>` +
       m.ideas.map((r, i) => {
         const picked = m.recipe && m.recipe.idea === i;
-        return `<article class="card idea${picked ? " picked" : ""}">
+        const art = r.plating ? dishSvg(r.plating, r.name) : "";
+        return `<article class="card idea-card${picked ? " picked" : ""}">
+          ${art ? `<div class="dish">${art}<span class="dish-tag">Serviervorschlag</span></div>` : ""}
+          <div class="idea">
           ${ringHtml(r.per_serving)}
           <div class="body">
             <h3>${esc(r.name)}</h3>
@@ -1350,6 +1531,7 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
             <div class="meta"><span>${esc(r.prep_minutes)} Min.</span><span>${Math.round(num(r.per_serving && r.per_serving.protein_g))} g Protein</span>
               ${arr(r.uses_pantry).length ? `<span class="zest">Vorrat: ${esc(r.uses_pantry.slice(0, 3).join(", "))}</span>` : ""}</div>
             <div class="row"><button class="btn sm ${picked ? "primary" : ""}" data-pick="${i}">${picked ? "Ausgewählt ✓" : "Rezept ansehen"}</button></div>
+          </div>
           </div>
         </article>`;
       }).join("");
@@ -1359,7 +1541,9 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
     if (!r) { recEl.innerHTML = ""; return; }
     const ing = arr(r.ingredients);
     const missing = ing.filter((i) => i.status !== "vorhanden");
-    recEl.innerHTML = `<article class="card" id="meal-recipe-card">
+    const hero = r.plating ? dishSvg(r.plating, r.name, 400, 260) : "";
+    recEl.innerHTML = `<article class="card${hero ? " has-hero" : ""}" id="meal-recipe-card">
+      ${hero ? `<div class="dish dish-hero">${hero}<span class="dish-tag">Serviervorschlag</span></div>` : ""}
       <div class="rhead">${ringHtml(r.per_serving, true)}
         <div class="stack" style="gap:6px">
           <span class="eyebrow">Rezept · ${esc(m.type)}</span>
@@ -1422,10 +1606,11 @@ ${wishes ? "WÜNSCHE: " + wishes : ""}
 ${seen.length ? "Bitte NICHT erneut vorschlagen: " + seen.join("; ") : ""}
 
 Nur eine Kurzfassung, KEINE Zutatenliste und KEINE Schritte.
-Antworte NUR mit JSON: {"ideas":[{"name":"…","description":"1 Satz","prep_minutes":20,"per_serving":{"kcal":0,"protein_g":0,"carbs_g":0,"fat_g":0},"uses_pantry":["Zutaten aus dem Vorrat"]}]}`,
+Antworte NUR mit JSON: {"ideas":[{"name":"…","description":"1 Satz","prep_minutes":20,"per_serving":{"kcal":0,"protein_g":0,"carbs_g":0,"fat_g":0},"uses_pantry":["Zutaten aus dem Vorrat"],
+${PLATING_SPEC}}]}`,
         { modelTier: "quick", cache: false });
       const ideas = arr(res && res.ideas).filter((i) => i && i.name).slice(0, 3).map((i) => ({
-        name: str(i.name), description: str(i.description), prep_minutes: num(i.prep_minutes), per_serving: i.per_serving, uses_pantry: arr(i.uses_pantry).map(str),
+        name: str(i.name), description: str(i.description), prep_minutes: num(i.prep_minutes), per_serving: i.per_serving, uses_pantry: arr(i.uses_pantry).map(str), plating: cleanPlating(i.plating),
       }));
       if (!ideas.length) throw new AskError("empty", "eAit hat keine Ideen geliefert. Bitte erneut versuchen.");
       state.meal = { type, mode, wishes, ideas, recipe: null, seen: [...seen, ...ideas.map((i) => i.name)] };
@@ -1472,7 +1657,7 @@ Antworte NUR mit JSON: {"name":"…","description":"1–2 Sätze","prep_minutes"
       m.recipe = {
         idea: idx, name: str(r.name) || idea.name, description: str(r.description) || idea.description,
         prep_minutes: num(r.prep_minutes, idea.prep_minutes), servings: num(r.servings, p.persons),
-        per_serving: r.per_serving || idea.per_serving, ingredients, steps: arr(r.steps).map(str), tip: str(r.tip),
+        per_serving: r.per_serving || idea.per_serving, ingredients, steps: arr(r.steps).map(str), tip: str(r.tip), plating: idea.plating || null,
       };
       persist("meal"); renderMeal();
       $("#meal-recipe-card").scrollIntoView({ behavior: "smooth" });
