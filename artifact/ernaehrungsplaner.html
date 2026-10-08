@@ -1,199 +1,286 @@
-<title>Ernährungsplaner</title>
+<title>eAit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Onest:wght@400;500;600;700&display=swap" />
 <style>
-  /* Layout: eine schmale Spalte wie ein Küchenblock, Reiter oben, Karten nur für Tage, Rezepte und Listen. */
+  /* Layout: App-Spalte (max. 720px) mit schwebender Navigationsleiste unten, Begrüßungs-Hero oben, Karten mit Makro-Ringen. */
   :root {
-    --bg: #f2f5f0;
+    --bg: #f3f5f0;
     --surface: #ffffff;
-    --ink: #17221b;
-    --muted: #5d6b61;
-    --line: #d9e1d6;
-    --basil: #2c6e48;
-    --basil-soft: #e1eee5;
-    --carrot: #b8581a;
-    --carrot-soft: #fbeadc;
+    --surface-2: #edf1ea;
+    --ink: #13201a;
+    --muted: #5d6c63;
+    --line: #e0e6dc;
+    --brand: #17603f;
+    --brand-2: #0d4229;
+    --brand-ink: #ffffff;
+    --brand-soft: #dbeee2;
+    --zest: #ff6a3d;
+    --zest-soft: #ffe7dd;
     --danger: #b3261e;
-    --protein: #7a3e6e;
-    --carbs: #d39b2a;
-    --fat: #6f8a3a;
+    --protein: #8b3f7d;
+    --carbs: #e2a52f;
+    --fat: #6f9a3b;
+    --hero-glow: rgb(255 106 61 / .55);
+    --shadow: 0 1px 2px rgb(19 32 26 / .05), 0 12px 32px -18px rgb(19 32 26 / .28);
+    --nav-bg: rgb(255 255 255 / .82);
     --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-    --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --radius: 12px;
+    --font-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --r-lg: 22px;
+    --r-md: 14px;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #111612; --surface: #1a211c; --ink: #e5ece6; --muted: #9aa89e; --line: #2c372f;
-      --basil: #6cc392; --basil-soft: #1d3326; --carrot: #f0a067; --carrot-soft: #3a2616;
-      --danger: #f2827a; --protein: #c98bbd; --carbs: #e8bd5c; --fat: #a9c26f;
+      --bg: #0e1310; --surface: #161d18; --surface-2: #1d2620; --ink: #e7eee9; --muted: #9aaa9f; --line: #253028;
+      --brand: #5fd394; --brand-2: #2f9d63; --brand-ink: #07160d; --brand-soft: #173325;
+      --zest: #ff8a63; --zest-soft: #3b2217; --danger: #f2827a;
+      --protein: #d08dc3; --carbs: #f0c35e; --fat: #a6cf6c; --hero-glow: rgb(255 138 99 / .35);
+      --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 14px 36px -18px rgb(0 0 0 / .7); --nav-bg: rgb(22 29 24 / .85);
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #111612; --surface: #1a211c; --ink: #e5ece6; --muted: #9aa89e; --line: #2c372f;
-    --basil: #6cc392; --basil-soft: #1d3326; --carrot: #f0a067; --carrot-soft: #3a2616;
-    --danger: #f2827a; --protein: #c98bbd; --carbs: #e8bd5c; --fat: #a9c26f;
+    --bg: #0e1310; --surface: #161d18; --surface-2: #1d2620; --ink: #e7eee9; --muted: #9aaa9f; --line: #253028;
+    --brand: #5fd394; --brand-2: #2f9d63; --brand-ink: #07160d; --brand-soft: #173325;
+    --zest: #ff8a63; --zest-soft: #3b2217; --danger: #f2827a;
+    --protein: #d08dc3; --carbs: #f0c35e; --fat: #a6cf6c; --hero-glow: rgb(255 138 99 / .35);
+    --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 14px 36px -18px rgb(0 0 0 / .7); --nav-bg: rgb(22 29 24 / .85);
     color-scheme: dark;
   }
 
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
-  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
-  .wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 0 72px; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 16px; padding-block: 0 calc(120px + env(safe-area-inset-bottom, 0px)); }
 
-  header.top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; padding-block: 18px 6px; }
-  header.top h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; letter-spacing: -0.02em; margin: 0; }
-  header.top h1 span { color: var(--basil); }
-  .sync { font-size: .8rem; color: var(--muted); }
+  /* Kopf */
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 16px 12px; }
+  .logo { font-family: var(--font-display); font-weight: 800; font-size: 1.75rem; letter-spacing: -0.04em; margin: 0; line-height: 1; }
+  .logo span { color: var(--zest); }
+  .sync { font-size: .75rem; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line); padding: 4px 10px; border-radius: 999px; }
+  .sync::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--brand); }
 
+  /* Navigation unten */
   nav.tabs {
-    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
-    display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding: 6px 16px 0;
-    border-bottom: 1px solid var(--line);
+    position: fixed; z-index: 10; left: 50%; transform: translateX(-50%);
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(520px, calc(100% - 24px));
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 6px;
+    background: var(--nav-bg); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow);
   }
   nav.tabs button {
-    flex: 0 0 auto; border: 0; background: none; color: var(--muted); font: inherit; font-weight: 700;
-    padding: 10px 12px; border-bottom: 3px solid transparent; cursor: pointer;
+    border: 0; background: none; color: var(--muted); font: inherit; font-size: .68rem; font-weight: 600;
+    display: grid; justify-items: center; gap: 2px; padding: 7px 2px; border-radius: 16px; cursor: pointer; min-width: 0;
+    transition: background .2s, color .2s;
   }
-  nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--basil); }
-  nav.tabs button:focus-visible { outline: 2px solid var(--basil); outline-offset: -2px; }
+  nav.tabs svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  nav.tabs button[aria-selected="true"] { color: var(--brand); background: var(--brand-soft); }
+  nav.tabs button:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
 
-  section.tab { padding-top: 18px; display: grid; gap: 14px; }
-  h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
-  h3 { font-family: var(--font-display); font-weight: 600; font-size: 1.08rem; margin: 0; text-wrap: balance; }
+  section.tab { display: grid; gap: 14px; animation: rise .35s ease-out; }
+  @keyframes rise { from { transform: translateY(8px); opacity: .6; } to { transform: none; opacity: 1; } }
+  h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; letter-spacing: -0.02em; line-height: 1.15; margin: 0; text-wrap: balance; }
+  h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.12rem; letter-spacing: -0.01em; line-height: 1.25; margin: 0; text-wrap: balance; }
   p { margin: 0; }
   .muted { color: var(--muted); }
-  .small { font-size: .85rem; }
-  .eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
-  .stack { display: grid; gap: 10px; }
+  .small { font-size: .86rem; }
+  .eyebrow { font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+  .stack { display: grid; gap: 12px; }
   .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 10px; min-width: 0; }
+  .card { background: var(--surface); border-radius: var(--r-lg); padding: 18px; display: grid; gap: 12px; min-width: 0; box-shadow: var(--shadow); }
   .panel { display: grid; gap: 10px; }
+  .page-head { display: grid; gap: 4px; padding-top: 4px; }
+  .page-head h2 { font-size: 1.7rem; }
 
-  label { display: grid; gap: 4px; font-size: .9rem; font-weight: 700; }
+  /* Hero der Mahlzeit-Seite */
+  .hero {
+    position: relative; overflow: hidden; border-radius: 26px; padding: 22px 18px 18px; display: grid; gap: 14px;
+    color: #f4fbf6; background:
+      radial-gradient(120% 90% at 100% 0%, var(--hero-glow), transparent 55%),
+      radial-gradient(80% 60% at 0% 100%, rgb(255 255 255 / .08), transparent 60%),
+      linear-gradient(160deg, #1d7a50, #0c3d26);
+    box-shadow: var(--shadow);
+  }
+  .hero::after {
+    content: ""; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%;
+    border: 18px solid rgb(255 255 255 / .07); pointer-events: none;
+  }
+  .hero .greet { font-size: .9rem; opacity: .85; font-weight: 500; }
+  .hero h2 { color: #ffffff; font-size: 2rem; letter-spacing: -0.03em; }
+  .hero .goal { font-size: .85rem; opacity: .9; }
+  .hero .goal strong { font-family: var(--font-display); font-size: 1.05rem; }
+  .hero label, .hero .hint { color: #e3f3e9; }
+  .hero select, .hero input { background: rgb(255 255 255 / .12); border-color: rgb(255 255 255 / .22); color: #ffffff; }
+  .hero select option { color: #13201a; }
+  .hero input::placeholder { color: rgb(255 255 255 / .6); }
+  .hero .btn.primary { background: var(--zest); border-color: var(--zest); color: #2a0c02; box-shadow: 0 10px 24px -10px rgb(255 106 61 / .8); }
+  .hero .error { color: #ffd2c4; }
+
+  /* Chips */
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; border: 0; margin: 0; padding: 0; }
+  .chips legend { padding: 0; margin-bottom: 6px; font-size: .9rem; font-weight: 600; }
+  .chips input { position: absolute; opacity: 0; pointer-events: none; }
+  .chips label { display: inline-flex; font-weight: 600; font-size: .9rem; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+    background: rgb(255 255 255 / .12); border: 1px solid rgb(255 255 255 / .22); transition: background .15s, color .15s; }
+  .chips input:checked + label { background: #ffffff; color: #0d4229; border-color: #ffffff; }
+  .chips input:focus-visible + label { outline: 2px solid #ffffff; outline-offset: 2px; }
+
+  label { display: grid; gap: 5px; font-size: .9rem; font-weight: 600; }
   label .hint { font-weight: 400; color: var(--muted); }
   input, select, textarea {
-    font: inherit; font-weight: 400; color: var(--ink); background: var(--bg); width: 100%;
-    border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px;
+    font: inherit; font-weight: 400; color: var(--ink); background: var(--surface-2); width: 100%;
+    border: 1px solid transparent; border-radius: var(--r-md); padding: 11px 12px;
   }
-  input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--basil); outline-offset: 1px; }
-  .check { display: flex; align-items: center; gap: 8px; font-weight: 400; }
-  .check input { width: 18px; height: 18px; margin: 0; accent-color: var(--basil); }
-  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+  .check { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+  .check input { width: 20px; height: 20px; margin: 0; accent-color: var(--brand); flex: 0 0 auto; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 
   button.btn {
-    font: inherit; font-weight: 700; border-radius: 10px; padding: 10px 16px; cursor: pointer;
-    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    font: inherit; font-weight: 700; border-radius: 999px; padding: 11px 18px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink); transition: transform .12s, box-shadow .2s;
   }
-  button.btn:hover { border-color: var(--basil); }
-  button.btn:focus-visible { outline: 2px solid var(--basil); outline-offset: 2px; }
-  button.btn:disabled { opacity: .5; cursor: not-allowed; }
-  button.primary { background: var(--basil); border-color: var(--basil); color: var(--surface); }
-  button.ghost { border-color: transparent; background: none; color: var(--basil); padding-inline: 4px; }
+  button.btn:active { transform: scale(.97); }
+  button.btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  button.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  button.primary { background: linear-gradient(180deg, var(--brand), var(--brand-2)); border-color: transparent; color: var(--brand-ink); box-shadow: 0 10px 22px -12px var(--brand); }
+  button.ghost { border-color: transparent; background: none; color: var(--brand); padding-inline: 6px; }
   button.danger { color: var(--danger); }
-  button.sm { padding: 6px 10px; font-size: .85rem; }
-  button.linkish { border: 0; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--basil); cursor: pointer; text-align: left; }
-  button.linkish:focus-visible { outline: 2px solid var(--basil); outline-offset: 2px; }
+  button.sm { padding: 7px 13px; font-size: .85rem; }
+  button.block { width: 100%; }
+  button.linkish { border: 0; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--brand); cursor: pointer; text-align: left; }
+  button.linkish:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
-  /* Makro-Leiste: kcal-Anteile von Protein / Kohlenhydraten / Fett */
-  .macros { display: grid; gap: 4px; font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .mbar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--line); max-width: 220px; }
+  /* Makros */
+  .macros { display: grid; gap: 5px; font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .mbar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--line); max-width: 240px; }
   .mbar i { display: block; }
   .mbar .p { background: var(--protein); } .mbar .c { background: var(--carbs); } .mbar .f { background: var(--fat); }
   .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: .78rem; color: var(--muted); }
-  .legend b { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: 0; }
+  .legend b { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; }
+  .ring { --size: 76px; width: var(--size); height: var(--size); border-radius: 50%; flex: 0 0 auto; display: grid; place-items: center; }
+  .ring > div { width: calc(var(--size) - 16px); height: calc(var(--size) - 16px); border-radius: 50%; background: var(--surface); display: grid; place-items: center; align-content: center; line-height: 1.05; }
+  .ring strong { font-family: var(--font-display); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+  .ring span { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .ring.lg { --size: 108px; } .ring.lg strong { font-size: 1.5rem; }
+  .mvals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .mvals div { background: var(--surface-2); border-radius: 12px; padding: 8px 10px; }
+  .mvals strong { display: block; font-family: var(--font-display); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+  .mvals span { font-size: .72rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+  .mvals b { width: 8px; height: 8px; border-radius: 3px; }
 
   .target { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-  .target div { background: var(--bg); border-radius: 10px; padding: 8px 10px; }
-  .target strong { display: block; font-family: var(--font-display); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+  .target div { background: var(--surface-2); border-radius: 14px; padding: 10px 12px; }
+  .target strong { display: block; font-family: var(--font-display); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
   .target span { font-size: .75rem; color: var(--muted); }
-  @media (max-width: 420px) { .target { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 440px) { .target { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  /* Ideen & Rezept */
+  .idea { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; }
+  .idea .body { display: grid; gap: 6px; min-width: 0; }
+  .idea.picked { outline: 2px solid var(--brand); }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+  .meta span { font-size: .75rem; font-weight: 600; background: var(--surface-2); color: var(--muted); border-radius: 999px; padding: 3px 9px; }
+  .meta span.zest { background: var(--zest-soft); color: var(--zest); }
+  .rhead { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; }
+  .ingr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding-block: 10px; border-top: 1px solid var(--line); }
+  .ingr:first-child { border-top: 0; }
+  .ingr .amt { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  ol.steps-list { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 10px; }
+  ol.steps-list li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; }
+  ol.steps-list li::before { content: counter(s); width: 28px; height: 28px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); font-weight: 700; font-size: .85rem; display: grid; place-items: center; }
+
+  /* Ladezustände */
+  .skeleton { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 14px; }
+  .skeleton .b { border-radius: 10px; background: linear-gradient(90deg, var(--surface-2) 0%, var(--line) 50%, var(--surface-2) 100%); background-size: 200% 100%; animation: shimmer 1.3s linear infinite; }
+  .skeleton .r { width: 76px; height: 76px; border-radius: 50%; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .steps li { display: flex; gap: 10px; align-items: center; color: var(--muted); }
+  .steps li.active { color: var(--ink); font-weight: 600; }
+  .steps li.done { color: var(--brand); }
+  .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); flex: 0 0 auto; }
+  .active .dot { border-color: var(--brand); border-top-color: transparent; animation: spin 1s linear infinite; }
+  .done .dot { background: var(--brand); border-color: var(--brand); }
+  .hero .steps li { color: #e3f3e9; } .hero .active .dot { border-color: #ffffff; border-top-color: transparent; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { section.tab, .active .dot, .skeleton .b { animation: none; } button.btn { transition: none; } }
+  .error { color: var(--danger); }
 
   /* Wochenplan */
   .day header { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 12px; flex-wrap: wrap; }
-  .meal { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
-  .meal .slot { font-size: .8rem; color: var(--muted); padding-top: 2px; }
-  .meal .note { font-size: .8rem; color: var(--carrot); }
-  .example { border-style: dashed; }
-  .tag-example { font-size: .72rem; font-weight: 700; color: var(--carrot); background: var(--carrot-soft); border-radius: 999px; padding: 2px 8px; }
-
-  /* Fortschritt */
-  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-  .steps li { display: flex; gap: 10px; align-items: center; color: var(--muted); }
-  .steps li.active { color: var(--ink); font-weight: 700; }
-  .steps li.done { color: var(--basil); }
-  .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); flex: 0 0 auto; }
-  .active .dot { border-color: var(--basil); border-top-color: transparent; animation: spin 1s linear infinite; }
-  .done .dot { background: var(--basil); border-color: var(--basil); }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) { .active .dot { animation: none; } }
-  .error { color: var(--danger); }
+  .meal { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .meal .slot { font-size: .78rem; color: var(--muted); padding-top: 2px; font-weight: 600; }
+  .meal .note { font-size: .8rem; color: var(--zest); }
+  .example { outline: 2px dashed var(--line); outline-offset: -2px; box-shadow: none; }
+  .tag-example { font-size: .7rem; font-weight: 700; color: var(--zest); background: var(--zest-soft); border-radius: 999px; padding: 3px 9px; }
 
   /* Einkaufsliste */
-  .cat { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
-  .item { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding-block: 8px; border-top: 1px solid var(--line); cursor: pointer; font-weight: 400; }
+  .cat { font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+  .item { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding-block: 10px; border-top: 1px solid var(--line); cursor: pointer; font-weight: 500; }
   .item:first-of-type { border-top: 0; }
-  .item input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--basil); }
-  .item .amt { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .item .note { display: block; font-size: .8rem; color: var(--carrot); }
+  .item input { width: 22px; height: 22px; margin: 1px 0 0; accent-color: var(--brand); }
+  .item .amt { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 400; }
+  .note { display: block; font-size: .8rem; color: var(--zest); font-weight: 400; }
   .item.have .name { color: var(--muted); }
-  .item.done .name, .item.done .amt { text-decoration: line-through; opacity: .55; }
-  .pill { display: inline-block; font-size: .7rem; font-weight: 700; border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 1px; }
-  .pill.have { background: var(--basil-soft); color: var(--basil); }
-  .pill.part { background: var(--carrot-soft); color: var(--carrot); }
-  .pill.low { background: var(--carrot-soft); color: var(--carrot); }
-  .summary { font-variant-numeric: tabular-nums; }
+  .item.done .name, .item.done .amt { text-decoration: line-through; opacity: .5; }
+  .pill { display: inline-block; font-size: .68rem; font-weight: 700; border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: 1px; }
+  .pill.have { background: var(--brand-soft); color: var(--brand); }
+  .pill.part, .pill.low { background: var(--zest-soft); color: var(--zest); }
+  .progress { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+  .progress i { display: block; height: 100%; background: linear-gradient(90deg, var(--brand-2), var(--brand)); border-radius: 4px; transition: width .3s; }
 
   /* Kühlschrank */
-  .drop { border: 2px dashed var(--line); border-radius: var(--radius); padding: 22px 16px; text-align: center; cursor: pointer; display: block; font-weight: 700; color: var(--basil); }
-  .drop:focus-within { outline: 2px solid var(--basil); }
+  .drop { border: 2px dashed var(--line); border-radius: var(--r-lg); padding: 26px 16px; text-align: center; cursor: pointer; display: grid; justify-items: center; gap: 6px; font-weight: 700; color: var(--brand); background: var(--surface-2); }
+  .drop svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .drop span { font-weight: 400; color: var(--muted); font-size: .82rem; }
+  .drop:focus-within { outline: 2px solid var(--brand); }
   .drop input { position: absolute; opacity: 0; width: 1px; height: 1px; }
   .thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
-  .thumbs img { width: 84px; height: 84px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
-  .scanrow { display: grid; grid-template-columns: 20px minmax(0, 1fr) 110px; gap: 8px; align-items: center; }
-  .scanrow input[type="checkbox"] { width: 18px; height: 18px; margin: 0; accent-color: var(--basil); }
-  .pantry { list-style: none; margin: 0; padding: 0; }
-  .pantry li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-block: 6px; border-top: 1px solid var(--line); }
-  .pantry li:first-child { border-top: 0; }
-  .pantry .x { border: 0; background: none; color: var(--muted); cursor: pointer; font: inherit; padding: 2px 8px; }
+  .thumbs img { width: 84px; height: 84px; object-fit: cover; border-radius: 14px; }
+  .scanrow { display: grid; grid-template-columns: 22px minmax(0, 1fr) 100px; gap: 8px; align-items: center; }
+  .scanrow input[type="checkbox"] { width: 20px; height: 20px; margin: 0; accent-color: var(--brand); }
+  .pantry { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .pantry li { display: inline-flex; align-items: center; gap: 6px; padding: 6px 6px 6px 12px; border-radius: 999px; background: var(--surface-2); font-size: .9rem; max-width: 100%; }
+  .pantry li.empty { background: none; padding: 0; }
+  .pantry .x { border: 0; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; padding: 0; }
   .addrow { display: grid; grid-template-columns: minmax(0, 1fr) 90px auto; gap: 8px; }
 
   /* Rezept-Dialog */
-  dialog { border: 0; border-radius: var(--radius); padding: 0; width: min(640px, calc(100vw - 32px)); max-height: 88vh; background: var(--surface); color: var(--ink); }
-  dialog::backdrop { background: rgb(10 20 14 / .5); }
-  dialog .inner { padding: 18px; display: grid; gap: 12px; }
+  dialog { border: 0; border-radius: var(--r-lg); padding: 0; width: min(640px, calc(100vw - 32px)); max-height: 88vh; background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+  dialog::backdrop { background: rgb(8 16 11 / .55); backdrop-filter: blur(3px); }
+  dialog .inner { padding: 20px; display: grid; gap: 12px; }
   dialog ul, dialog ol { margin: 0; padding-left: 1.2rem; display: grid; gap: 4px; }
   .tags { display: flex; gap: 6px; flex-wrap: wrap; }
-  .tags span { font-size: .75rem; background: var(--basil-soft); color: var(--basil); border-radius: 999px; padding: 2px 8px; }
+  .tags span { font-size: .75rem; background: var(--brand-soft); color: var(--brand); border-radius: 999px; padding: 3px 9px; font-weight: 600; }
 
-  .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: .9rem; z-index: 20; max-width: calc(100vw - 32px); }
+  .toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 11px 18px; border-radius: 999px; font-size: .9rem; font-weight: 600; z-index: 20; max-width: calc(100vw - 32px); box-shadow: var(--shadow); }
 </style>
 
 <div class="wrap">
   <header class="top">
-    <h1>Ernährungs<span>planer</span></h1>
+    <h1 class="logo">e<span>Ai</span>t</h1>
     <span class="sync" id="sync">Lädt …</span>
   </header>
 
-  <nav class="tabs" role="tablist">
-    <button role="tab" id="t-meal" data-tab="meal" aria-selected="true">Mahlzeit</button>
-    <button role="tab" id="t-plan" data-tab="plan" aria-selected="false">Wochenplan</button>
-    <button role="tab" id="t-shop" data-tab="shop" aria-selected="false">Einkauf</button>
-    <button role="tab" id="t-fridge" data-tab="fridge" aria-selected="false">Kühlschrank</button>
-    <button role="tab" id="t-profile" data-tab="profile" aria-selected="false">Profil</button>
-  </nav>
-
   <!-- MAHLZEIT -->
   <section class="tab" id="tab-meal">
-    <div class="card">
-      <h2>Was gibt's zu essen?</h2>
-      <p class="muted small" id="meal-hint"></p>
+    <div class="hero">
+      <div>
+        <p class="greet" id="greet">Hallo!</p>
+        <h2>Was gibt's zu essen?</h2>
+      </div>
+      <p class="goal" id="meal-hint"></p>
+      <fieldset class="chips" id="meal-chips">
+        <legend>Mahlzeit</legend>
+        <input type="radio" name="mealtype" id="mt-1" value="Frühstück" /><label for="mt-1">Frühstück</label>
+        <input type="radio" name="mealtype" id="mt-2" value="Mittagessen" /><label for="mt-2">Mittagessen</label>
+        <input type="radio" name="mealtype" id="mt-3" value="Abendessen" /><label for="mt-3">Abendessen</label>
+        <input type="radio" name="mealtype" id="mt-4" value="Snack" /><label for="mt-4">Snack</label>
+      </fieldset>
+      <select id="meal-type" hidden aria-hidden="true" tabindex="-1"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select>
       <div class="grid2">
-        <label for="meal-type">Mahlzeit
-          <select id="meal-type"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select>
-        </label>
         <label for="meal-mode">Vorrat
           <select id="meal-mode">
             <option value="prefer">Vorrat bevorzugt verwerten</option>
@@ -201,11 +288,11 @@
             <option value="ignore">Vorrat egal</option>
           </select>
         </label>
+        <label for="meal-wishes">Wünsche <span class="hint">(optional)</span>
+          <input id="meal-wishes" placeholder="z. B. warm, max. 20 Minuten" />
+        </label>
       </div>
-      <label for="meal-wishes">Wünsche <span class="hint">(optional)</span>
-        <input id="meal-wishes" placeholder="z. B. warm, höchstens 20 Minuten, etwas Asiatisches" />
-      </label>
-      <div class="row"><button class="btn primary" id="btn-meal">3 Ideen holen</button></div>
+      <div class="row"><button class="btn primary block" id="btn-meal">3 Ideen holen</button></div>
       <div id="meal-status"></div>
     </div>
     <div id="meal-ideas" class="stack"></div>
@@ -214,13 +301,14 @@
 
   <!-- WOCHENPLAN -->
   <section class="tab" id="tab-plan" hidden>
+    <div class="page-head"><span class="eyebrow">Wochenplan</span><h2>Die ganze Woche, durchgeplant</h2></div>
     <div class="card">
-      <h2>Neue Woche planen</h2>
       <p class="muted small" id="plan-hint"></p>
       <label for="plan-wishes">Wünsche für diese Woche <span class="hint">(optional)</span>
         <textarea id="plan-wishes" rows="2" placeholder="z. B. viel Asiatisches, Dienstag nur Reste, Sonntag Brunch"></textarea>
       </label>
       <label class="check"><input type="checkbox" id="plan-pantry" checked /> Vorrat aus dem Kühlschrank verwerten</label>
+      <p class="muted small">Ein Wochenplan braucht deutlich mehr Nutzung als eine einzelne Mahlzeit und dauert ein paar Minuten.</p>
       <div class="row">
         <button class="btn primary" id="btn-plan">Plan erstellen</button>
         <button class="btn ghost" id="btn-plan-stop" hidden>Abbrechen</button>
@@ -232,14 +320,15 @@
 
   <!-- EINKAUF -->
   <section class="tab" id="tab-shop" hidden>
+    <div class="page-head"><span class="eyebrow">Einkauf</span><h2>Deine Einkaufsliste</h2></div>
     <div class="card">
-      <h2>Einkaufsliste</h2>
       <p class="summary muted small" id="shop-summary"></p>
+      <div class="progress" id="shop-progress" hidden><i></i></div>
       <div class="row">
         <button class="btn sm" id="btn-match">Mit Vorrat abgleichen</button>
         <button class="btn sm" id="btn-copy">Liste kopieren</button>
-        <label class="check small"><input type="checkbox" id="hide-have" /> Vorhandenes ausblenden</label>
       </div>
+      <label class="check small"><input type="checkbox" id="hide-have" /> Vorhandenes ausblenden</label>
       <textarea id="copy-fallback" rows="6" hidden readonly></textarea>
     </div>
     <div id="shop-out" class="stack"></div>
@@ -247,27 +336,28 @@
 
   <!-- KÜHLSCHRANK -->
   <section class="tab" id="tab-fridge" hidden>
+    <div class="page-head"><span class="eyebrow">Kühlschrank</span><h2>Was ist schon da?</h2></div>
     <div class="card" id="scan-card">
-      <h2>Kühlschrank scannen</h2>
-      <p class="muted small">Fotografiere Kühlschrank, Vorratsschrank oder Gefrierfach. Claude erkennt die Lebensmittel und schätzt die Mengen.</p>
       <label class="drop" for="photos">
         <input type="file" id="photos" accept="image/jpeg,image/png,image/webp,image/gif" capture="environment" multiple />
-        Fotos aufnehmen oder auswählen
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>
+        Kühlschrank fotografieren
+        <span>Auch Vorratsschrank oder Gefrierfach, bis zu 5 Fotos</span>
       </label>
       <div class="thumbs" id="thumbs"></div>
-      <div class="row"><button class="btn primary" id="btn-scan" disabled>Lebensmittel erkennen</button></div>
-      <p class="muted small" id="scan-unavailable" hidden>Fotos können in dieser Ansicht nicht an Claude gesendet werden. Trag deine Lebensmittel unten von Hand ein.</p>
+      <button class="btn primary" id="btn-scan" disabled>Lebensmittel erkennen</button>
+      <p class="muted small" id="scan-unavailable" hidden>Fotos können hier nicht ausgewertet werden. Trag deine Lebensmittel unten von Hand ein.</p>
       <div id="scan-out"></div>
     </div>
 
     <div class="card">
       <div class="row" style="justify-content: space-between;">
-        <h2>Mein Vorrat</h2><span class="muted small" id="pantry-count"></span>
+        <h3>Mein Vorrat</h3><span class="muted small" id="pantry-count"></span>
       </div>
       <form id="pantry-form" class="addrow">
         <input id="pantry-name" placeholder="Lebensmittel" aria-label="Lebensmittel" required />
         <input id="pantry-qty" placeholder="Menge" aria-label="Menge" />
-        <button class="btn" type="submit">Hinzufügen</button>
+        <button class="btn" type="submit" aria-label="Hinzufügen">＋</button>
       </form>
       <ul class="pantry" id="pantry-list"></ul>
       <div class="row">
@@ -280,11 +370,11 @@
       </div>
     </div>
   </section>
-
   <!-- PROFIL -->
   <section class="tab" id="tab-profile" hidden>
+    <div class="page-head"><span class="eyebrow">Profil</span><h2>Über dich</h2></div>
     <form class="card" id="profile">
-      <h2>Dein Profil</h2>
+      <p class="muted small">Je mehr eAit über dich weiß, desto besser passen die Vorschläge. Alles ist optional.</p>
       <label for="p-goal">Ziel
         <select id="p-goal" name="goal">
           <option value="gesund">Einfach gesund und lecker essen</option>
@@ -342,6 +432,14 @@
     </form>
   </section>
 </div>
+
+<nav class="tabs" role="tablist" aria-label="Bereiche">
+  <button role="tab" id="t-meal" data-tab="meal" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v18M4.5 3v5a2.5 2.5 0 0 0 5 0V3M17.5 21V3c-2.2 1.2-3.5 3.6-3.5 7v3h3.5" /></svg>Mahlzeit</button>
+  <button role="tab" id="t-plan" data-tab="plan" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M4 10h16M9 3v4M15 3v4" /></svg>Woche</button>
+  <button role="tab" id="t-shop" data-tab="shop" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></svg>Einkauf</button>
+  <button role="tab" id="t-fridge" data-tab="fridge" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2.5" /><path d="M6 10h12M9.5 6v2M9.5 13v3" /></svg>Vorrat</button>
+  <button role="tab" id="t-profile" data-tab="profile" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4.5 20.5c1.4-3.6 4.4-5.5 7.5-5.5s6.1 1.9 7.5 5.5" /></svg>Profil</button>
+</nav>
 
 <dialog id="recipe"><div class="inner" id="recipe-body"></div></dialog>
 <div class="toast" id="toast" hidden></div>
@@ -423,35 +521,35 @@
           renderAll();
         }, () => setSync("Nur in diesem Browser gespeichert"));
       }
-      setSync("In deinem Claude-Konto gespeichert");
+      setSync("In deinem Konto gespeichert");
     } catch {
       setSync("Nur in diesem Browser gespeichert");
     }
   }
 
-  // ---------------- Claude ----------------
+  // ---------------- KI-Anfragen ----------------
   let samplePromise = null;
   const getSample = () => (samplePromise ||= (window.claude && window.claude.use ? window.claude.use("sample") : Promise.resolve(null)));
 
   const ERR = {
-    not_granted: "Du hast der Seite nicht erlaubt, Claude zu nutzen. Lade die Seite neu, um erneut gefragt zu werden.",
-    sampling_disabled: "Claude ist für dein Konto in Artifacts nicht verfügbar.",
+    not_granted: "Du hast eAit die Erlaubnis nicht gegeben. Lade die Seite neu, um erneut gefragt zu werden.",
+    sampling_disabled: "eAit ist für dein Konto gerade nicht verfügbar.",
     rate_limited: "Gerade zu viele Anfragen oder dein Nutzungslimit ist erreicht. Bitte später erneut versuchen.",
-    session_expired: "Bitte melde dich bei Claude neu an.",
+    session_expired: "Bitte melde dich neu an.",
     image_rejected: "Ein Foto wurde nicht angenommen. Probier ein anderes (JPEG oder PNG, unter 20 MB).",
-    images_unavailable: "Fotos können in dieser Ansicht nicht an Claude gesendet werden.",
-    refused: "Claude hat diese Anfrage abgelehnt. Formuliere deine Wünsche anders.",
+    images_unavailable: "Fotos können hier nicht ausgewertet werden.",
+    refused: "eAit kann diese Anfrage nicht bearbeiten. Formuliere deine Wünsche anders.",
     invalid_json: "Die Antwort war unvollständig. Bitte erneut versuchen – oder weniger auf einmal anfragen.",
-    empty_completion: "Claude hat nichts geantwortet. Bitte erneut versuchen.",
+    empty_completion: "eAit hat nichts geantwortet. Bitte erneut versuchen.",
     prompt_too_large: "Zu viele Daten auf einmal. Verkleinere den Vorrat oder die Wünsche.",
-    upstream_error: "Verbindung zu Claude unterbrochen. Bitte erneut versuchen.",
+    upstream_error: "Verbindung zu eAit unterbrochen. Bitte erneut versuchen.",
   };
   class AskError extends Error { constructor(code, msg) { super(msg); this.code = code; } }
   const errText = (e) => (e && e.code === "cancelled" ? "Abgebrochen." : (e && (ERR[e.code] || e.message)) || "Unerwarteter Fehler.");
 
   async function askJson(prompt, opts = {}) {
     const sample = await getSample();
-    if (!sample) throw new AskError("unavailable", "Claude ist nur verfügbar, wenn du diese Seite in Claude öffnest.");
+    if (!sample) throw new AskError("unavailable", "eAit funktioniert nur über den geteilten Link, wenn du angemeldet bist.");
     try {
       return await sample.json(prompt, opts);
     } catch (e) {
@@ -547,6 +645,7 @@
     document.querySelectorAll("nav.tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
     document.querySelectorAll("section.tab").forEach((s) => (s.hidden = s.id !== "tab-" + name));
     local.set("tab", name);
+    window.scrollTo({ top: 0 });
   }
   document.querySelectorAll("nav.tabs button").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
   document.addEventListener("click", (e) => { const g = e.target.closest("[data-goto]"); if (g) showTab(g.dataset.goto); });
@@ -711,7 +810,7 @@ Antworte NUR mit JSON: {"recipes":[{"id":"r1","ingredients":[{"name":"…","amou
         r.steps = arr(d.steps).map(str);
       }
 
-      // 3) Einkaufsliste: erst summieren, dann von Claude zusammenfassen, sortieren und mit dem Vorrat abgleichen
+      // 3) Einkaufsliste: erst summieren, dann von der KI zusammenfassen, sortieren und mit dem Vorrat abgleichen
       step = 2; progress(STEPS, 2);
       const sum = new Map();
       for (const r of recipes) for (const i of r.ingredients) {
@@ -764,6 +863,8 @@ Antworte NUR mit JSON: {"items":[{"name":"…","amount":1,"unit":"Stück","categ
     const out = $("#shop-out"), list = arr(state.shopping);
     const toBuy = list.filter((s) => s.status !== "vorhanden" && !s.checked).length;
     const have = list.filter((s) => s.status === "vorhanden").length;
+    const need = list.filter((s) => s.status !== "vorhanden").length, inCart = list.filter((s) => s.status !== "vorhanden" && s.checked).length;
+    $("#shop-progress").hidden = !need; $("#shop-progress i").style.width = need ? (inCart / need) * 100 + "%" : "0";
     $("#shop-summary").textContent = list.length ? `Noch ${toBuy} zu kaufen · ${have} schon zu Hause · ${list.filter((s) => s.checked).length} im Wagen` : "";
     if (!list.length) {
       out.innerHTML = `<div class="card"><p class="muted">Die Einkaufsliste entsteht zusammen mit deinem Wochenplan.</p>
@@ -836,9 +937,9 @@ Synonyme beachten. Antworte NUR mit JSON: {"matches":[{"index":0,"status":"fehlt
     const list = arr(state.pantry);
     $("#pantry-count").textContent = list.length ? list.length + " Lebensmittel" : "";
     $("#pantry-list").innerHTML = list.length
-      ? list.map((p, i) => `<li><span>${esc(p.name)} ${p.quantity ? `<span class="muted small">${esc(p.quantity)}</span>` : ""}</span>
+      ? list.map((p, i) => `<li><span>${esc(p.name)}${p.quantity ? ` <span class="muted small">${esc(p.quantity)}</span>` : ""}</span>
           <button class="x" data-del="${i}" aria-label="${esc(p.name)} entfernen">✕</button></li>`).join("")
-      : `<li class="muted small">Noch leer. Scanne deinen Kühlschrank oder trag Lebensmittel ein.</li>`;
+      : `<li class="empty muted small">Noch leer. Fotografiere deinen Kühlschrank oder trag Lebensmittel ein.</li>`;
     $("#pantry-list").querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => {
       state.pantry.splice(Number(b.dataset.del), 1); persist("pantry"); renderPantry();
     }));
@@ -880,7 +981,7 @@ Synonyme beachten. Antworte NUR mit JSON: {"matches":[{"index":0,"status":"fehlt
   $("#btn-scan").addEventListener("click", async () => {
     const btn = $("#btn-scan"), out = $("#scan-out");
     btn.disabled = true;
-    out.innerHTML = `<ul class="steps"><li class="active"><span class="dot"></span>Claude schaut in deinen Kühlschrank …</li></ul>`;
+    out.innerHTML = `<ul class="steps"><li class="active"><span class="dot"></span>eAit schaut in deinen Kühlschrank …</li></ul>`;
     try {
       const res = await askJson(`${photos.length > 1 ? "Das sind Fotos" : "Das ist ein Foto"} von meinem Kühlschrank bzw. Vorrat.
 Liste alle erkennbaren Lebensmittel mit geschätzter Menge auf Deutsch auf. Fasse gleiche Produkte zusammen und nenne sie allgemein
@@ -939,9 +1040,9 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
   }
   function renderMealHint() {
     const p = prof(), type = $("#meal-type").value, mk = mealKcal(p, type);
-    $("#meal-hint").textContent = mk.exact
-      ? `Ziel für dein ${type}: ca. ${mk.kcal} kcal pro Portion (${GOAL_SHORT[p.goal]}).`
-      : `Ohne Körperdaten plant Claude normale Portionen, ca. ${mk.kcal} kcal.`;
+    $("#meal-hint").innerHTML = mk.exact
+      ? `Ziel pro Portion: ca. <strong>${mk.kcal} kcal</strong> · ${esc(GOAL_SHORT[p.goal])}`
+      : `Ohne Körperdaten plant eAit normale Portionen, ca. <strong>${mk.kcal} kcal</strong>.`;
   }
   $("#meal-type").addEventListener("change", renderMealHint);
 
@@ -951,29 +1052,54 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
     ignore: "Der Vorrat spielt keine Rolle.",
   };
 
+  function ringHtml(m, big) {
+    const p = num(m && m.protein_g) * 4, c = num(m && m.carbs_g) * 4, f = num(m && m.fat_g) * 9, sum = p + c + f || 1;
+    const a = (p / sum) * 360, b = a + (c / sum) * 360;
+    return `<div class="ring${big ? " lg" : ""}" style="background:conic-gradient(var(--protein) 0 ${a}deg, var(--carbs) ${a}deg ${b}deg, var(--fat) ${b}deg 360deg)" role="img"
+      aria-label="${Math.round(num(m && m.kcal))} kcal, ${Math.round(num(m && m.protein_g))} g Protein, ${Math.round(num(m && m.carbs_g))} g Kohlenhydrate, ${Math.round(num(m && m.fat_g))} g Fett">
+      <div><strong>${Math.round(num(m && m.kcal))}</strong><span>kcal</span></div></div>`;
+  }
+  function mvalsHtml(m) {
+    return `<div class="mvals">
+      <div><strong>${Math.round(num(m && m.protein_g))} g</strong><span><b style="background:var(--protein)"></b>Protein</span></div>
+      <div><strong>${Math.round(num(m && m.carbs_g))} g</strong><span><b style="background:var(--carbs)"></b>Kohlenhydr.</span></div>
+      <div><strong>${Math.round(num(m && m.fat_g))} g</strong><span><b style="background:var(--fat)"></b>Fett</span></div></div>`;
+  }
+  const SKELETON = `<span class="eyebrow">eAit überlegt …</span>` + [1, 2, 3].map(() => `<div class="card skeleton" aria-hidden="true">
+      <div class="b r"></div><div class="stack"><div class="b" style="height:18px;width:70%"></div><div class="b" style="height:12px"></div><div class="b" style="height:12px;width:50%"></div></div></div>`).join("");
+
   function renderMeal() {
     const m = state.meal;
     const ideasEl = $("#meal-ideas"), recEl = $("#meal-recipe");
     $("#btn-meal").textContent = m && arr(m.ideas).length ? "3 neue Ideen" : "3 Ideen holen";
     if (!m || !arr(m.ideas).length) {
-      ideasEl.innerHTML = `<article class="card example">
-        <header class="row" style="justify-content:space-between"><span class="eyebrow">Abendessen</span><span class="tag-example">Beispiel</span></header>
-        <h3>Ofen-Gnocchi mit Kirschtomaten und Feta</h3>
-        <p class="small">Alles auf ein Blech, nach 25 Minuten fertig.</p>
-        ${macroHtml({ kcal: 620, protein_g: 24, carbs_g: 78, fat_g: 22 })}
-        <p class="muted small">So sehen deine Ideen aus. Erst wenn du eine auswählst, schreibt Claude das ganze Rezept – das spart Nutzung.</p>
-      </article>`;
+      ideasEl.innerHTML = `<article class="card idea example">
+        ${ringHtml({ kcal: 620, protein_g: 24, carbs_g: 78, fat_g: 22 })}
+        <div class="body">
+          <div class="row" style="justify-content:space-between"><span class="eyebrow">Abendessen</span><span class="tag-example">Beispiel</span></div>
+          <h3>Ofen-Gnocchi mit Kirschtomaten und Feta</h3>
+          <p class="small muted">Alles auf ein Blech, nach 25 Minuten fertig.</p>
+          <div class="meta"><span>25 Min.</span><span>24 g Protein</span></div>
+        </div>
+      </article>
+      <p class="muted small" style="padding-inline:4px">So sehen deine Ideen aus. Erst wenn du eine auswählst, schreibt eAit das ganze Rezept – das spart Nutzung.</p>`;
       recEl.innerHTML = "";
       return;
     }
-    ideasEl.innerHTML = `<span class="eyebrow">${esc(m.type)} · 3 Ideen</span>` + m.ideas.map((r, i) => `
-      <article class="card">
-        <h3>${esc(r.name)}</h3>
-        <p class="small">${esc(r.description)}</p>
-        <p class="muted small">${esc(r.prep_minutes)} Min.${arr(r.uses_pantry).length ? " · aus dem Vorrat: " + esc(r.uses_pantry.join(", ")) : ""}</p>
-        ${macroHtml(r.per_serving)}
-        <div class="row"><button class="btn sm ${m.recipe && m.recipe.idea === i ? "primary" : ""}" data-pick="${i}">${m.recipe && m.recipe.idea === i ? "Ausgewählt" : "Dieses Rezept"}</button></div>
-      </article>`).join("");
+    ideasEl.innerHTML = `<div class="row" style="justify-content:space-between;padding-inline:4px"><span class="eyebrow">${esc(m.type)} · 3 Ideen für dich</span>${LEGEND}</div>` +
+      m.ideas.map((r, i) => {
+        const picked = m.recipe && m.recipe.idea === i;
+        return `<article class="card idea${picked ? " picked" : ""}">
+          ${ringHtml(r.per_serving)}
+          <div class="body">
+            <h3>${esc(r.name)}</h3>
+            <p class="small muted">${esc(r.description)}</p>
+            <div class="meta"><span>${esc(r.prep_minutes)} Min.</span><span>${Math.round(num(r.per_serving && r.per_serving.protein_g))} g Protein</span>
+              ${arr(r.uses_pantry).length ? `<span class="zest">Vorrat: ${esc(r.uses_pantry.slice(0, 3).join(", "))}</span>` : ""}</div>
+            <div class="row"><button class="btn sm ${picked ? "primary" : ""}" data-pick="${i}">${picked ? "Ausgewählt ✓" : "Rezept ansehen"}</button></div>
+          </div>
+        </article>`;
+      }).join("");
     ideasEl.querySelectorAll("[data-pick]").forEach((b) => b.addEventListener("click", () => pickIdea(Number(b.dataset.pick))));
 
     const r = m.recipe;
@@ -981,21 +1107,27 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
     const ing = arr(r.ingredients);
     const missing = ing.filter((i) => i.status !== "vorhanden");
     recEl.innerHTML = `<article class="card" id="meal-recipe-card">
-      <span class="eyebrow">Rezept · ${esc(r.servings)} ${num(r.servings) === 1 ? "Portion" : "Portionen"} · ${esc(r.prep_minutes)} Min.</span>
-      <h2>${esc(r.name)}</h2>
+      <div class="rhead">${ringHtml(r.per_serving, true)}
+        <div class="stack" style="gap:6px">
+          <span class="eyebrow">Rezept · ${esc(m.type)}</span>
+          <h2>${esc(r.name)}</h2>
+          <div class="meta"><span>${esc(r.prep_minutes)} Min.</span><span>${esc(r.servings)} ${num(r.servings) === 1 ? "Portion" : "Portionen"}</span></div>
+        </div>
+      </div>
       <p>${esc(r.description)}</p>
-      <div><span class="eyebrow">Pro Portion</span>${macroHtml(r.per_serving)}</div>
-      ${LEGEND}
+      <div><span class="eyebrow">Pro Portion</span>${mvalsHtml(r.per_serving)}</div>
       <h3>Zutaten</h3>
-      <div>${ing.map((i) => `<div class="item" style="grid-template-columns:minmax(0,1fr) auto;cursor:default">
-          <span class="name">${esc(i.name)}${i.status === "vorhanden" ? `<span class="pill have">zu Hause</span>` : i.status === "teilweise" ? `<span class="pill part">teilweise da</span>` : ""}
+      <div>${ing.map((i) => `<div class="ingr">
+          <span>${esc(i.name)}${i.status === "vorhanden" ? `<span class="pill have">zu Hause</span>` : i.status === "teilweise" ? `<span class="pill part">teilweise da</span>` : ""}
             ${i.note && i.status === "teilweise" ? `<span class="note">${esc(i.note)}</span>` : ""}</span>
           <span class="amt">${esc(fmt(i.amount))} ${esc(i.unit)}</span></div>`).join("")}</div>
-      <p class="small"><strong>${missing.length ? `Noch zu kaufen: ${missing.length} ${missing.length === 1 ? "Zutat" : "Zutaten"}` : "Alles zu Hause – du kannst direkt loslegen."}</strong></p>
-      ${missing.length ? `<div class="row"><button class="btn sm" id="btn-meal-shop">Auf die Einkaufsliste</button></div>` : ""}
+      <div class="row" style="justify-content:space-between">
+        <p class="small"><strong>${missing.length ? `Noch zu kaufen: ${missing.length} ${missing.length === 1 ? "Zutat" : "Zutaten"}` : "Alles zu Hause – du kannst direkt loslegen."}</strong></p>
+        ${missing.length ? `<button class="btn sm" id="btn-meal-shop">Auf die Einkaufsliste</button>` : ""}
+      </div>
       <h3>Zubereitung</h3>
-      <ol style="margin:0;padding-left:1.2rem;display:grid;gap:6px">${arr(r.steps).map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
-      ${r.tip ? `<p class="small muted">Tipp: ${esc(r.tip)}</p>` : ""}
+      <ol class="steps-list">${arr(r.steps).map((s) => `<li><span>${esc(s)}</span></li>`).join("")}</ol>
+      ${r.tip ? `<p class="small muted"><strong>Tipp:</strong> ${esc(r.tip)}</p>` : ""}
     </article>`;
     const shopBtn = $("#btn-meal-shop");
     if (shopBtn) shopBtn.addEventListener("click", () => {
@@ -1021,7 +1153,7 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
     const seen = prev && prev.type === type ? arr(prev.seen).slice(-12) : [];
     const mk = mealKcal(p, type);
     btn.disabled = true;
-    st.innerHTML = `<ul class="steps"><li class="active"><span class="dot"></span>Claude sammelt 3 Ideen …</li></ul>`;
+    st.innerHTML = ""; $("#meal-recipe").innerHTML = ""; $("#meal-ideas").innerHTML = SKELETON;
     try {
       const res = await askJson(`Du bist Köchin und Ernährungsberaterin. Schlage 3 deutlich unterschiedliche, gesunde und leckere Gerichte für ${type} vor, auf Deutsch.
 
@@ -1042,11 +1174,11 @@ Antworte NUR mit JSON: {"ideas":[{"name":"…","description":"1 Satz","prep_minu
       const ideas = arr(res && res.ideas).filter((i) => i && i.name).slice(0, 3).map((i) => ({
         name: str(i.name), description: str(i.description), prep_minutes: num(i.prep_minutes), per_serving: i.per_serving, uses_pantry: arr(i.uses_pantry).map(str),
       }));
-      if (!ideas.length) throw new AskError("empty", "Claude hat keine Ideen geliefert. Bitte erneut versuchen.");
+      if (!ideas.length) throw new AskError("empty", "eAit hat keine Ideen geliefert. Bitte erneut versuchen.");
       state.meal = { type, mode, wishes, ideas, recipe: null, seen: [...seen, ...ideas.map((i) => i.name)] };
       persist("meal"); renderMeal(); st.innerHTML = "";
     } catch (e) {
-      st.innerHTML = `<p class="error small">${esc(e.message)}</p>`;
+      st.innerHTML = `<p class="error small">${esc(e.message)}</p>`; renderMeal();
     } finally { btn.disabled = false; }
   });
 
@@ -1058,7 +1190,7 @@ Antworte NUR mit JSON: {"ideas":[{"name":"…","description":"1 Satz","prep_minu
     const p = prof();
     picking = true;
     document.querySelectorAll("[data-pick]").forEach((b) => (b.disabled = true));
-    $("#meal-recipe").innerHTML = `<div class="card"><ul class="steps"><li class="active"><span class="dot"></span>Claude schreibt das Rezept für „${esc(idea.name)}“ …</li></ul></div>`;
+    $("#meal-recipe").innerHTML = `<div class="card"><ul class="steps"><li class="active"><span class="dot"></span>eAit schreibt das Rezept für „${esc(idea.name)}“ …</li></ul></div>`;
     $("#meal-recipe").scrollIntoView({ behavior: "smooth", block: "nearest" });
     try {
       const r = await askJson(`Du bist Köchin. Schreibe das vollständige Rezept für dieses Gericht, auf Deutsch:
@@ -1098,6 +1230,12 @@ Antworte NUR mit JSON: {"name":"…","description":"1–2 Sätze","prep_minutes"
   }
 
   $("#meal-type").value = (state.meal && state.meal.type) || defaultMealType();
+  const syncChips = () => document.querySelectorAll('input[name="mealtype"]').forEach((r) => (r.checked = r.value === $("#meal-type").value));
+  syncChips();
+  document.querySelectorAll('input[name="mealtype"]').forEach((r) => r.addEventListener("change", () => {
+    $("#meal-type").value = r.value; $("#meal-type").dispatchEvent(new Event("change"));
+  }));
+  { const h = new Date().getHours(); $("#greet").textContent = h < 11 ? "Guten Morgen!" : h < 17 ? "Hallo!" : "Guten Abend!"; }
   if (state.meal && state.meal.mode) $("#meal-mode").value = state.meal.mode;
 
   // ---------------- Start ----------------
@@ -1111,7 +1249,7 @@ Antworte NUR mit JSON: {"name":"…","description":"1–2 Sätze","prep_minutes"
     if (!sample) {
       for (const id of ["#btn-plan", "#btn-meal", "#btn-match"]) $(id).disabled = true;
       $("#btn-scan").hidden = true; $(".drop").hidden = true; $("#scan-unavailable").hidden = false;
-      for (const h of ["#plan-hint", "#meal-hint"]) $(h).insertAdjacentHTML("afterend", `<p class="error small">Öffne diese Seite in Claude, damit Claude Rezepte erstellen kann.</p>`);
+      for (const h of ["#plan-hint", "#meal-hint"]) $(h).insertAdjacentHTML("afterend", `<p class="error small">eAit funktioniert nur über den geteilten Link, wenn du angemeldet bist.</p>`);
       return;
     }
     const lim = await sample.limits().catch(() => null);

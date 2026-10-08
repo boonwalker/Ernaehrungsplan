@@ -1,4 +1,4 @@
-# 🥗 Ernährungsplaner
+# eAit
 
 KI-gestützte Web-App, die dir Wochen-Ernährungspläne mit gesunden, leckeren Rezepten und einer
 passenden Einkaufsliste erstellt – auf Wunsch abgestimmt auf deine Fitnessziele. Mit einem Foto
@@ -18,7 +18,7 @@ Profil, Vorrat, Plan und Einkaufsliste werden lokal im Browser gespeichert.
 
 ## Zwei Varianten
 
-- **Claude-Artifact (ohne API-Schlüssel):** `artifact/ernaehrungsplaner.html` läuft als Seite in Claude
+- **eAit als Artifact (ohne API-Schlüssel):** `artifact/ernaehrungsplaner.html` läuft als Seite in Claude
   und fragt Claude über das Konto der Person, die sie öffnet. Daten werden privat im Claude-Konto gespeichert.
   Veröffentlicht unter <https://claude.ai/artifact/TbriwMUSPNzmRP6dTGHmMt>.
 - **Eigener Server (mit API-Schlüssel):** die Node-App unten.
