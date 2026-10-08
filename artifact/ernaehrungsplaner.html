@@ -553,6 +553,11 @@
   /* Kopfzeile scrollt mit der Seite weg statt oben mitzulaufen */
   header.top, header.top.scrolled { position: relative; top: auto; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom-color: transparent; }
   header.top.scrolled .brand { transform: none; }
+  /* Wochenplan: Mahlzeiten einzeln übernehmen */
+  .pick-sum { display: grid; gap: 8px; padding-top: 4px; }
+  .pick-meal { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; padding: 5px 12px 5px 6px; border-radius: 999px; border: 1px solid var(--line); background: rgb(255 255 255 / .05); font-size: .82rem; font-weight: 600; color: var(--muted); cursor: pointer; width: max-content; }
+  .pick-meal.on { color: var(--brand); border-color: rgb(111 224 163 / .45); background: var(--brand-soft); }
+  .pick-meal input[type="checkbox"] { width: 20px; height: 20px; border-radius: 6px; }
 </style>
 
 <div class="aurora-bg" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
@@ -1325,19 +1330,22 @@
       return;
     }
     const byId = Object.fromEntries(arr(plan.recipes).map((r) => [r.id, r]));
+    const sel = !!plan.selectable, allMeals = arr(plan.days).flatMap((d) => arr(d.meals)), picked = allMeals.filter((m) => m.picked).length;
     out.innerHTML = `
       <div class="card">
         <span class="eyebrow">Deine Woche</span>
         <p>${esc(plan.summary)}</p>
+        ${sel ? `<div class="pick-sum"><span class="small"><strong>${picked} von ${allMeals.length}</strong> Mahlzeiten übernommen – nur deren Zutaten stehen auf der Einkaufsliste.</span>
+          <div class="row"><button class="btn sm" type="button" data-pick-all="1">Alle übernehmen</button><button class="btn sm ghost" type="button" data-pick-all="0"${picked ? "" : " disabled"}>Keine</button></div></div>` : ""}
         ${plan.daily_target ? `<span class="eyebrow">Ziel pro Tag</span>${targetHtml({
           kcal: Math.round(num(plan.daily_target.kcal)), protein_g: Math.round(num(plan.daily_target.protein_g)),
           carbs_g: Math.round(num(plan.daily_target.carbs_g)), fat_g: Math.round(num(plan.daily_target.fat_g)) })}` : ""}
         ${LEGEND}
       </div>
-      ${arr(plan.days).map((d) => `
+      ${arr(plan.days).map((d, di) => `
         <article class="card day" data-tilt>
           <header><h3>${esc(d.day)}</h3>${macroHtml(d.totals)}</header>
-          ${arr(d.meals).map((m) => {
+          ${arr(d.meals).map((m, mi) => {
             const r = byId[m.recipe_id];
             const tArt = r ? dishArt(r, 200, 200, m.slot) : null;
             const thumb = tArt ? `<button class="thumb" data-recipe="${esc(r.id)}" aria-label="${esc(r.name)} ansehen">${tArt.html}</button>` : "";
@@ -1345,10 +1353,41 @@
               ${r ? `<button class="linkish" data-recipe="${esc(r.id)}">${esc(r.name)}</button>` : esc(m.recipe_id)}
               ${r ? `<div class="macros"><span>${esc(r.prep_minutes)} Min.</span></div>${macroHtml(r.per_serving)}` : ""}
               ${m.note ? `<div class="note">${esc(m.note)}</div>` : ""}
+              ${sel && r ? `<label class="pick-meal${m.picked ? " on" : ""}"><input type="checkbox" data-pick-meal="${di}:${mi}"${m.picked ? " checked" : ""} /> ${m.picked ? "Übernommen" : "Übernehmen"}</label>` : ""}
             </div></div>`;
           }).join("")}
         </article>`).join("")}`;
     out.querySelectorAll("[data-recipe]").forEach((b) => b.addEventListener("click", () => { const r = byId[b.dataset.recipe]; openRecipePage(r, { label: "Wochenplan · " + (r.slot || "Rezept") }); }));
+    out.querySelectorAll("[data-pick-meal]").forEach((cb) => cb.addEventListener("change", () => {
+      const [di, mi] = cb.dataset.pickMeal.split(":").map(Number);
+      setMealPicked(plan.days[di].meals[mi], byId, cb.checked);
+      persist("plan"); persist("shopping"); renderShop();
+      const y = window.scrollY; renderPlan(); window.scrollTo({ top: y });
+    }));
+    out.querySelectorAll("[data-pick-all]").forEach((b) => b.addEventListener("click", () => {
+      const on = b.dataset.pickAll === "1";
+      for (const d of arr(plan.days)) for (const m of arr(d.meals)) if (byId[m.recipe_id]) setMealPicked(m, byId, on);
+      persist("plan"); persist("shopping"); renderShop(); renderPlan();
+      toast(on ? "Alle Mahlzeiten übernommen" : "Auswahl aufgehoben – Zutaten von der Liste genommen");
+    }));
+  }
+
+  // Eine Mahlzeit übernehmen: ihr Anteil am Rezept (Meal-Prep-Rezepte reichen für mehrere Mahlzeiten)
+  // kommt auf die Einkaufsliste – ohne das, was laut Vorrat schon da ist. Beim Abwählen wird genau das wieder entfernt.
+  function setMealPicked(m, byId, on) {
+    if (!!m.picked === on) return;
+    if (on) {
+      const r = byId[m.recipe_id]; if (!r) return;
+      const f = Math.max(1, num(state.plan.persons, 1)) / Math.max(1, num(r.servings, 1));
+      const items = arr(r.ingredients).filter((i) => !isStaple(i.name) && ingStatus(i) === "fehlt")
+        .map((i) => ({ name: i.name, unit: i.unit, category: i.category || "Sonstiges", amount: scaleAmount(i.amount, i.unit, f), st: "fehlt" }));
+      addToShopping(items, 1);
+      m.added = items.map(({ name, unit, amount }) => ({ name, unit, amount }));
+      m.picked = true;
+    } else {
+      addToShopping(arr(m.added), -1);
+      m.added = []; m.picked = false;
+    }
   }
 
   function progress(stepsList, active, error) {
@@ -1373,7 +1412,7 @@
     const p = prof(), t = targets(p);
     const pantry = $("#plan-pantry").checked ? state.pantry : [];
     const wishes = $("#plan-wishes").value.trim();
-    const STEPS = ["Gerichte für die Woche auswählen", "Rezepte mit Zutaten ausarbeiten", "Einkaufsliste zusammenstellen"];
+    const STEPS = ["Gerichte für die Woche auswählen", "Rezepte mit Zutaten ausarbeiten"];
     planCtl = new AbortController();
     const signal = planCtl.signal;
     btn.disabled = true; stop.hidden = false;
@@ -1426,58 +1465,26 @@ ${b.map((r) => `- id ${r.id}: ${r.name} – ${r.description} – ${r.servings} P
 
 Für jedes Rezept: Zutaten mit Mengen für ALLE angegebenen Portionen zusammen und klare Zubereitungsschritte.
 Zutatennamen schlicht und einheitlich (z. B. "Haferflocken", "Paprika rot", "Hähnchenbrust"), Einheiten nur: g, ml, Stück, EL, TL, Prise, Bund, Dose, Packung.
-Antworte NUR mit JSON: {"recipes":[{"id":"r1","ingredients":[{"name":"…","amount":100,"unit":"g"}],"steps":["…"]}]}`,
+category je Zutat: Obst & Gemüse, Brot & Backwaren, Kühlregal, Fleisch & Fisch, Tiefkühl, Trockenwaren, Konserven, Gewürze & Öle, Getränke, Sonstiges.
+Antworte NUR mit JSON: {"recipes":[{"id":"r1","ingredients":[{"name":"…","amount":100,"unit":"g","category":"Kühlregal"}],"steps":["…"]}]}`,
         { signal, cache: false })));
       const byId = {};
       for (const d of details) for (const r of arr(d && d.recipes)) if (r && r.id) byId[r.id] = r;
       for (const r of recipes) {
         const d = byId[r.id] || {};
-        r.ingredients = arr(d.ingredients).filter((i) => i && i.name).map((i) => ({ name: str(i.name), amount: num(i.amount), unit: str(i.unit) }));
+        r.ingredients = arr(d.ingredients).filter((i) => i && i.name).map((i) => ({ name: str(i.name), amount: num(i.amount), unit: str(i.unit), category: CATS.includes(i.category) ? i.category : "Sonstiges" }));
         r.steps = arr(d.steps).map(str);
       }
 
-      // 3) Einkaufsliste: erst summieren, dann von der KI zusammenfassen, sortieren und mit dem Vorrat abgleichen
-      step = 2; progress(STEPS, 2);
-      const sum = new Map();
-      for (const r of recipes) for (const i of r.ingredients) {
-        const k = i.name.toLowerCase().trim() + "|" + i.unit.toLowerCase().trim();
-        const e = sum.get(k); if (e) e.amount += i.amount; else sum.set(k, { ...i });
-      }
-      const raw = [...sum.values()];
-      const shop = await askJson(`Erstelle aus diesen summierten Zutaten einer Woche eine Einkaufsliste auf Deutsch.
-
-ZUTATEN (Name – Menge Einheit)
-${raw.map((i) => `${i.name} – ${fmt(i.amount)} ${i.unit}`).join("\n")}
-
-VORRAT
-${pantryText(pantry)}
-
-BASISVORRAT (nicht auf die Liste): ${staplesText(p)}
-
-REGELN
-- Gleiche Zutaten mit anderen Namen oder Einheiten zusammenfassen und sinnvoll runden (z. B. 3 Stück statt 2,6).
-- Basisvorrat weglassen.
-- category: Obst & Gemüse, Brot & Backwaren, Kühlregal, Fleisch & Fisch, Tiefkühl, Trockenwaren, Konserven, Gewürze & Öle, Getränke, Sonstiges.
-- status: "vorhanden" (Vorrat deckt den Bedarf), "teilweise" (zu wenig – in note schreiben, wie viel noch zu kaufen ist), "fehlt".
-- Synonyme beachten (Hähnchenbrust ≈ Hähnchenfilet, Lauchzwiebeln ≈ Frühlingszwiebeln).
-
-Antworte NUR mit JSON: {"items":[{"name":"…","amount":1,"unit":"Stück","category":"Obst & Gemüse","status":"fehlt","note":""}]}`,
-        { signal, cache: false });
-      const items = arr(shop && shop.items).filter((i) => i && i.name);
-      if (!items.length) throw new AskError("invalid_json", "Die Einkaufsliste war leer. Bitte erneut versuchen.");
-
       for (const r of recipes) r.photo = PHOTOS[r.photo] ? r.photo : null;
-      state.plan = { summary: str(skeleton.summary), daily_target: skeleton.daily_target, recipes, days: skeleton.days };
-      // Was schon zu Hause ist, kommt gar nicht erst auf die Liste.
-      state.shopping = items.filter((i) => i.status !== "vorhanden").map((i) => ({
-        name: str(i.name), amount: num(i.amount), unit: str(i.unit), category: str(i.category) || "Sonstiges",
-        status: i.status === "teilweise" ? "teilweise" : "fehlt", note: str(i.note), checked: false,
-      }));
-      persist("plan"); persist("shopping");
-      progress(STEPS, 3);
+      // Die Einkaufsliste bleibt unberührt: Mahlzeiten werden einzeln abgehakt und erst dann übernommen.
+      for (const d of skeleton.days) for (const m of arr(d.meals)) { m.picked = false; m.added = []; }
+      state.plan = { summary: str(skeleton.summary), daily_target: skeleton.daily_target, recipes, days: skeleton.days, persons: num(p.persons, 1), selectable: true };
+      persist("plan");
+      progress(STEPS, 2);
       setTimeout(() => ($("#plan-progress").hidden = true), 1500);
-      renderPlan(); renderShop();
-      toast("Plan und Einkaufsliste sind fertig");
+      renderPlan();
+      toast("Plan fertig – hake die Mahlzeiten ab, die du übernehmen willst");
     } catch (e) {
       progress(STEPS, step, e.message || errText(e));
     } finally {
