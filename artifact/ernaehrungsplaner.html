@@ -511,6 +511,11 @@
   .credits img { width: 72px; height: 48px; object-fit: cover; border-radius: 10px; }
   .credits div { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
   .credits a { color: var(--brand); }
+  /* Ganze Ideen-Karte antippbar */
+  .idea-card.tap { cursor: pointer; transition: border-color .2s, box-shadow .2s; -webkit-tap-highlight-color: transparent; }
+  .idea-card.tap:hover { border-color: rgb(111 224 163 / .45); }
+  .idea-card.tap:active { border-color: var(--brand); }
+  .idea-card.tap:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 </style>
 
 <div class="aurora-bg" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
@@ -1827,9 +1832,8 @@ amount 1–5 = Menge)`;
     }
     ideasEl.innerHTML = `<div class="row" style="justify-content:space-between;padding-inline:4px"><span class="eyebrow">${esc(m.type)} · 3 Ideen für dich</span>${LEGEND}</div>` +
       m.ideas.map((r, i) => {
-        const picked = !!(m.recipes && m.recipes[i]);
         const art = dishArt(r, 400, 240, m.type);
-        return `<article class="card idea-card${picked ? " picked" : ""}" data-tilt>
+        return `<article class="card idea-card tap" data-tilt data-pick="${i}" role="button" tabindex="0" aria-label="Rezept ansehen: ${esc(r.name)}">
           ${art ? `<div class="dish" data-par>${art.html}<span class="dish-tag">${art.tag}</span></div>` : ""}
           <div class="idea">
           ${ringHtml(r.per_serving)}
@@ -1838,12 +1842,14 @@ amount 1–5 = Menge)`;
             <p class="small muted">${esc(r.description)}</p>
             <div class="meta"><span>${esc(r.prep_minutes)} Min.</span><span>${Math.round(num(r.per_serving && r.per_serving.protein_g))} g Protein</span>
               ${arr(r.uses_pantry).length ? `<span class="zest">Vorrat: ${esc(r.uses_pantry.slice(0, 3).join(", "))}</span>` : ""}</div>
-            <div class="row"><button class="btn sm ${picked ? "primary" : ""}" data-pick="${i}">Rezept ansehen</button></div>
           </div>
           </div>
         </article>`;
       }).join("");
-    ideasEl.querySelectorAll("[data-pick]").forEach((b) => b.addEventListener("click", () => pickIdea(Number(b.dataset.pick))));
+    ideasEl.querySelectorAll("[data-pick]").forEach((c) => {
+      c.addEventListener("click", () => pickIdea(Number(c.dataset.pick)));
+      c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickIdea(Number(c.dataset.pick)); } });
+    });
 
   }
 
