@@ -437,10 +437,10 @@
   .fridge-actions .btn { cursor: pointer; font: inherit; font-weight: 700; border-radius: 999px; padding: 12px 20px; display: inline-flex; }
   .fridge-actions label.btn.primary { background: linear-gradient(180deg, #7ff0b2, #3fb878); color: #04140b; box-shadow: 0 12px 26px -14px rgb(111 224 163 / .8); }
 
-  .fridge-ov.go .f-door { animation: f-open .75s cubic-bezier(.3, .7, .2, 1) .15s forwards; }
-  .fridge-ov.go .f-light { animation: f-light .5s ease-out .35s forwards; }
-  .fridge-ov.go .fridge { animation: f-zoom .45s ease-in .95s forwards; }
-  .fridge-ov.go .fridge-msg { animation: f-fade .3s ease-in .95s forwards; }
+  .fridge-ov.go .f-door { animation: f-open .55s cubic-bezier(.3, .7, .2, 1) .05s forwards; }
+  .fridge-ov.go .f-light { animation: f-light .35s ease-out .22s forwards; }
+  .fridge-ov.go .fridge { animation: f-zoom .33s ease-in .62s forwards; }
+  .fridge-ov.go .fridge-msg { animation: f-fade .25s ease-in .65s forwards; }
   .fridge-ov.wait .fridge { animation: none; transform: none; opacity: 1; }
   .fridge-ov.wait .f-door { animation: none; transform: rotateY(-112deg); }
   .fridge-ov.wait .f-light { animation: none; opacity: 1; }
@@ -745,7 +745,11 @@
       </div>
     </div>
   </div>
-  <p class="fridge-msg" id="fridge-msg">Kühlschrank öffnet … Kamera startet</p>
+  <p class="fridge-msg" id="fridge-msg">Kühlschrank öffnet …</p>
+  <div class="row fridge-actions" id="fridge-actions" hidden>
+    <label class="btn primary" for="photos">Kamera öffnen</label>
+    <button class="btn ghost" type="button" id="fridge-cancel">Abbrechen</button>
+  </div>
 </div>
 
 
@@ -2287,24 +2291,46 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
   // Nach jedem Neuzeichnen neue Karten erfassen
   new MutationObserver(requestFx).observe(document.querySelector(".wrap"), { childList: true, subtree: true });
 
-  // ---------------- Kühlschrank-Animation als Übergang zur Kamera ----------------
-  // Die Kamera öffnet direkt beim ersten Tippen (normales Verhalten des Feldes); die Animation läuft parallel dazu.
+  // ---------------- Kühlschrank öffnet sich, dann Kamera ----------------
+  // Die Animation läuft komplett durch, danach öffnet sich die Kamera. Safari (iOS) erlaubt das nur
+  // innerhalb von ca. 1 s nach dem Tippen – deshalb dauert die Animation 0,95 s.
   (() => {
     const ov = $("#fridge-ov"), input = $("#photos"), drop = $(".drop");
-    const RUN = 1400;
-    let started = 0, timer = null;
-    function close() { clearTimeout(timer); ov.hidden = true; ov.classList.remove("go"); }
-    function closeAfterAnimation() { clearTimeout(timer); timer = setTimeout(close, Math.max(0, RUN - (Date.now() - started))); }
+    const OPEN_AT = 950;
+    let timers = [];
+    const clear = () => { timers.forEach(clearTimeout); timers = []; };
+    function close() { clear(); ov.hidden = true; ov.classList.remove("go", "wait"); $("#fridge-actions").hidden = true; }
+    function waitForTap() {
+      // Nur falls das Gerät die Kamera trotzdem nicht automatisch öffnet: offener Kühlschrank mit Knopf.
+      ov.classList.remove("go"); ov.classList.add("wait");
+      $("#fridge-msg").textContent = "Der Kühlschrank ist offen – jetzt fotografieren:";
+      $("#fridge-actions").hidden = false;
+    }
     drop.addEventListener("click", (e) => {
-      if (e.target === input || reduceMotion) return; // kein preventDefault: die Kamera geht sofort auf
-      started = Date.now();
-      ov.classList.remove("go"); ov.hidden = false; void ov.offsetWidth; ov.classList.add("go");
-      clearTimeout(timer); timer = setTimeout(close, RUN + 1200); // falls kein Ereignis zurückkommt
+      if (e.target === input || reduceMotion) return;
+      e.preventDefault();
+      clear();
+      $("#fridge-msg").textContent = "Kühlschrank öffnet …";
+      $("#fridge-actions").hidden = true;
+      ov.classList.remove("go", "wait"); ov.hidden = false; void ov.offsetWidth; ov.classList.add("go");
+      timers.push(setTimeout(() => {
+        let opened = false;
+        const mark = () => { opened = true; };
+        window.addEventListener("blur", mark, { once: true });
+        document.addEventListener("visibilitychange", mark, { once: true });
+        try { input.click(); } catch { /* blockiert */ }
+        timers.push(setTimeout(() => {
+          window.removeEventListener("blur", mark); document.removeEventListener("visibilitychange", mark);
+          if (!opened) waitForTap();
+        }, 900));
+      }, OPEN_AT));
     });
-    input.addEventListener("change", closeAfterAnimation);
-    input.addEventListener("cancel", closeAfterAnimation);
-    window.addEventListener("focus", () => { if (!ov.hidden) closeAfterAnimation(); });
-    ov.addEventListener("click", close);
+    input.addEventListener("change", close);
+    input.addEventListener("cancel", close);
+    window.addEventListener("focus", () => { if (!ov.hidden && !ov.classList.contains("wait")) timers.push(setTimeout(close, 300)); });
+    $("#fridge-cancel").addEventListener("click", close);
+    ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !ov.hidden) close(); });
   })();
 
   // ---------------- Start ----------------
