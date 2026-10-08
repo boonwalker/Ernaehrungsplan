@@ -68,7 +68,7 @@
   nav.tabs {
     position: fixed; z-index: 10; left: 50%; transform: translateX(-50%);
     bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(520px, calc(100% - 24px));
-    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; padding: 6px;
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 6px;
     background: var(--nav-bg); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4);
     border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow);
   }
@@ -534,6 +534,14 @@
   .portions button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
   .portions span { text-align: center; font-size: .88rem; color: var(--muted); font-variant-numeric: tabular-nums; }
   .portions b { color: var(--ink); font-family: var(--font-display); font-size: 1.05rem; }
+  /* Profil oben rechts im Kreis */
+  header.top { gap: 12px; }
+  .hdr-profile { margin-left: auto; flex: 0 0 auto; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+    background: var(--glass); border: 1.5px solid var(--line); color: var(--ink); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: border-color .2s, background .2s, color .2s; }
+  .hdr-profile svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .hdr-profile:hover { border-color: rgb(111 224 163 / .55); }
+  .hdr-profile[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #04140b; }
+  .hdr-profile:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 </style>
 
 <div class="aurora-bg" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
@@ -542,6 +550,7 @@
     <button class="hdr-back" id="hdr-back" type="button" hidden aria-label="Zurück"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span id="hdr-title">Rezept</span></button>
     <h1 class="brand" aria-label="eAit"><span class="wordmark" aria-hidden="true">e<span class="a">A</span><span class="pow"></span>t</span></h1>
     <span class="sync" id="sync" hidden>Lädt …</span>
+    <button class="hdr-profile" id="hdr-profile" type="button" data-tab="profile" aria-label="Profil" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6" /><path d="M5.5 19.5c1.3-3.2 3.9-4.9 6.5-4.9s5.2 1.7 6.5 4.9" /></svg></button>
   </header>
 
   <!-- MAHLZEIT -->
@@ -793,7 +802,6 @@
   <button role="tab" id="t-shop" data-tab="shop" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></svg>Einkauf</button>
   <button role="tab" id="t-fridge" data-tab="fridge" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2.5" /><path d="M6 10h12M9.5 6v2M9.5 13v3" /></svg>Vorrat</button>
   <button role="tab" id="t-train" data-tab="train" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11" /></svg>Training</button>
-  <button role="tab" id="t-profile" data-tab="profile" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4.5 20.5c1.4-3.6 4.4-5.5 7.5-5.5s6.1 1.9 7.5 5.5" /></svg>Profil</button>
 </nav>
 
 <dialog id="recipe"><div class="inner" id="recipe-body"></div></dialog>
@@ -1241,11 +1249,13 @@
   function showTab(name) {
     if (typeof view !== "undefined" && view.page && name !== "rv") { if (typeof releaseWake === "function") releaseWake(); view.page = null; view.origin = null; $("#hdr-back").hidden = true; $("header.top .brand").hidden = false; }
     document.querySelectorAll("nav.tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
+    $("#hdr-profile").setAttribute("aria-pressed", String(name === "profile"));
     document.querySelectorAll("section.tab").forEach((s) => (s.hidden = s.id !== "tab-" + name));
     local.set("tab", name);
     window.scrollTo({ top: 0 });
   }
   document.querySelectorAll("nav.tabs button").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
+  $("#hdr-profile").addEventListener("click", () => showTab("profile"));
   document.addEventListener("click", (e) => { const g = e.target.closest("[data-goto]"); if (g) showTab(g.dataset.goto); });
 
   // ---------------- Darstellung: Makros & Rezepte ----------------
