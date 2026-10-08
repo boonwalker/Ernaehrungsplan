@@ -55,9 +55,28 @@
 
   /* Kopf */
   header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 16px 12px; }
-  .logo { font-family: var(--font-display); font-weight: 800; font-size: 1.75rem; letter-spacing: -0.04em; margin: 0; line-height: 1; }
-  .logo span { color: var(--zest); }
-  .sync { font-size: .75rem; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line); padding: 4px 10px; border-radius: 999px; }
+  /* Marke: eAⁱt – das ⁱ steht als Exponent am A; Strich und Blatt sind gezeichnet, damit sie in jeder Größe sitzen. */
+  .brand { display: inline-flex; align-items: center; gap: .42em; font-size: 26px; margin: 0; line-height: 1; color: var(--ink); }
+  .brand-mark {
+    position: relative; width: 1.5em; height: 1.5em; border-radius: .42em; flex: 0 0 auto;
+    display: grid; place-items: center; color: #ffffff; overflow: hidden;
+    background: radial-gradient(90% 80% at 100% 0%, rgb(255 106 61 / .5), transparent 60%), linear-gradient(150deg, #23895b, #0b3a24);
+    box-shadow: 0 .25em .6em -.3em rgb(11 58 36 / .7), inset 0 1px 0 rgb(255 255 255 / .18);
+  }
+  .brand-mark .glyphs { font-family: var(--font-display); font-weight: 800; font-size: .95em; line-height: 1; display: inline-flex; transform: translate(.06em, .03em); }
+  .wordmark { font-family: var(--font-display); font-weight: 800; letter-spacing: .012em; display: inline-flex; line-height: 1; }
+  .wordmark .a { color: var(--brand); }
+  .pow { position: relative; display: inline-block; width: .2em; margin: 0 .04em 0 .03em; }
+  .pow::before { /* Strich des ⁱ */
+    content: ""; position: absolute; left: .05em; top: .2em; width: .105em; height: .3em; border-radius: .03em; background: currentColor;
+  }
+  .pow::after { /* Blatt statt i-Punkt */
+    content: ""; position: absolute; left: .015em; top: -.04em; width: .19em; height: .19em;
+    background: var(--zest); border-radius: 0 75% 0 75%; transform: rotate(-14deg);
+  }
+  .wordmark .pow { color: var(--brand); }
+  .brand-mark .pow::after { background: #ff8059; }
+  .sync { white-space: nowrap; font-size: .75rem; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line); padding: 4px 10px; border-radius: 999px; }
   .sync::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--brand); }
 
   /* Navigation unten */
@@ -102,9 +121,9 @@
       linear-gradient(160deg, #1d7a50, #0c3d26);
     box-shadow: var(--shadow);
   }
-  .hero::after {
-    content: ""; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%;
-    border: 18px solid rgb(255 255 255 / .07); pointer-events: none;
+  .hero::after { /* Blatt aus der Marke als Hintergrundform */
+    content: ""; position: absolute; right: -36px; top: -44px; width: 190px; height: 190px;
+    border-radius: 0 75% 0 75%; transform: rotate(-14deg); background: rgb(255 255 255 / .07); pointer-events: none;
   }
   .hero .greet { font-size: .9rem; opacity: .85; font-weight: 500; }
   .hero h2 { color: #ffffff; font-size: 2rem; letter-spacing: -0.03em; }
@@ -260,7 +279,7 @@
 
 <div class="wrap">
   <header class="top">
-    <h1 class="logo">e<span>Ai</span>t</h1>
+    <h1 class="brand" aria-label="eAit"><span class="brand-mark" aria-hidden="true"><span class="glyphs">A<span class="pow"></span></span></span><span class="wordmark" aria-hidden="true">e<span class="a">A</span><span class="pow"></span>t</span></h1>
     <span class="sync" id="sync">Lädt …</span>
   </header>
 
@@ -488,7 +507,7 @@
         .then(() => ref.set(body))
         .catch((e) => {
           if (e && e.code === "quota_exceeded") toast("Speicher voll – bitte alte Daten löschen.");
-          else setSync("Nur in diesem Browser gespeichert");
+          else setSync("Nur auf diesem Gerät");
         });
     }, 400);
   }
@@ -497,11 +516,11 @@
 
   async function initRemote() {
     const cl = window.claude;
-    if (!cl || typeof cl.use !== "function") { setSync("Nur in diesem Browser gespeichert"); return; }
+    if (!cl || typeof cl.use !== "function") { setSync("Nur auf diesem Gerät"); return; }
     try {
       const [db, user] = await Promise.all([cl.use("db"), cl.use("user")]);
       const uid = user ? await user.id() : null;
-      if (!db || !uid) { setSync("Nur in diesem Browser gespeichert"); return; }
+      if (!db || !uid) { setSync("Nur auf diesem Gerät"); return; }
       remote.db = db; remote.uid = uid;
       const col = db.collection("data/users/" + uid);
       for (const key of KEYS) {
@@ -519,11 +538,11 @@
           state[key] = body.v ?? DEFAULTS[key];
           local.set(key, state[key]);
           renderAll();
-        }, () => setSync("Nur in diesem Browser gespeichert"));
+        }, () => setSync("Nur auf diesem Gerät"));
       }
-      setSync("In deinem Konto gespeichert");
+      setSync("Im Konto gesichert");
     } catch {
-      setSync("Nur in diesem Browser gespeichert");
+      setSync("Nur auf diesem Gerät");
     }
   }
 
