@@ -1,0 +1,34 @@
+{
+  "name": "ernaehrungsplan",
+  "version": "1.0.0",
+  "description": "KI-Ernährungsplaner mit Wochenplan, Einkaufsliste und Kühlschrank-Scan",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env --import tsx src/server.ts",
+    "dev": "node --env-file-if-exists=.env --watch --import tsx src/server.ts",
+    "typecheck": "tsc",
+    "test": "node --import tsx --test src/*.test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boonwalker/Ernaehrungsplan.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/boonwalker/Ernaehrungsplan/issues"
+  },
+  "homepage": "https://github.com/boonwalker/Ernaehrungsplan#readme",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.132.1",
+    "express": "^5.2.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "type": "module",
+  "private": true
+}

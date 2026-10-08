@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#2f7d4f" />
+  <title>Ernährungsplaner</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>🥗 Ernährungsplaner</h1>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button data-tab="plan" class="active">📅 Plan</button>
+    <button data-tab="shopping">🛒 Einkauf</button>
+    <button data-tab="fridge">🧊 Kühlschrank</button>
+    <button data-tab="cook">🍳 Jetzt kochen</button>
+    <button data-tab="profile">👤 Profil</button>
+  </nav>
+
+  <main>
+    <!-- ======== WOCHENPLAN ======== -->
+    <section id="tab-plan" class="tab active">
+      <div class="card">
+        <h2>Wochenplan erstellen</h2>
+        <p class="muted" id="plan-profile-hint"></p>
+        <label>Besondere Wünsche für diese Woche (optional)
+          <textarea id="plan-wishes" rows="2" placeholder="z. B. viel Asiatisches, Dienstag nur Reste, am Wochenende Brunch"></textarea>
+        </label>
+        <label class="inline"><input type="checkbox" id="plan-use-pantry" checked /> Vorrat aus dem Kühlschrank berücksichtigen</label>
+        <button class="primary" id="btn-plan">✨ Plan erstellen</button>
+      </div>
+      <div id="plan-output"></div>
+    </section>
+
+    <!-- ======== EINKAUFSLISTE ======== -->
+    <section id="tab-shopping" class="tab">
+      <div class="card">
+        <h2>Einkaufsliste</h2>
+        <div class="row wrap">
+          <button id="btn-match">🔄 Mit Vorrat abgleichen</button>
+          <label class="inline"><input type="checkbox" id="hide-have" /> Vorhandenes ausblenden</label>
+          <button id="btn-copy-list">📋 Kopieren</button>
+        </div>
+        <p class="legend">
+          <span class="badge have">zu Hause</span>
+          <span class="badge partial">teilweise da</span>
+          Abhaken = in den Wagen gelegt
+        </p>
+      </div>
+      <div id="shopping-output"></div>
+    </section>
+
+    <!-- ======== KÜHLSCHRANK ======== -->
+    <section id="tab-fridge" class="tab">
+      <div class="card">
+        <h2>Kühlschrank scannen</h2>
+        <p class="muted">Mach ein oder mehrere Fotos (Kühlschrank, Vorratsschrank, Gefrierfach). Die KI erkennt die Lebensmittel.</p>
+        <label class="upload">
+          <input type="file" id="fridge-files" accept="image/*" capture="environment" multiple />
+          <span>📷 Fotos aufnehmen / auswählen</span>
+        </label>
+        <div id="fridge-previews" class="previews"></div>
+        <button class="primary" id="btn-scan" disabled>🔍 Lebensmittel erkennen</button>
+      </div>
+      <div id="scan-output"></div>
+
+      <div class="card">
+        <h2>Mein Vorrat <span class="muted small" id="pantry-count"></span></h2>
+        <form id="pantry-add" class="row">
+          <input id="pantry-name" placeholder="Lebensmittel" required />
+          <input id="pantry-qty" placeholder="Menge" class="qty" />
+          <button type="submit">＋</button>
+        </form>
+        <ul id="pantry-list" class="pantry"></ul>
+        <button class="danger small" id="btn-clear-pantry">Vorrat leeren</button>
+      </div>
+    </section>
+
+    <!-- ======== JETZT KOCHEN ======== -->
+    <section id="tab-cook" class="tab">
+      <div class="card">
+        <h2>Was kann ich jetzt kochen?</h2>
+        <p class="muted">Rezepte nur mit dem, was du zu Hause hast – ohne Einkaufen.</p>
+        <div class="row wrap">
+          <label>Mahlzeit
+            <select id="cook-type">
+              <option value="">egal</option>
+              <option>Frühstück</option>
+              <option>Mittagessen</option>
+              <option>Abendessen</option>
+              <option>Snack</option>
+            </select>
+          </label>
+          <label>Anzahl Vorschläge
+            <select id="cook-count"><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+          </label>
+        </div>
+        <label>Wünsche (optional)
+          <input id="cook-wishes" placeholder="z. B. warm, max. 15 Minuten, etwas Würziges" />
+        </label>
+        <button class="primary" id="btn-cook">🍳 Vorschläge holen</button>
+      </div>
+      <div id="cook-output"></div>
+    </section>
+
+    <!-- ======== PROFIL ======== -->
+    <section id="tab-profile" class="tab">
+      <form id="profile-form" class="card">
+        <h2>Dein Profil</h2>
+        <label>Ziel
+          <select name="goal">
+            <option value="gesund">Einfach gesund &amp; lecker essen</option>
+            <option value="abnehmen">Abnehmen</option>
+            <option value="muskelaufbau">Muskelaufbau</option>
+            <option value="halten">Gewicht halten</option>
+          </select>
+        </label>
+        <fieldset>
+          <legend>Körperdaten <span class="muted small">(optional – für Kalorienziele)</span></legend>
+          <div class="grid">
+            <label>Geschlecht
+              <select name="sex"><option value="">–</option><option value="w">weiblich</option><option value="m">männlich</option><option value="d">divers</option></select>
+            </label>
+            <label>Alter <input name="age" type="number" min="10" max="110" /></label>
+            <label>Größe (cm) <input name="heightCm" type="number" min="100" max="250" /></label>
+            <label>Gewicht (kg) <input name="weightKg" type="number" min="30" max="300" step="0.1" /></label>
+          </div>
+          <label>Aktivität
+            <select name="activity">
+              <option value="sitzend">Sitzend (Bürojob, kaum Sport)</option>
+              <option value="leicht" selected>Leicht (1–2× Sport/Woche)</option>
+              <option value="mittel">Mittel (3–4× Sport/Woche)</option>
+              <option value="hoch">Hoch (5–6× Sport/Woche)</option>
+              <option value="sehr_hoch">Sehr hoch (tägl. Training / körperl. Arbeit)</option>
+            </select>
+          </label>
+          <p id="targets" class="targets"></p>
+        </fieldset>
+        <div class="grid">
+          <label>Ernährungsform
+            <select name="diet">
+              <option value="omnivor">Alles</option>
+              <option value="flexitarisch">Flexitarisch</option>
+              <option value="pescetarisch">Pescetarisch</option>
+              <option value="vegetarisch">Vegetarisch</option>
+              <option value="vegan">Vegan</option>
+            </select>
+          </label>
+          <label>Mahlzeiten/Tag
+            <select name="mealsPerDay"><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+          </label>
+          <label>Personen
+            <input name="persons" type="number" min="1" max="8" value="1" />
+          </label>
+          <label>Kochzeit
+            <select name="cookingTime">
+              <option value="schnell">Schnell</option>
+              <option value="mittel" selected>Normal</option>
+              <option value="aufwendig">Darf aufwendig sein</option>
+            </select>
+          </label>
+          <label>Budget
+            <select name="budget">
+              <option value="günstig">Günstig</option>
+              <option value="normal" selected>Normal</option>
+              <option value="egal">Egal</option>
+            </select>
+          </label>
+        </div>
+        <label>Allergien / Unverträglichkeiten <input name="allergies" placeholder="z. B. Laktose, Nüsse" /></label>
+        <label>Mag ich nicht <input name="dislikes" placeholder="z. B. Pilze, Koriander" /></label>
+        <label>Vorlieben <textarea name="preferences" rows="2" placeholder="z. B. mediterran, scharf, Meal-Prep fürs Büro"></textarea></label>
+        <label>Basisvorrat (immer zu Hause, kommt nicht auf die Einkaufsliste)
+          <textarea name="staples" rows="2" placeholder="Salz, Pfeffer, Olivenöl, Essig, Zucker, Mehl, Gewürze"></textarea>
+        </label>
+        <button class="primary" type="submit">💾 Speichern</button>
+        <span id="profile-saved" class="muted"></span>
+      </form>
+    </section>
+  </main>
+
+  <dialog id="recipe-dialog">
+    <div id="recipe-body"></div>
+    <form method="dialog"><button class="primary">Schließen</button></form>
+  </dialog>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
