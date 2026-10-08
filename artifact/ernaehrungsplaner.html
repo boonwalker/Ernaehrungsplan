@@ -1458,12 +1458,21 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
     const ch = (v) => Math.round(v + (k - v) * p);
     return "#" + [n >> 16, (n >> 8) & 255, n & 255].map((v) => ch(v).toString(16).padStart(2, "0")).join("");
   }
+  // Tolerant: abweichende (z. B. deutsche) Formnamen werden zugeordnet statt verworfen.
+  const SHAPE_ALIAS = { stücke: "chunks", würfel: "chunks", stueck: "chunks", scheiben: "slices", kugeln: "round", beeren: "round", körner: "grains", reis: "grains",
+    blätter: "leaves", blaetter: "leaves", salat: "leaves", streifen: "strips", nudeln: "noodles", pasta: "noodles", klecks: "dollop", creme: "dollop",
+    filet: "fillet", stück: "fillet", soße: "drizzle", sosse: "drizzle", sauce: "drizzle", streusel: "crumbs", samen: "crumbs", nüsse: "crumbs" };
+  const VESSEL_ALIAS = { plate: "teller", bowl: "schüssel", schuessel: "schüssel", glass: "glas", becher: "glas", board: "brett", brettchen: "brett" };
   function cleanPlating(pl) {
     if (!pl || typeof pl !== "object") return null;
-    const items = arr(pl.items).filter((i) => i && SHAPES.includes(i.shape)).slice(0, 7)
-      .map((i) => ({ name: str(i.name), shape: i.shape, color: hex(i.color, FALLBACK[i.shape]), amount: Math.max(1, Math.min(5, Math.round(num(i.amount, 2)))) }));
+    const shapeOf = (x) => { const k = str(x).toLowerCase().trim(); return SHAPES.includes(k) ? k : SHAPE_ALIAS[k] || "chunks"; };
+    const items = arr(pl.items).filter((i) => i && (i.name || i.shape)).slice(0, 7).map((i) => {
+      const shape = shapeOf(i.shape);
+      return { name: str(i.name), shape, color: hex(i.color, FALLBACK[shape]), amount: Math.max(1, Math.min(5, Math.round(num(i.amount, 2)))) };
+    });
     if (!items.length) return null;
-    return { vessel: VESSELS.includes(pl.vessel) ? pl.vessel : "teller", base: hex(pl.base, ""), items };
+    const v = str(pl.vessel).toLowerCase().trim();
+    return { vessel: VESSELS.includes(v) ? v : VESSEL_ALIAS[v] || "teller", base: hex(pl.base, ""), items };
   }
   const PLATING_SPEC = `"plating":{"vessel":"teller|schüssel|glas|brett","base":"#hex der Basis/Soße oder leer","items":[{"name":"Lachs","shape":"fillet","color":"#e9906a","amount":1}]}
 (plating = so sieht das fertig angerichtete Gericht von oben aus: 3–7 sichtbare Komponenten mit realistischer Farbe im gegarten Zustand;
