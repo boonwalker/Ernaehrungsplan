@@ -412,7 +412,43 @@
     [data-par] svg { transform: none; }
     [data-tilt] { transform: none; }
     header.top .brand, header.top { transition: none; }
+    .fridge-ov.go .f-door, .fridge-ov.go .f-light, .fridge-ov.go .fridge, .fridge-ov.go .fridge-msg { animation: none; }
   }
+  /* Kühlschrank-Animation vor dem Fotografieren */
+  .fridge-ov { position: fixed; inset: 0; z-index: 30; display: grid; place-content: center; justify-items: center; gap: 18px; background: rgb(4 12 8 / .82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .fridge-stage { perspective: 1100px; }
+  .fridge { position: relative; width: 220px; height: 380px; transform-style: preserve-3d; filter: drop-shadow(0 30px 40px rgb(0 0 0 / .6)); }
+  .f-inside { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 18px; }
+  .f-light { opacity: 0; }
+  .f-door { position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d; }
+  .f-front, .f-back { position: absolute; inset: 0; border-radius: 18px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .f-front { background: linear-gradient(105deg, #2b4a3c, #1b3328 45%, #24443a); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .12), inset 0 -96px 0 -94px rgb(0 0 0 / .4); }
+  .f-front::before { content: ""; position: absolute; left: 0; right: 0; top: 96px; height: 3px; background: rgb(0 0 0 / .35); }
+  .f-handle { position: absolute; right: 16px; top: 34px; width: 8px; height: 46px; border-radius: 4px; background: linear-gradient(90deg, #cfd8d3, #8fa59a); }
+  .f-handle.low { top: 120px; height: 90px; }
+  .f-brand { position: absolute; left: 22px; bottom: 26px; font-family: var(--font-display); font-weight: 800; font-size: 22px; color: rgb(234 245 238 / .85); display: inline-flex; letter-spacing: .01em; }
+  .f-brand b { color: #6fe0a3; }
+  .f-brand .pow { color: #6fe0a3; }
+  .f-back { transform: rotateY(180deg); background: linear-gradient(90deg, #dfeaee, #c8d9df); box-shadow: inset 0 0 0 8px #1d2b25; }
+  .f-rack { position: absolute; left: 18px; right: 18px; top: 120px; height: 34px; border-radius: 4px; border: 3px solid #9fb9c2; border-top: 0; }
+  .f-rack.r2 { top: 210px; } .f-rack.r3 { top: 300px; }
+  .fridge-msg { margin: 0; color: var(--muted); font-weight: 600; }
+  .fridge-actions { justify-content: center; }
+  .fridge-actions .btn { cursor: pointer; font: inherit; font-weight: 700; border-radius: 999px; padding: 12px 20px; display: inline-flex; }
+  .fridge-actions label.btn.primary { background: linear-gradient(180deg, #7ff0b2, #3fb878); color: #04140b; box-shadow: 0 12px 26px -14px rgb(111 224 163 / .8); }
+
+  .fridge-ov.go .f-door { animation: f-open .75s cubic-bezier(.3, .7, .2, 1) .15s forwards; }
+  .fridge-ov.go .f-light { animation: f-light .5s ease-out .35s forwards; }
+  .fridge-ov.go .fridge { animation: f-zoom .45s ease-in .95s forwards; }
+  .fridge-ov.go .fridge-msg { animation: f-fade .3s ease-in .95s forwards; }
+  .fridge-ov.wait .fridge { animation: none; transform: none; opacity: 1; }
+  .fridge-ov.wait .f-door { animation: none; transform: rotateY(-112deg); }
+  .fridge-ov.wait .f-light { animation: none; opacity: 1; }
+  .fridge-ov.wait .fridge-msg { animation: none; opacity: 1; }
+  @keyframes f-open { 0% { transform: rotateY(0); } 70% { transform: rotateY(-118deg); } 100% { transform: rotateY(-112deg); } }
+  @keyframes f-light { 0% { opacity: 0; } 30% { opacity: .9; } 45% { opacity: .5; } 100% { opacity: 1; } }
+  @keyframes f-zoom { to { transform: translateZ(380px) scale(1.25); opacity: 0; } }
+  @keyframes f-fade { to { opacity: 0; } }
 </style>
 
 <div class="aurora-bg" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
@@ -668,6 +704,54 @@
 
 <dialog id="recipe"><div class="inner" id="recipe-body"></div></dialog>
 <div class="toast" id="toast" hidden></div>
+<div class="fridge-ov" id="fridge-ov" hidden>
+  <div class="fridge-stage" aria-hidden="true">
+    <div class="fridge">
+      <svg class="f-inside" viewBox="0 0 220 380">
+        <defs>
+          <linearGradient id="fw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4fbff"/><stop offset="1" stop-color="#cfe0e6"/></linearGradient>
+          <radialGradient id="fl" cx=".5" cy=".08" r=".9"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".6" stop-color="#e8f6ff" stop-opacity=".2"/><stop offset="1" stop-color="#e8f6ff" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect x="0" y="0" width="220" height="380" rx="18" fill="#1d2b25"/>
+        <rect x="10" y="10" width="200" height="360" rx="10" fill="url(#fw)"/>
+        <rect x="10" y="10" width="200" height="92" rx="10" fill="#dceef5"/>
+        <rect x="10" y="100" width="200" height="4" fill="#9fb9c2"/>
+        <!-- Gefrierfach -->
+        <rect x="24" y="30" width="80" height="52" rx="6" fill="#bcd8e4"/><rect x="116" y="30" width="80" height="52" rx="6" fill="#c7e0ea"/>
+        <circle cx="150" cy="56" r="10" fill="#fff" opacity=".7"/><path d="M144 56h12M150 50v12M146 52l8 8M154 52l-8 8" stroke="#8fb4c4" stroke-width="2"/>
+        <!-- Böden -->
+        <g fill="#a9c7d1" opacity=".9"><rect x="10" y="180" width="200" height="5"/><rect x="10" y="258" width="200" height="5"/></g>
+        <!-- oberes Fach: Milch, Joghurt, Käse -->
+        <rect x="26" y="118" width="30" height="62" rx="4" fill="#ffffff" stroke="#c9d6dc"/><path d="M26 130l15-12 15 12" fill="#3f8ad6"/><rect x="31" y="142" width="20" height="14" rx="2" fill="#3f8ad6" opacity=".25"/>
+        <rect x="66" y="152" width="22" height="28" rx="5" fill="#f5efe4"/><rect x="66" y="152" width="22" height="7" rx="3" fill="#e5432a"/>
+        <rect x="92" y="152" width="22" height="28" rx="5" fill="#f5efe4"/><rect x="92" y="152" width="22" height="7" rx="3" fill="#6fae49"/>
+        <path d="M126 180l30-30 30 30z" fill="#f2c94c"/><circle cx="148" cy="170" r="4" fill="#e3b33c"/><circle cx="164" cy="174" r="3" fill="#e3b33c"/>
+        <!-- mittleres Fach: Eier, Glas, Wasserflasche -->
+        <rect x="24" y="238" width="70" height="20" rx="4" fill="#d8c3a5"/>
+        <g fill="#fbf4e8"><ellipse cx="34" cy="236" rx="7" ry="9"/><ellipse cx="50" cy="236" rx="7" ry="9"/><ellipse cx="66" cy="236" rx="7" ry="9"/><ellipse cx="82" cy="236" rx="7" ry="9"/></g>
+        <rect x="104" y="214" width="34" height="44" rx="7" fill="#c0392b" opacity=".9"/><rect x="102" y="208" width="38" height="10" rx="3" fill="#2c3e35"/>
+        <rect x="152" y="196" width="22" height="62" rx="8" fill="#bfe3f2" opacity=".85"/><rect x="157" y="188" width="12" height="10" rx="2" fill="#3f8ad6"/>
+        <rect x="180" y="226" width="20" height="32" rx="4" fill="#7fbf5a"/>
+        <!-- Gemüsefach -->
+        <rect x="18" y="280" width="184" height="80" rx="10" fill="#e7f2ee" stroke="#b8cfc8" stroke-width="2"/>
+        <g><circle cx="52" cy="312" r="15" fill="#d8432f"/><path d="M52 297c2-5 6-7 9-7" stroke="#4c7d34" stroke-width="3" fill="none"/>
+          <path d="M80 330l40-20" stroke="#ee8b2f" stroke-width="10" stroke-linecap="round"/><path d="M84 340l40-18" stroke="#f39a3d" stroke-width="9" stroke-linecap="round"/>
+          <circle cx="150" cy="318" r="12" fill="#4f9a3a"/><circle cx="162" cy="310" r="11" fill="#5fae45"/><circle cx="172" cy="322" r="10" fill="#4f9a3a"/><rect x="156" y="326" width="8" height="18" rx="3" fill="#7fbf5a"/></g>
+        <rect x="10" y="10" width="200" height="360" rx="10" fill="url(#fl)" class="f-light"/>
+      </svg>
+      <div class="f-door">
+        <div class="f-front"><span class="f-handle"></span><span class="f-handle low"></span><span class="f-brand">e<b>A</b><i class="pow"></i>t</span></div>
+        <div class="f-back"><span class="f-rack"></span><span class="f-rack r2"></span><span class="f-rack r3"></span></div>
+      </div>
+    </div>
+  </div>
+  <p class="fridge-msg" id="fridge-msg">Kühlschrank öffnet …</p>
+  <div class="row fridge-actions" id="fridge-actions" hidden>
+    <label class="btn primary" for="photos">Kamera öffnen</label>
+    <button class="btn ghost" type="button" id="fridge-cancel">Abbrechen</button>
+  </div>
+</div>
+
 
 <script>
 (() => {
@@ -2206,6 +2290,44 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
   window.addEventListener("resize", requestFx);
   // Nach jedem Neuzeichnen neue Karten erfassen
   new MutationObserver(requestFx).observe(document.querySelector(".wrap"), { childList: true, subtree: true });
+
+  // ---------------- Kühlschrank öffnet sich, dann Kamera ----------------
+  (() => {
+    const ov = $("#fridge-ov"), input = $("#photos"), drop = $(".drop");
+    let timers = [];
+    const clear = () => { timers.forEach(clearTimeout); timers = []; };
+    function close() { clear(); ov.hidden = true; ov.classList.remove("go", "wait"); $("#fridge-actions").hidden = true; }
+    function waitForTap() {
+      // Kamera ging nicht automatisch auf: offener Kühlschrank bleibt stehen, der Knopf öffnet sie per direktem Tippen.
+      ov.classList.remove("go"); ov.classList.add("wait");
+      $("#fridge-msg").textContent = "Der Kühlschrank ist offen – jetzt fotografieren:";
+      $("#fridge-actions").hidden = false;
+    }
+    drop.addEventListener("click", (e) => {
+      if (e.target === input) return;               // programmatischer Klick auf das Feld selbst
+      if (reduceMotion) return;                     // ohne Animation direkt die Kamera
+      e.preventDefault();
+      clear();
+      $("#fridge-msg").textContent = "Kühlschrank öffnet …";
+      $("#fridge-actions").hidden = true;
+      ov.classList.remove("go", "wait"); ov.hidden = false; void ov.offsetWidth; ov.classList.add("go");
+      timers.push(setTimeout(() => {
+        let opened = false;
+        const mark = () => { opened = true; };
+        window.addEventListener("blur", mark, { once: true });
+        document.addEventListener("visibilitychange", mark, { once: true });
+        try { input.click(); } catch { /* blockiert */ }
+        timers.push(setTimeout(() => {
+          window.removeEventListener("blur", mark); document.removeEventListener("visibilitychange", mark);
+          if (opened) close(); else waitForTap();
+        }, 650));
+      }, 1050));
+    });
+    input.addEventListener("change", close);
+    $("#fridge-cancel").addEventListener("click", close);
+    ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !ov.hidden) close(); });
+  })();
 
   // ---------------- Start ----------------
   function renderAll() { fillForm(); fillTrainingForm(); renderTraining(); renderBody(); renderHint(); renderMealHint(); renderPlan(); renderShop(); renderPantry(); renderMeal(); }
