@@ -550,6 +550,9 @@
   .icon-btn:hover { border-color: rgb(111 224 163 / .55); }
   .icon-btn.done { background: var(--brand); border-color: var(--brand); color: #04140b; }
   .icon-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  /* Kopfzeile scrollt mit der Seite weg statt oben mitzulaufen */
+  header.top, header.top.scrolled { position: relative; top: auto; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom-color: transparent; }
+  header.top.scrolled .brand { transform: none; }
 </style>
 
 <div class="aurora-bg" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
