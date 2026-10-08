@@ -556,7 +556,6 @@
         <button class="btn sm" id="btn-match">Mit Vorrat abgleichen</button>
         <button class="btn sm" id="btn-copy">Liste kopieren</button>
       </div>
-      <label class="check small"><input type="checkbox" id="hide-have" /> Vorhandenes ausblenden</label>
       <textarea id="copy-fallback" rows="6" hidden readonly></textarea>
     </div>
     <div id="shop-out" class="stack"></div>
@@ -1357,9 +1356,10 @@ Antworte NUR mit JSON: {"items":[{"name":"…","amount":1,"unit":"Stück","categ
 
       for (const r of recipes) r.plating = cleanPlating(r.plating);
       state.plan = { summary: str(skeleton.summary), daily_target: skeleton.daily_target, recipes, days: skeleton.days };
-      state.shopping = items.map((i) => ({
+      // Was schon zu Hause ist, kommt gar nicht erst auf die Liste.
+      state.shopping = items.filter((i) => i.status !== "vorhanden").map((i) => ({
         name: str(i.name), amount: num(i.amount), unit: str(i.unit), category: str(i.category) || "Sonstiges",
-        status: ["vorhanden", "teilweise", "fehlt"].includes(i.status) ? i.status : "fehlt", note: str(i.note), checked: false,
+        status: i.status === "teilweise" ? "teilweise" : "fehlt", note: str(i.note), checked: false,
       }));
       persist("plan"); persist("shopping");
       progress(STEPS, 3);
@@ -1376,21 +1376,19 @@ Antworte NUR mit JSON: {"items":[{"name":"…","amount":1,"unit":"Stück","categ
   // ---------------- Einkaufsliste ----------------
   const CATS = ["Obst & Gemüse", "Brot & Backwaren", "Kühlregal", "Fleisch & Fisch", "Tiefkühl", "Trockenwaren", "Konserven", "Gewürze & Öle", "Getränke", "Sonstiges"];
   function renderShop() {
-    const out = $("#shop-out"), list = arr(state.shopping);
-    const toBuy = list.filter((s) => s.status !== "vorhanden" && !s.checked).length;
-    const have = list.filter((s) => s.status === "vorhanden").length;
-    const need = list.filter((s) => s.status !== "vorhanden").length, inCart = list.filter((s) => s.status !== "vorhanden" && s.checked).length;
-    $("#shop-progress").hidden = !need; $("#shop-progress i").style.width = need ? (inCart / need) * 100 + "%" : "0";
-    $("#shop-summary").textContent = list.length ? `Noch ${toBuy} zu kaufen · ${have} schon zu Hause · ${list.filter((s) => s.checked).length} im Wagen` : "";
+    const out = $("#shop-out"), all = arr(state.shopping);
+    const list = all.filter((s) => s.status !== "vorhanden"); // ältere Listen: Vorhandenes nicht anzeigen
+    const toBuy = list.filter((s) => !s.checked).length, inCart = list.length - toBuy;
+    $("#shop-progress").hidden = !list.length; $("#shop-progress i").style.width = list.length ? (inCart / list.length) * 100 + "%" : "0";
+    $("#shop-summary").textContent = list.length ? `Noch ${toBuy} zu kaufen · ${inCart} im Wagen` : "";
     if (!list.length) {
       out.innerHTML = `<div class="card"><p class="muted">Die Einkaufsliste entsteht zusammen mit deinem Wochenplan.</p>
         <div class="row"><button class="btn sm" data-goto="plan">Zum Wochenplan</button></div></div>`;
       return;
     }
-    const hide = $("#hide-have").checked;
     const groups = new Map();
-    list.forEach((it, idx) => {
-      if (hide && it.status === "vorhanden") return;
+    all.forEach((it, idx) => {
+      if (it.status === "vorhanden") return;
       const c = CATS.includes(it.category) ? it.category : "Sonstiges";
       if (!groups.has(c)) groups.set(c, []);
       groups.get(c).push([it, idx]);
@@ -1398,9 +1396,9 @@ Antworte NUR mit JSON: {"items":[{"name":"…","amount":1,"unit":"Stück","categ
     out.innerHTML = CATS.filter((c) => groups.has(c)).map((c) => `
       <div class="card"><span class="cat">${esc(c)}</span><div>
       ${groups.get(c).map(([it, idx]) => `
-        <label class="item ${it.status === "vorhanden" ? "have" : ""} ${it.checked ? "done" : ""}">
+        <label class="item ${it.checked ? "done" : ""}">
           <input type="checkbox" data-idx="${idx}" ${it.checked ? "checked" : ""} />
-          <span class="name">${esc(it.name)}${it.status === "vorhanden" ? `<span class="pill have">zu Hause</span>` : it.status === "teilweise" ? `<span class="pill part">teilweise da</span>` : ""}
+          <span class="name">${esc(it.name)}${it.status === "teilweise" ? `<span class="pill part">teilweise da</span>` : ""}
             ${it.note && it.status !== "fehlt" ? `<span class="note">${esc(it.note)}</span>` : ""}</span>
           <span class="amt">${esc(fmt(it.amount))} ${esc(it.unit)}</span>
         </label>`).join("")}
@@ -1409,7 +1407,6 @@ Antworte NUR mit JSON: {"items":[{"name":"…","amount":1,"unit":"Stück","categ
       state.shopping[cb.dataset.idx].checked = cb.checked; persist("shopping"); renderShop();
     }));
   }
-  $("#hide-have").addEventListener("change", () => { local.set("hideHave", $("#hide-have").checked); renderShop(); });
 
   async function matchPantry(quiet) {
     if (!state.shopping.length) { if (!quiet) toast("Noch keine Einkaufsliste"); return; }
@@ -1432,7 +1429,11 @@ Synonyme beachten. Antworte NUR mit JSON: {"matches":[{"index":0,"status":"fehlt
         if (!it || !["vorhanden", "teilweise", "fehlt"].includes(m.status)) continue;
         it.status = m.status; it.note = m.status === "fehlt" ? "" : str(m.note);
       }
-      persist("shopping"); renderShop(); toast("Einkaufsliste mit Vorrat abgeglichen");
+      const before = state.shopping.length;
+      state.shopping = state.shopping.filter((s) => s.status !== "vorhanden");
+      const removed = before - state.shopping.length;
+      persist("shopping"); renderShop();
+      toast(removed ? `${removed} Artikel hast du schon – von der Liste genommen` : "Einkaufsliste mit Vorrat abgeglichen");
     } catch (e) { toast(e.message); }
     finally { btn.disabled = false; btn.textContent = "Mit Vorrat abgleichen"; }
   }
@@ -2345,7 +2346,6 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
 
   // ---------------- Start ----------------
   function renderAll() { fillForm(); fillTrainingForm(); renderTraining(); renderBody(); renderHint(); renderMealHint(); renderPlan(); renderShop(); renderPantry(); renderMeal(); }
-  $("#hide-have").checked = !!local.get("hideHave", false);
   renderAll();
   showSub(local.get("sub", "goals") === "progress" ? "progress" : "goals");
   { const t = local.get("tab", "meal"); showTab(["meal", "plan", "train", "shop", "fridge", "profile"].includes(t) ? t : "meal"); }
