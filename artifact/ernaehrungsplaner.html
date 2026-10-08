@@ -524,6 +524,16 @@
   /* Warn-Knöpfe (Löschen, Zurücksetzen) auch im Aurora-Stil rot */
   button.btn.danger { color: var(--danger); border-color: rgb(255 138 128 / .35); }
   button.btn.danger:hover { border-color: var(--danger); }
+  /* Portionen-Regler unter "Einkaufen" */
+  .rv-actions { align-items: start; }
+  .rv-col { display: grid; gap: 8px; }
+  .portions { display: grid; grid-template-columns: 34px 1fr 34px; align-items: center; gap: 4px; padding: 3px; border-radius: 999px; background: rgb(255 255 255 / .06); border: 1px solid var(--line); }
+  .portions button { width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgb(255 255 255 / .1); color: var(--ink); font: inherit; font-size: 1.2rem; font-weight: 700; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+  .portions button:hover:not(:disabled) { background: var(--brand); color: #04140b; }
+  .portions button:disabled { opacity: .35; cursor: not-allowed; }
+  .portions button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .portions span { text-align: center; font-size: .88rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .portions b { color: var(--ink); font-family: var(--font-display); font-size: 1.05rem; }
 </style>
 
 <div class="aurora-bg" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
@@ -1453,6 +1463,8 @@ Antworte NUR mit JSON: {"items":[{"name":"…","amount":1,"unit":"Stück","categ
   });
 
   // ---------------- Einkaufsliste ----------------
+  // Auf der Einkaufsliste ganze Stücke: 1,5 Zwiebeln → 2 Zwiebeln kaufen
+  const buyAmount = (it) => (/^(stück|stk|st|bund|dose|dosen|packung|pck|becher|glas|flasche|knolle|kopf)$/i.test(str(it.unit).trim()) ? Math.ceil(num(it.amount) - 1e-9) : num(it.amount));
   const CATS = ["Obst & Gemüse", "Brot & Backwaren", "Kühlregal", "Fleisch & Fisch", "Tiefkühl", "Trockenwaren", "Konserven", "Gewürze & Öle", "Getränke", "Sonstiges"];
   function renderShop() {
     const out = $("#shop-out"), all = arr(state.shopping);
@@ -1479,7 +1491,7 @@ Antworte NUR mit JSON: {"items":[{"name":"…","amount":1,"unit":"Stück","categ
           <input type="checkbox" data-idx="${idx}" ${it.checked ? "checked" : ""} />
           <span class="name">${esc(it.name)}${it.status === "teilweise" ? `<span class="pill part">teilweise da</span>` : ""}
             ${it.note && it.status !== "fehlt" ? `<span class="note">${esc(it.note)}</span>` : ""}</span>
-          <span class="amt">${esc(fmt(it.amount))} ${esc(it.unit)}</span>
+          <span class="amt">${esc(fmt(buyAmount(it)))} ${esc(it.unit)}</span>
         </label>`).join("")}
       </div></div>`).join("") || `<div class="card muted">Alles da – nichts mehr zu kaufen.</div>`;
     out.querySelectorAll("input[data-idx]").forEach((cb) => cb.addEventListener("change", () => {
@@ -1531,7 +1543,7 @@ Synonyme beachten. Antworte NUR mit JSON: {"matches":[{"index":0,"status":"fehlt
 
   $("#btn-copy").addEventListener("click", () => {
     const text = state.shopping.filter((s) => s.status !== "vorhanden" && !s.checked)
-      .map((s) => `- ${s.name}: ${fmt(s.amount)} ${s.unit}${s.status === "teilweise" && s.note ? " (" + s.note + ")" : ""}`).join("\n");
+      .map((s) => `- ${s.name}: ${fmt(buyAmount(s))} ${s.unit}${s.status === "teilweise" && s.note ? " (" + s.note + ")" : ""}`).join("\n");
     const fb = $("#copy-fallback");
     const fallback = () => { fb.value = text; fb.hidden = false; fb.focus(); fb.select(); toast("Text markiert – jetzt kopieren"); };
     try {
@@ -2490,14 +2502,47 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
     const found = findPantry(i.name) >= 0 || isStaple(i.name);
     return found ? (i.status === "teilweise" ? "teilweise" : "vorhanden") : "fehlt";
   }
-  function renderRecipePage() {
+  // --- Portionen: Mengen hoch- bzw. runterrechnen ---
+  const basePortions = (r) => Math.max(1, num(r && r.servings, 1));
+  const portionsOf = (r) => Math.max(1, Math.min(12, Math.round(num(r && r.portions, basePortions(r)))));
+  function scaleAmount(amount, unit, f) {
+    const v = num(amount) * f, u = str(unit).toLowerCase();
+    if (/^(g|ml)$/.test(u)) return v >= 50 ? Math.round(v / 5) * 5 : Math.max(1, Math.round(v));
+    if (/^(kg|l)$/.test(u)) return Math.round(v * 100) / 100;
+    if (/^prise/.test(u)) return Math.max(1, Math.round(v));
+    return Math.max(0.5, Math.round(v * 2) / 2); // Stück, EL, TL, Bund, Dose … auf halbe Einheiten
+  }
+  // Rezept mit Zutaten für die gewählte Portionenzahl
+  function scaledRecipe(r) {
+    const f = portionsOf(r) / basePortions(r);
+    return { ...r, servings: portionsOf(r), ingredients: arr(r.ingredients).map((i) => ({ ...i, amount: f === 1 ? num(i.amount) : scaleAmount(i.amount, i.unit, f) })) };
+  }
+  function addToShopping(items, sign) {
+    for (const i of items) {
+      const ex = state.shopping.find((s) => s.name.toLowerCase() === i.name.toLowerCase() && s.unit === i.unit);
+      if (ex) { ex.amount = Math.round((ex.amount + sign * i.amount) * 100) / 100; ex.checked = false; }
+      else if (sign > 0) state.shopping.push({ name: i.name, amount: i.amount, unit: i.unit, category: i.category || "Sonstiges", status: i.st, note: i.note || "", checked: false });
+    }
+    state.shopping = state.shopping.filter((s) => !(s.amount <= 0));
+  }
+
+  function renderRecipePage(keepScroll) {
     const r = view.recipe; if (!r) return;
     view.page = "recipe"; $("#hdr-title").textContent = view.ctx.label || "Rezept";
-    const ing = arr(r.ingredients).map((i) => ({ ...i, st: ingStatus(i) }));
+    const P = portionsOf(r), sr = scaledRecipe(r);
+    const ing = sr.ingredients.map((i) => ({ ...i, st: ingStatus(i) }));
     const missing = ing.filter((i) => i.st !== "vorhanden");
     const hero = dishArt(r, 400, 260, view.ctx.label);
+    const stepper = `<div class="portions" role="group" aria-label="Portionen">
+        <button type="button" data-por="-1" aria-label="Eine Portion weniger"${P <= 1 ? " disabled" : ""}>−</button>
+        <span><b>${P}</b> ${P === 1 ? "Portion" : "Portionen"}</span>
+        <button type="button" data-por="1" aria-label="Eine Portion mehr"${P >= 12 ? " disabled" : ""}>+</button>
+      </div>`;
     const ACT_HTML = `<div class="rv-actions">
-      <button class="btn rv-shop" type="button" data-act="shop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>Einkaufen</button>
+      <div class="rv-col">
+        <button class="btn rv-shop" type="button" data-act="shop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>Einkaufen</button>
+        ${stepper}
+      </div>
       <button class="btn rv-cook" type="button" data-act="cook"${arr(r.steps).length ? "" : " disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h16v2a7 7 0 0 1-7 7h-2a7 7 0 0 1-7-7z"/><path d="M2 11h20M9 7c0-1.5 1-2 1-3.5M14 7c0-1.5 1-2 1-3.5"/></svg>Kochen</button>
     </div>`;
     $("#rv").innerHTML = `${ACT_HTML}
@@ -2507,12 +2552,12 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
         <div class="stack" style="gap:6px">
           <span class="eyebrow">${esc(view.ctx.label || "Rezept")}</span>
           <h2>${esc(r.name)}</h2>
-          <div class="meta"><span>${esc(r.prep_minutes)} Min.</span><span>${esc(r.servings)} ${num(r.servings) === 1 ? "Portion" : "Portionen"}</span></div>
+          <div class="meta"><span>${esc(r.prep_minutes)} Min.</span><span>${P} ${P === 1 ? "Portion" : "Portionen"}</span></div>
         </div>
       </div>
       <p>${esc(r.description)}</p>
       <div><span class="eyebrow">Pro Portion</span>${mvalsHtml(r.per_serving)}</div>
-      <h3>Zutaten</h3>
+      <h3>Zutaten <span class="small muted" style="font-weight:500">für ${P} ${P === 1 ? "Portion" : "Portionen"}</span></h3>
       <div>${ing.map((i) => `<div class="ingr">
           <span>${esc(i.name)}${i.st === "vorhanden" ? `<span class="pill have">zu Hause</span>` : i.st === "teilweise" ? `<span class="pill part">teilweise da</span>` : ""}
             ${i.note && i.st === "teilweise" ? `<span class="note">${esc(i.note)}</span>` : ""}</span>
@@ -2523,22 +2568,30 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
       ${r.tip ? `<p class="small muted"><strong>Tipp:</strong> ${esc(r.tip)}</p>` : ""}
     </article>
     ${ACT_HTML}`;
-    // Einkaufen: fehlende Zutaten einmal pro Rezept auf die Liste, dann zur Einkaufsliste
+    // Portionen ändern
+    $("#rv").querySelectorAll("[data-por]").forEach((b) => b.addEventListener("click", () => {
+      r.portions = Math.max(1, Math.min(12, P + Number(b.dataset.por)));
+      persist("meal"); persist("plan"); renderRecipePage(true);
+    }));
+    // Einkaufen: fehlende Zutaten für die gewählten Portionen auf die Liste, dann zur Einkaufsliste.
+    // Wurde das Rezept schon mit anderer Portionenzahl eingetragen, wird nur die Differenz angepasst.
     $("#rv").querySelectorAll('[data-act="shop"]').forEach((b) => b.addEventListener("click", () => {
       if (!missing.length) { toast("Alles zu Hause – nichts einzukaufen"); return; }
-      if (!r.onList) {
-        for (const i of missing) {
-          const ex = state.shopping.find((s) => s.name.toLowerCase() === i.name.toLowerCase() && s.unit === i.unit);
-          if (ex) { ex.amount += i.amount; ex.checked = false; }
-          else state.shopping.push({ name: i.name, amount: i.amount, unit: i.unit, category: i.category || "Sonstiges", status: i.st, note: i.note || "", checked: false });
+      const prev = r.onList === true ? basePortions(r) : num(r.onList, 0);
+      if (prev === P) toast("Die Zutaten stehen schon auf deiner Einkaufsliste");
+      else {
+        if (prev > 0) {
+          const before = scaledRecipe({ ...r, portions: prev }).ingredients.map((i) => ({ ...i, st: ingStatus(i) })).filter((i) => i.st !== "vorhanden");
+          addToShopping(before, -1);
         }
-        r.onList = true; persist("shopping"); persist("meal"); persist("plan"); renderShop();
-        toast(`${missing.length} ${missing.length === 1 ? "Zutat" : "Zutaten"} auf die Einkaufsliste gesetzt`);
-      } else toast("Die Zutaten stehen schon auf deiner Einkaufsliste");
+        addToShopping(missing, 1);
+        r.onList = P; persist("shopping"); persist("meal"); persist("plan"); renderShop();
+        toast(prev > 0 ? `Einkaufsliste auf ${P} ${P === 1 ? "Portion" : "Portionen"} angepasst` : `${missing.length} ${missing.length === 1 ? "Zutat" : "Zutaten"} für ${P} ${P === 1 ? "Portion" : "Portionen"} auf die Einkaufsliste gesetzt`);
+      }
       showTab("shop");
     }));
     $("#rv").querySelectorAll('[data-act="cook"]').forEach((b) => b.addEventListener("click", () => { view.step = 0; renderCookStep(); }));
-    window.scrollTo({ top: 0 });
+    if (!keepScroll) window.scrollTo({ top: 0 });
   }
 
   // --- Kochmodus ---
@@ -2547,7 +2600,7 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
     view.page = "cook"; view.step = i; $("#hdr-title").textContent = "Jetzt kochen";
     if (!wake && navigator.wakeLock) navigator.wakeLock.request("screen").then((w) => { wake = w; }, () => {});
     const text = steps[i], low = normName(text);
-    const used = arr(r.ingredients).filter((g) => { const w = normName(g.name).split(" ").filter((x) => x.length >= 4); return w.some((x) => low.includes(x.slice(0, Math.max(4, x.length - 2)))); });
+    const used = scaledRecipe(r).ingredients.filter((g) => { const w = normName(g.name).split(" ").filter((x) => x.length >= 4); return w.some((x) => low.includes(x.slice(0, Math.max(4, x.length - 2)))); });
     const last = i === n - 1;
     $("#rv").innerHTML = `<div class="cook">
       <div class="cook-prog" aria-hidden="true">${steps.map((_, k) => `<i class="${k < i ? "done" : k === i ? "now" : ""}"></i>`).join("")}</div>
@@ -2583,12 +2636,12 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
   function finishCooking() {
     releaseWake();
     view.undo = JSON.parse(JSON.stringify(state.pantry));
-    view.result = deductFromPantry(view.recipe);
+    view.result = deductFromPantry(scaledRecipe(view.recipe));
     persist("pantry"); renderPantry();
     renderDone();
   }
   function renderDone() {
-    const r = view.recipe, ps = r.per_serving || {}, sv = Math.max(1, num(r.servings, 1)), log = view.result || [];
+    const r = view.recipe, ps = r.per_serving || {}, sv = portionsOf(r), log = view.result || [];
     view.page = "done"; $("#hdr-title").textContent = "Guten Appetit";
     const art = (dishArt(r, 400, 240, view.ctx.label) || {}).html || "";
     $("#rv").innerHTML = `<div class="done-page">
