@@ -1,0 +1,587 @@
+<title>eAit Designrichtungen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Onest:wght@400;500;600;700&family=Archivo:wdth,wght@62..125,400;62..125,600;62..125,800;62..125,900&family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" />
+<style>
+  /* Layout: Studio-Seite mit Umschalter oben; links die Beschreibung der Richtung, rechts ein Handy-Rahmen mit eigenem Scrollbereich, in dem die Effekte laufen. */
+  :root {
+    --bg: #eef1ec; --fg: #13201a; --muted: #5d6c63; --line: #d9e0d5; --card: #ffffff; --accent: #17603f; --zest: #ff6a3d;
+    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --font-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #0d120f; --fg: #e7eee9; --muted: #9aaa9f; --line: #253028; --card: #161d18; --accent: #5fd394; --zest: #ff8a63; color-scheme: dark; }
+  }
+  :root[data-theme="dark"] { --bg: #0d120f; --fg: #e7eee9; --muted: #9aaa9f; --line: #253028; --card: #161d18; --accent: #5fd394; --zest: #ff8a63; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+  .studio { max-width: 1120px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 48px; display: grid; gap: 20px; }
+  .intro { display: grid; gap: 6px; }
+  .intro h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 4vw, 2.3rem); letter-spacing: -0.03em; margin: 0; line-height: 1.1; text-wrap: balance; }
+  .intro p { margin: 0; color: var(--muted); max-width: 62ch; }
+  .switch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 5px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; max-width: 560px; }
+  .switch button { border: 0; background: none; color: var(--muted); font: inherit; font-weight: 700; padding: 10px 8px; border-radius: 13px; cursor: pointer; display: grid; gap: 0; line-height: 1.2; }
+  .switch button small { font-weight: 500; font-size: .75rem; }
+  .switch button[aria-selected="true"] { background: var(--fg); color: var(--bg); }
+  .switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: start; }
+  @media (max-width: 860px) { .stage { grid-template-columns: minmax(0, 1fr); } .phone-wrap { order: -1; } }
+  .about { display: grid; gap: 14px; min-width: 0; position: sticky; top: 16px; }
+  @media (max-width: 860px) { .about { position: static; } }
+  .about h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.02em; margin: 0; line-height: 1.15; }
+  .about p { margin: 0; max-width: 60ch; }
+  .about ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 60ch; }
+  .about .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+  .swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+  .swatches span { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line); }
+  .hint { font-size: .85rem; color: var(--muted); }
+  .phone-wrap { display: grid; justify-items: center; gap: 10px; }
+  .phone { width: min(390px, 100%); height: min(780px, 84vh); border-radius: 44px; padding: 10px; background: #0b0f0d; box-shadow: 0 30px 60px -30px rgb(0 0 0 / .5), inset 0 0 0 2px #2a312d; position: relative; }
+  .screen { width: 100%; height: 100%; border-radius: 35px; overflow: hidden; position: relative; isolation: isolate; }
+  .scroller { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; }
+  .scroller::-webkit-scrollbar { display: none; }
+  .mock { display: none; } .mock.on { display: block; }
+
+  /* ===== gemeinsame Bausteine der Entwürfe ===== */
+  .m-brand { display: inline-flex; align-items: center; gap: .42em; line-height: 1; }
+  .m-mark { width: 1.5em; height: 1.5em; border-radius: .42em; display: grid; place-items: center; color: #fff; background: radial-gradient(90% 80% at 100% 0%, rgb(255 106 61 / .5), transparent 60%), linear-gradient(150deg, #23895b, #0b3a24); }
+  .m-glyph { font-weight: 800; font-size: .95em; display: inline-flex; transform: translate(.06em, .03em); }
+  .m-word { font-weight: 800; letter-spacing: .012em; display: inline-flex; }
+  .pow { position: relative; display: inline-block; width: .2em; margin: 0 .04em 0 -.035em; }
+  .pow::before { content: ""; position: absolute; left: .05em; top: .2em; width: .105em; height: .3em; border-radius: .03em; background: currentColor; }
+  .pow::after { content: ""; position: absolute; left: .015em; top: -.04em; width: .19em; height: .19em; background: #ff7a50; border-radius: 0 75% 0 75%; transform: rotate(-14deg); }
+  .dishbox svg { display: block; width: 100%; height: 100%; }
+  .mnav { position: absolute; z-index: 5; left: 10px; right: 10px; bottom: 10px; display: grid; grid-template-columns: repeat(6, 1fr); padding: 6px; border-radius: 22px; }
+  .mnav span { display: grid; justify-items: center; gap: 2px; font-size: .6rem; font-weight: 600; padding: 6px 0; border-radius: 15px; }
+  .mnav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .pad-nav { height: 96px; }
+
+  /* ===== A · Aurora Glass ===== */
+  .d-a { --a-bg: #06120c; --a-ink: #eaf5ee; --a-mut: #9fb8a9; --a-glass: rgb(255 255 255 / .07); --a-edge: rgb(255 255 255 / .14); --a-mint: #6fe0a3; --a-peach: #ff9a73;
+    background: var(--a-bg); color: var(--a-ink); font-family: "Onest", system-ui, sans-serif; min-height: 100%; position: relative; }
+  .d-a .aurora { position: sticky; top: 0; height: 0; z-index: 0; }
+  .d-a .aurora i { position: absolute; width: 420px; height: 420px; border-radius: 50%; filter: blur(60px); opacity: .55; will-change: transform; }
+  .d-a .aurora .g1 { background: #1f8f5f; left: -140px; top: -120px; animation: drift 14s ease-in-out infinite alternate; }
+  .d-a .aurora .g2 { background: #ff7a50; right: -200px; top: 120px; opacity: .35; animation: drift 18s ease-in-out infinite alternate-reverse; }
+  .d-a .aurora .g3 { background: #2a6fd6; left: 40px; top: 420px; opacity: .22; animation: drift 22s ease-in-out infinite alternate; }
+  @keyframes drift { to { transform: translate(60px, 80px) scale(1.15); } }
+  .d-a .bar { position: sticky; top: 0; z-index: 4; display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 12px; transition: background .3s, backdrop-filter .3s; }
+  .d-a .bar.scrolled { background: rgb(6 18 12 / .55); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); border-bottom: 1px solid var(--a-edge); }
+  .d-a .bar .m-brand { font-family: "Bricolage Grotesque", sans-serif; font-size: 22px; transform-origin: left center; transition: transform .3s; }
+  .d-a .bar.scrolled .m-brand { transform: scale(.82); }
+  .d-a .bar .m-word .a { color: var(--a-mint); }
+  .d-a .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--a-glass); border: 1px solid var(--a-edge); display: grid; place-items: center; font-size: .8rem; font-weight: 700; }
+  .d-a .body { position: relative; z-index: 1; padding: 6px 18px 0; display: grid; gap: 16px; }
+  .d-a .hello { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 2.4rem; line-height: 1; letter-spacing: -0.04em; margin: 6px 0 0; will-change: transform, opacity; }
+  .d-a .hello em { font-style: normal; background: linear-gradient(90deg, var(--a-mint), var(--a-peach)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .d-a .glass { background: var(--a-glass); border: 1px solid var(--a-edge); border-radius: 26px; backdrop-filter: blur(20px) saturate(1.3); -webkit-backdrop-filter: blur(20px) saturate(1.3); padding: 16px; }
+  .d-a .goal { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
+  .d-a .ringA { width: 86px; height: 86px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--a-mint) 0 var(--p, 66%), rgb(255 255 255 / .1) var(--p, 66%) 100%); }
+  .d-a .ringA div { width: 70px; height: 70px; border-radius: 50%; background: #0b1c14; display: grid; place-items: center; align-content: center; line-height: 1.05; }
+  .d-a .ringA strong { font-family: "Bricolage Grotesque", sans-serif; font-size: 1.15rem; }
+  .d-a .ringA span, .d-a .muted { color: var(--a-mut); font-size: .72rem; }
+  .d-a .chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .d-a .chips span { flex: 0 0 auto; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--a-edge); font-weight: 600; font-size: .85rem; background: var(--a-glass); }
+  .d-a .chips span.on { background: var(--a-ink); color: #06120c; }
+  .d-a .cta { border: 0; width: 100%; padding: 15px; border-radius: 18px; font: inherit; font-weight: 700; color: #1d0a02; background: linear-gradient(90deg, var(--a-peach), #ffc07a); box-shadow: 0 14px 30px -14px rgb(255 140 100 / .9); }
+  .d-a h3 { font-family: "Bricolage Grotesque", sans-serif; font-size: 1.15rem; margin: 6px 0 0; letter-spacing: -0.01em; }
+  .d-a .dcard { border-radius: 28px; overflow: hidden; background: var(--a-glass); border: 1px solid var(--a-edge); transform-style: preserve-3d; will-change: transform; }
+  .d-a .dcard .dishbox { height: 190px; overflow: hidden; }
+  .d-a .dcard .dishbox svg { height: 130%; transform: translateY(var(--par, 0px)); will-change: transform; }
+  .d-a .dcard .info { padding: 14px 16px 16px; display: grid; gap: 4px; }
+  .d-a .dcard .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .d-a .pill { font-size: .72rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: rgb(255 255 255 / .08); color: var(--a-mut); }
+  .d-a .pill.hot { background: rgb(111 224 163 / .16); color: var(--a-mint); }
+  .d-a .train { display: grid; gap: 10px; }
+  .d-a .bars { display: flex; gap: 5px; align-items: flex-end; height: 44px; }
+  .d-a .bars i { flex: 1; border-radius: 6px; background: rgb(255 255 255 / .1); }
+  .d-a .bars i.done { background: linear-gradient(var(--a-mint), #2f9d63); }
+  .mnav.nav-a { background: rgb(10 24 17 / .7); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgb(255 255 255 / .14); color: #9fb8a9; }
+  .mnav.nav-a span.on { color: #06120c; background: #6fe0a3; }
+
+  /* ===== B · Editorial Fresh ===== */
+  .d-b { --b-paper: #fafaf7; --b-ink: #121412; --b-mut: #6b6f69; --b-tomato: #e5432a; --b-basil: #1f6b45; --b-line: #e4e5df;
+    background: var(--b-paper); color: var(--b-ink); font-family: "Manrope", system-ui, sans-serif; min-height: 100%; }
+  .d-b .bar { position: sticky; top: 0; z-index: 4; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 10px; background: var(--b-paper); }
+  .d-b .bar .m-brand { font-family: "Archivo", sans-serif; font-variation-settings: "wdth" 110; font-size: 22px; }
+  .d-b .bar .m-word .a { color: var(--b-tomato); }
+  .d-b .progress { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--b-tomato); width: var(--sp, 0%); }
+  .d-b .date { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--b-mut); font-weight: 700; }
+  .d-b .head { padding: 10px 20px 0; }
+  .d-b .mega { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 4.1rem; line-height: .86; letter-spacing: -0.045em; margin: 10px 0 0; font-variation-settings: "wdth" var(--w, 125); text-transform: uppercase; }
+  .d-b .mega span { display: block; will-change: transform; }
+  .d-b .mega .t { color: var(--b-tomato); }
+  .d-b .lede { margin: 14px 0 0; font-size: 1.02rem; max-width: 30ch; }
+  .d-b .lede b { font-family: "Archivo", sans-serif; font-weight: 800; }
+  .d-b .marquee { margin: 22px 0 6px; border-block: 1.5px solid var(--b-ink); overflow: hidden; white-space: nowrap; padding: 8px 0; }
+  .d-b .marquee div { display: inline-block; font-family: "Archivo", sans-serif; font-weight: 800; font-size: .95rem; text-transform: uppercase; letter-spacing: .02em; transform: translateX(var(--mx, 0px)); will-change: transform; }
+  .d-b .marquee b { color: var(--b-tomato); padding: 0 10px; }
+  .d-b .tabs { display: flex; gap: 14px; padding: 10px 20px 0; font-weight: 700; font-size: .9rem; }
+  .d-b .tabs span { color: var(--b-mut); padding-bottom: 4px; }
+  .d-b .tabs span.on { color: var(--b-ink); border-bottom: 2.5px solid var(--b-ink); }
+  .d-b .stack { padding: 16px 16px 0; }
+  .d-b .scard { position: sticky; top: 64px; margin-bottom: 18px; background: var(--b-paper); border: 1.5px solid var(--b-ink); border-radius: 4px; overflow: hidden; transform-origin: center top; will-change: transform; }
+  .d-b .scard .num { position: absolute; top: 10px; left: 12px; z-index: 1; font-family: "Archivo", sans-serif; font-weight: 900; font-size: .8rem; background: var(--b-paper); border: 1.5px solid var(--b-ink); padding: 2px 8px; }
+  .d-b .scard .dishbox { height: 200px; border-bottom: 1.5px solid var(--b-ink); }
+  .d-b .scard .info { padding: 12px 14px 14px; display: grid; gap: 6px; }
+  .d-b .scard h3 { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 1.35rem; line-height: 1.05; letter-spacing: -0.02em; margin: 0; font-variation-settings: "wdth" 100; }
+  .d-b .facts { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--b-line); padding-top: 8px; }
+  .d-b .facts div { display: grid; }
+  .d-b .facts strong { font-family: "Archivo", sans-serif; font-weight: 800; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+  .d-b .facts span { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--b-mut); }
+  .d-b .section { padding: 18px 20px 0; display: grid; gap: 10px; }
+  .d-b .kicker { font-family: "Archivo", sans-serif; font-weight: 900; text-transform: uppercase; font-size: 1.6rem; letter-spacing: -0.02em; line-height: .95; margin: 0; }
+  .d-b .rule { display: grid; grid-template-columns: 70px 1fr; gap: 10px; padding: 10px 0; border-top: 1px solid var(--b-line); font-size: .9rem; }
+  .d-b .rule b { font-family: "Archivo", sans-serif; }
+  .d-b .bignum { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 3.4rem; line-height: 1; color: var(--b-basil); font-variant-numeric: tabular-nums; }
+  .mnav.nav-b { background: #121412; color: #a7aaa4; border-radius: 6px; font-family: "Manrope", sans-serif; }
+  .mnav.nav-b span.on { color: #121412; background: #fafaf7; border-radius: 3px; }
+
+  /* ===== C · Bento Motion ===== */
+  .d-c { --c-bg: #f2f4f7; --c-ink: #0f1420; --c-mut: #6a7383; --c-card: #ffffff; --c-teal: #0aa596; --c-coral: #ff6b4a; --c-sky: #dff3f0; --c-sun: #ffcc4d;
+    background: var(--c-bg); color: var(--c-ink); font-family: "Manrope", system-ui, sans-serif; min-height: 100%; }
+  .d-c .bar { position: sticky; top: 0; z-index: 4; display: flex; justify-content: space-between; align-items: center; padding: 16px 18px 10px; background: color-mix(in srgb, var(--c-bg) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .d-c .bar .m-brand { font-family: "Sora", sans-serif; font-size: 21px; }
+  .d-c .bar .m-word .a { color: var(--c-teal); }
+  .d-c .sring { width: 34px; height: 34px; border-radius: 50%; background: conic-gradient(var(--c-teal) 0 var(--sp, 0%), #dde2ea var(--sp, 0%) 100%); display: grid; place-items: center; }
+  .d-c .sring i { width: 26px; height: 26px; border-radius: 50%; background: var(--c-bg); display: grid; place-items: center; font-style: normal; font-size: .58rem; font-weight: 800; }
+  .d-c .body { padding: 4px 14px 0; display: grid; gap: 10px; }
+  .d-c h1 { font-family: "Sora", sans-serif; font-weight: 800; font-size: 1.75rem; line-height: 1.08; letter-spacing: -0.03em; margin: 4px 4px 4px; }
+  .d-c h1 span { color: var(--c-teal); }
+  .d-c .bento { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .d-c .tile { background: var(--c-card); border-radius: 24px; padding: 14px; position: relative; overflow: hidden; transform: perspective(700px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px)) scale(var(--sc, 1)); transition: transform .25s ease-out; will-change: transform; box-shadow: 0 1px 2px rgb(15 20 32 / .05), 0 10px 26px -18px rgb(15 20 32 / .35); }
+  .d-c .tile.wide { grid-column: 1 / -1; }
+  .d-c .tile .lab { font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--c-mut); font-weight: 700; }
+  .d-c .tile .big { font-family: "Sora", sans-serif; font-weight: 800; font-size: 2rem; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .d-c .tile .big small { font-size: .8rem; color: var(--c-mut); font-weight: 600; }
+  .d-c .t-goal { background: var(--c-ink); color: #fff; display: grid; grid-template-columns: 1fr auto; align-items: center; }
+  .d-c .t-goal .lab { color: #9aa3b5; }
+  .d-c .ringC { width: 92px; height: 92px; }
+  .d-c .ringC circle { fill: none; stroke-width: 10; }
+  .d-c .t-train { background: var(--c-coral); color: #2a0c03; }
+  .d-c .t-train .lab { color: #5c1a08; }
+  .d-c .t-scale { background: var(--c-sky); }
+  .d-c .spark { width: 100%; height: 36px; display: block; margin-top: 6px; }
+  .d-c .macro { display: grid; gap: 6px; margin-top: 8px; }
+  .d-c .macro div { display: grid; grid-template-columns: 26px 1fr 40px; gap: 6px; align-items: center; font-size: .72rem; font-weight: 700; }
+  .d-c .macro i { height: 8px; border-radius: 4px; background: #e6e9ef; overflow: hidden; display: block; }
+  .d-c .macro i b { display: block; height: 100%; border-radius: 4px; width: var(--w); }
+  .d-c .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .d-c .chips span { padding: 8px 13px; border-radius: 999px; background: var(--c-card); font-weight: 700; font-size: .82rem; }
+  .d-c .chips span.on { background: var(--c-ink); color: #fff; }
+  .d-c .sec { display: flex; justify-content: space-between; align-items: baseline; margin: 6px 4px 0; }
+  .d-c .sec h2 { font-family: "Sora", sans-serif; font-size: 1.15rem; margin: 0; letter-spacing: -0.02em; }
+  .d-c .sec span { font-size: .78rem; color: var(--c-mut); font-weight: 600; }
+  .d-c .carousel { display: grid; grid-auto-flow: column; grid-auto-columns: 78%; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 11% 10px; margin: 0 -14px; scrollbar-width: none; }
+  .d-c .carousel::-webkit-scrollbar { display: none; }
+  .d-c .ccard { scroll-snap-align: center; background: var(--c-card); border-radius: 26px; overflow: hidden; transform: scale(var(--cs, .92)); opacity: var(--co, .7); transition: transform .2s, opacity .2s; box-shadow: 0 10px 26px -18px rgb(15 20 32 / .4); }
+  .d-c .ccard .dishbox { height: 170px; }
+  .d-c .ccard .info { padding: 12px 14px 14px; display: grid; gap: 4px; }
+  .d-c .ccard h3 { font-family: "Sora", sans-serif; font-size: 1rem; margin: 0; line-height: 1.2; }
+  .d-c .ccard .m { display: flex; gap: 6px; font-size: .72rem; font-weight: 700; color: var(--c-mut); }
+  .d-c .dots { display: flex; gap: 5px; justify-content: center; }
+  .d-c .dots i { width: 6px; height: 6px; border-radius: 3px; background: #c9cfda; transition: width .2s; }
+  .d-c .dots i.on { width: 18px; background: var(--c-ink); }
+  .mnav.nav-c { background: #ffffff; color: #6a7383; box-shadow: 0 12px 30px -16px rgb(15 20 32 / .45); font-family: "Manrope", sans-serif; }
+  .mnav.nav-c span.on { color: #fff; background: #0f1420; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .d-a .aurora i { animation: none; }
+    .d-a .dcard, .d-c .tile, .d-c .ccard, .d-b .scard, .d-b .mega span { transform: none !important; transition: none; }
+  }
+</style>
+
+<main class="studio">
+  <header class="intro">
+    <h1>Drei Richtungen für eAit</h1>
+    <p>Jeder Entwurf zeigt denselben Startbildschirm mit echten Inhalten. Scroll im Handy, um die Effekte zu sehen, und sag mir dann, welche Richtung ich für die ganze App umsetzen soll.</p>
+  </header>
+
+  <div class="switch" role="tablist" aria-label="Entwurf wählen">
+    <button role="tab" id="s-a" data-d="a" aria-selected="true">A · Aurora<small>dunkel, Glas, Tiefe</small></button>
+    <button role="tab" id="s-b" data-d="b" aria-selected="false">B · Editorial<small>Magazin, große Schrift</small></button>
+    <button role="tab" id="s-c" data-d="c" aria-selected="false">C · Bento<small>Kacheln, Daten, Bewegung</small></button>
+  </div>
+
+  <section class="stage">
+    <div class="about" id="about"></div>
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen"><div class="scroller" id="scroller">
+        <div class="mock d-a on" id="mock-a"></div>
+        <div class="mock d-b" id="mock-b"></div>
+        <div class="mock d-c" id="mock-c"></div>
+      </div><div id="navslot"></div></div></div>
+      <span class="hint">Im Handy scrollen · Kacheln in C reagieren auf den Mauszeiger</span>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (s, el = document) => el.querySelector(s);
+  const arr = (v) => (Array.isArray(v) ? v : []);
+  const str = (v) => (typeof v === "string" ? v : v == null ? "" : String(v));
+  const num = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------------- Serviervorschlag: gezeichnetes Bild des angerichteten Gerichts ----------------
+  // Die KI liefert nur eine kurze Beschreibung (Gefäß, Basis, Komponenten mit Farbe und Form); gezeichnet wird hier.
+  const SHAPES = ["chunks", "slices", "round", "grains", "leaves", "strips", "noodles", "dollop", "fillet", "drizzle", "crumbs"];
+  const VESSELS = ["teller", "schüssel", "glas", "brett"];
+  const FALLBACK = { chunks: "#d98c4a", slices: "#e2574c", round: "#c9a35a", grains: "#efe6cf", leaves: "#5d9b45", strips: "#e9a23b",
+    noodles: "#efd08a", dollop: "#f4f1ea", fillet: "#e7a07a", drizzle: "#7a4a2a", crumbs: "#3f6b2c" };
+
+  function hashStr(s) { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function rng(seed) { let a = seed || 1; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  const hex = (c, f) => (/^#[0-9a-f]{6}$/i.test(String(c || "")) ? String(c) : f);
+  function shade(c, amt) {
+    const n = parseInt(c.slice(1), 16), k = amt < 0 ? 0 : 255, p = Math.abs(amt);
+    const ch = (v) => Math.round(v + (k - v) * p);
+    return "#" + [n >> 16, (n >> 8) & 255, n & 255].map((v) => ch(v).toString(16).padStart(2, "0")).join("");
+  }
+  function cleanPlating(pl) {
+    if (!pl || typeof pl !== "object") return null;
+    const items = arr(pl.items).filter((i) => i && SHAPES.includes(i.shape)).slice(0, 7)
+      .map((i) => ({ name: str(i.name), shape: i.shape, color: hex(i.color, FALLBACK[i.shape]), amount: Math.max(1, Math.min(5, Math.round(num(i.amount, 2)))) }));
+    if (!items.length) return null;
+    return { vessel: VESSELS.includes(pl.vessel) ? pl.vessel : "teller", base: hex(pl.base, ""), items };
+  }
+  const PLATING_SPEC = `"plating":{"vessel":"teller|schüssel|glas|brett","base":"#hex der Basis/Soße oder leer","items":[{"name":"Lachs","shape":"fillet","color":"#e9906a","amount":1}]}
+(plating = so sieht das fertig angerichtete Gericht von oben aus: 3–7 sichtbare Komponenten mit realistischer Farbe im gegarten Zustand;
+shape nur: chunks (Würfel/Stücke), slices (Scheiben), round (Kugeln, Beeren, Kichererbsen), grains (Reis, Quinoa, Couscous), leaves (Salat, Spinat, Kräuter),
+strips (Streifen), noodles (Nudeln), dollop (Klecks: Joghurt, Hummus, Avocadocreme), fillet (Fleisch-/Fischstück, Ei, Toast), drizzle (Soße/Öl/Honig darüber), crumbs (Samen, Nüsse, Kräuterstreusel);
+amount 1–5 = Menge)`;
+
+  function dishSvg(plIn, seedText, w = 400, h = 240) {
+    const pl = cleanPlating(plIn);
+    if (!pl) return "";
+    const R = rng(hashStr(seedText + pl.items.map((i) => i.name).join()));
+    const id = "d" + hashStr(seedText + w + h).toString(36);
+    const cx = w / 2, cy = h / 2 + 4, PR = Math.min(h * 0.43, w * (w / h < 1.2 ? 0.45 : 0.3));
+    const out = [];
+    const f = (n) => n.toFixed(1);
+    const defs = `<defs>
+      <linearGradient id="${id}t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9ece4"/><stop offset="1" stop-color="#cfd6cb"/></linearGradient>
+      <radialGradient id="${id}l" cx=".3" cy=".2" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${id}p" cx=".5" cy=".45" r=".6"><stop offset=".72" stop-color="#ffffff"/><stop offset="1" stop-color="#e6e8e2"/></radialGradient>
+      <radialGradient id="${id}b" cx=".5" cy=".42" r=".62"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></radialGradient>
+      <filter id="${id}s" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.3" flood-color="#2a1a0a" flood-opacity=".28"/></filter>
+      <filter id="${id}S" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#1c2a20" flood-opacity=".28"/></filter>
+    </defs>`;
+    // Tisch, Licht, Serviette und Gabel
+    out.push(`<rect width="${w}" height="${h}" fill="url(#${id}t)"/>`);
+    for (let i = 0; i < 40; i++) out.push(`<circle cx="${f(R() * w)}" cy="${f(R() * h)}" r="${f(.6 + R())}" fill="#000" opacity="${f(.03 + R() * .03)}"/>`);
+    out.push(`<g transform="rotate(-12 ${f(cx - PR * 1.25)} ${f(cy + PR * .5)})"><rect x="${f(cx - PR * 1.75)}" y="${f(cy - PR * .2)}" width="${f(PR * .9)}" height="${f(PR * 1.1)}" rx="6" fill="#f6efe2"/>
+      <rect x="${f(cx - PR * 1.75)}" y="${f(cy - PR * .05)}" width="${f(PR * .9)}" height="5" fill="#e07a52" opacity=".55"/></g>`);
+    const fx = cx + PR * 1.28;
+    out.push(`<g fill="#b9bfb6" opacity=".9"><rect x="${f(fx - 2.5)}" y="${f(cy - PR * .35)}" width="5" height="${f(PR * 1.15)}" rx="2.5"/>
+      ${[-7, -2.3, 2.3, 7].map((dx) => `<rect x="${f(fx + dx - 1.2)}" y="${f(cy - PR * .78)}" width="2.4" height="${f(PR * .38)}" rx="1.2"/>`).join("")}
+      <rect x="${f(fx - 8.5)}" y="${f(cy - PR * .45)}" width="17" height="10" rx="5"/></g>`);
+
+    // Gefäß
+    let FR; // Radius der Fläche fürs Essen
+    if (pl.vessel === "glas") return glassSvg(pl, id, defs, out, w, h, R, f);
+    if (pl.vessel === "brett") {
+      out.push(`<g filter="url(#${id}S)" transform="rotate(-6 ${cx} ${cy})"><rect x="${f(cx - PR * 1.15)}" y="${f(cy - PR * .78)}" width="${f(PR * 2.3)}" height="${f(PR * 1.56)}" rx="18" fill="#c08a55"/>
+        <rect x="${f(cx + PR * 1.1)}" y="${f(cy - 9)}" width="${f(PR * .32)}" height="18" rx="9" fill="#b37d49"/></g>
+        <g transform="rotate(-6 ${cx} ${cy})" stroke="#a46f3e" stroke-width="1.2" fill="none" opacity=".5">${[0, 1, 2, 3].map((i) => `<path d="M${f(cx - PR)} ${f(cy - PR * .5 + i * PR * .33)} q ${f(PR)} ${f(-8 + R() * 16)} ${f(PR * 2)} 0"/>`).join("")}</g>`);
+      FR = PR * .78;
+    } else if (pl.vessel === "schüssel") {
+      const bowl = ["#f3eee4", "#e3ebee", "#33443b", "#e9dccb", "#f1e6dc"][Math.floor(R() * 5)];
+      out.push(`<circle cx="${cx}" cy="${cy}" r="${f(PR)}" fill="${bowl}" filter="url(#${id}S)"/>
+        <circle cx="${cx}" cy="${cy}" r="${f(PR * .9)}" fill="${shade(bowl, -.08)}"/>`);
+      FR = PR * .86;
+    } else {
+      out.push(`<circle cx="${cx}" cy="${cy}" r="${f(PR)}" fill="url(#${id}p)" filter="url(#${id}S)"/>
+        <circle cx="${cx}" cy="${cy}" r="${f(PR * .78)}" fill="none" stroke="#e3e6df" stroke-width="1.5"/>`);
+      FR = PR * .76;
+    }
+    // Basis (Soße, Reis, Joghurt …)
+    if (pl.base) out.push(`${pl.vessel === "schüssel" ? `<circle cx="${cx}" cy="${cy}" r="${f(FR)}" fill="${pl.base}"/><circle cx="${cx}" cy="${cy}" r="${f(FR)}" fill="url(#${id}b)"/>` : `<path d="${blob(cx, cy, FR * .9, R, 14, .08)}" fill="${pl.base}"/>`}
+      <path d="${blob(cx - FR * .12, cy - FR * .14, FR * .5, R, 10, .15)}" fill="${shade(pl.base, .18)}" opacity=".5"/>`);
+
+    // Komponenten verteilen: Hauptstück in die Mitte, der Rest in Sektoren drumherum, Garnitur obendrauf
+    const top = pl.items.filter((i) => i.shape === "drizzle" || i.shape === "crumbs");
+    const main = pl.items.filter((i) => !top.includes(i));
+    const centerIdx = main.findIndex((i) => i.shape === "fillet" || i.shape === "dollop");
+    const center = centerIdx >= 0 ? main.splice(centerIdx, 1)[0] : null;
+    const g = [];
+    const a0 = R() * Math.PI * 2;
+    if (pl.vessel === "brett") {
+      // Auf dem Brett liegen die Komponenten nebeneinander, das Hauptstück (z. B. Toast) unten drunter.
+      const all = center ? [center, ...main] : main;
+      all.forEach((it, k) => g.push(drawItem(it, cx + (k - (all.length - 1) / 2) * FR * .55 + (k ? 0 : 0), cy + (k % 2 ? FR * .12 : -FR * .08), FR * (k ? .55 : .9), R, f)));
+    } else {
+      main.forEach((it, k) => {
+        const ang = a0 + (k / Math.max(1, main.length)) * Math.PI * 2;
+        const rad = center || main.length > 1 ? FR * .48 : 0;
+        const s = main.length > 1 || center ? FR * (main.length > 4 ? .62 : .74) : FR * .95;
+        g.push(drawItem(it, cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad, s, R, f));
+      });
+      if (center) g.push(drawItem(center, cx, cy, FR * (main.length ? .72 : .95), R, f));
+    }
+    out.push(`<g filter="url(#${id}s)">${g.join("")}</g>`);
+    for (const it of top) out.push(drawItem(it, cx, cy, FR * .85, R, f));
+    out.push(`<rect width="${w}" height="${h}" fill="url(#${id}l)"/>`);
+    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Serviervorschlag (Illustration)">${defs}${out.join("")}</svg>`;
+  }
+
+  function blob(cx, cy, r, R, n, jit) {
+    const pts = [];
+    for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2, rr = r * (1 - jit + R() * jit * 2); pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); }
+    let d = "";
+    for (let i = 0; i < n; i++) {
+      const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+      if (!i) d += `M${p1[0].toFixed(1)} ${p1[1].toFixed(1)}`;
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+    }
+    return d + "Z";
+  }
+
+  function drawItem(it, x, y, s, R, f) {
+    const c = it.color, dk = shade(c, -.22), lt = shade(c, .3), n = it.amount, o = [];
+    const spot = (spread) => { const a = R() * Math.PI * 2, d = Math.sqrt(R()) * s * spread; return [x + Math.cos(a) * d, y + Math.sin(a) * d]; };
+    switch (it.shape) {
+      case "chunks": for (let i = 0; i < 9 + n * 4; i++) { const [px, py] = spot(.5), z = s * (.2 + R() * .08); o.push(`<rect x="${f(px - z / 2)}" y="${f(py - z / 2)}" width="${f(z)}" height="${f(z * (.8 + R() * .3))}" rx="${f(z * .28)}" fill="${c}" stroke="${dk}" stroke-width=".8" transform="rotate(${f(R() * 90)} ${f(px)} ${f(py)})"/>`); } break;
+      case "slices": for (let i = 0; i < 3 + n * 2; i++) { const [px, py] = spot(.4), r = s * (.18 + R() * .04); o.push(`<circle cx="${f(px)}" cy="${f(py)}" r="${f(r)}" fill="${c}"/><circle cx="${f(px)}" cy="${f(py)}" r="${f(r * .72)}" fill="${lt}" opacity=".7"/>${[0, 1, 2, 3].map((k) => `<circle cx="${f(px + Math.cos(k * 1.57 + .4) * r * .35)}" cy="${f(py + Math.sin(k * 1.57 + .4) * r * .35)}" r="${f(r * .09)}" fill="${dk}" opacity=".6"/>`).join("")}`); } break;
+      case "round": for (let i = 0; i < 16 + n * 6; i++) { const [px, py] = spot(.5), r = s * (.075 + R() * .03); o.push(`<circle cx="${f(px)}" cy="${f(py)}" r="${f(r)}" fill="${c}"/><circle cx="${f(px - r * .35)}" cy="${f(py - r * .35)}" r="${f(r * .3)}" fill="#fff" opacity=".45"/>`); } break;
+      case "grains": o.push(`<path d="${blob(x, y, s * .58, R, 10, .12)}" fill="${c}"/>`); for (let i = 0; i < 70 + n * 20; i++) { const [px, py] = spot(.52); o.push(`<ellipse cx="${f(px)}" cy="${f(py)}" rx="${f(s * .035)}" ry="${f(s * .018)}" fill="${i % 3 ? lt : dk}" opacity=".8" transform="rotate(${f(R() * 180)} ${f(px)} ${f(py)})"/>`); } break;
+      case "leaves": for (let i = 0; i < 8 + n * 4; i++) { const [px, py] = spot(.5), l = s * (.18 + R() * .1), col = R() > .5 ? c : shade(c, R() > .5 ? .15 : -.12); o.push(`<g transform="translate(${f(px)} ${f(py)}) rotate(${f(R() * 360)})"><path d="M0 ${f(-l)} C${f(l * .65)} ${f(-l * .4)} ${f(l * .6)} ${f(l * .5)} 0 ${f(l)} C${f(-l * .6)} ${f(l * .5)} ${f(-l * .65)} ${f(-l * .4)} 0 ${f(-l)}Z" fill="${col}"/><path d="M0 ${f(-l * .8)} L0 ${f(l * .85)}" stroke="${dk}" stroke-width=".8" opacity=".6"/></g>`); } break;
+      case "strips": for (let i = 0; i < 8 + n * 3; i++) { const [px, py] = spot(.42), L = s * (.5 + R() * .2), t = s * .085; o.push(`<rect x="${f(px - L / 2)}" y="${f(py - t / 2)}" width="${f(L)}" height="${f(t)}" rx="${f(t / 2)}" fill="${c}" stroke="${dk}" stroke-width=".6" transform="rotate(${f(R() * 180)} ${f(px)} ${f(py)})"/>`); } break;
+      case "noodles": o.push(`<path d="${blob(x, y, s * .5, R, 10, .1)}" fill="${shade(c, -.06)}"/>`); for (let i = 0; i < 36 + n * 8; i++) { const [px, py] = spot(.42), a = R() * Math.PI, L = s * .42, dx = Math.cos(a) * L, dy = Math.sin(a) * L; o.push(`<path d="M${f(px - dx)} ${f(py - dy)} C${f(px - dx * .3 + dy * .4)} ${f(py - dy * .3 - dx * .4)} ${f(px + dx * .3 - dy * .4)} ${f(py + dy * .3 + dx * .4)} ${f(px + dx)} ${f(py + dy)}" fill="none" stroke="${i % 4 ? c : dk}" stroke-width="${f(s * .045)}" stroke-linecap="round"/>`); } break;
+      case "dollop": o.push(`<path d="${blob(x, y, s * (.34 + n * .04), R, 9, .14)}" fill="${c}"/>${Array.from({ length: n * 4 }, () => { const [px, py] = spot(.3); return `<circle cx="${f(px)}" cy="${f(py)}" r="${f(s * .03)}" fill="${dk}" opacity=".35"/>`; }).join("")}<path d="${blob(x - s * .05, y - s * .06, s * .14, R, 7, .2)}" fill="${lt}" opacity=".8"/><path d="M${f(x - s * .12)} ${f(y + s * .02)} q ${f(s * .12)} ${f(-s * .12)} ${f(s * .22)} 0" stroke="${dk}" stroke-width="1" fill="none" opacity=".35"/>`); break;
+      case "fillet": for (let i = 0; i < Math.min(3, n); i++) { const [px, py] = i ? spot(.3) : [x, y], rw = s * (.55 - i * .06), rh = rw * .64, rot = R() * 60 - 30; o.push(`<g transform="rotate(${f(rot)} ${f(px)} ${f(py)})"><path d="${blob(px, py, 1, R, 8, .1).replace(/(-?\d+\.?\d*) (-?\d+\.?\d*)/g, (m, a, b) => `${f(px + (a - px) * rw)} ${f(py + (b - py) * rh)}`)}" fill="${c}" stroke="${dk}" stroke-width="1.2"/>${[-1, 0, 1].map((k) => `<path d="M${f(px - rw * .55)} ${f(py + k * rh * .4 - rh * .25)} l ${f(rw * 1.1)} ${f(rh * .5)}" stroke="${dk}" stroke-width="${f(s * .04)}" stroke-linecap="round" opacity=".45"/>`).join("")}<ellipse cx="${f(px - rw * .3)}" cy="${f(py - rh * .35)}" rx="${f(rw * .3)}" ry="${f(rh * .15)}" fill="#fff" opacity=".18"/></g>`); } break;
+      case "drizzle": for (let k = 0; k < 2; k++) { const y0 = y - s * .25 + k * s * .32; let d = `M${f(x - s * .7)} ${f(y0 + s * .15)}`; for (let i = 0; i < 4; i++) d += ` c ${f(s * .12)} ${f(-s * (.12 + R() * .08))} ${f(s * .24)} ${f(s * (.12 + R() * .08))} ${f(s * .35)} ${f(-s * .06)}`; o.push(`<path d="${d}" fill="none" stroke="${c}" stroke-width="${f(2 + n * .5)}" stroke-linecap="round" opacity=".85"/>`); } break;
+      case "crumbs": for (let i = 0; i < 26 + n * 10; i++) { const [px, py] = spot(.85); o.push(`<ellipse cx="${f(px)}" cy="${f(py)}" rx="${f(1 + R() * 1.6)}" ry="${f(.8 + R())}" fill="${R() > .3 ? c : lt}" transform="rotate(${f(R() * 180)} ${f(px)} ${f(py)})"/>`); } break;
+    }
+    return o.join("");
+  }
+
+  function glassSvg(pl, id, defs, out, w, h, R, f) {
+    const cx = w / 2, top = h * .16, bot = h * .9, tw = h * .36, bw = h * .27;
+    const fill = pl.base || pl.items[0].color;
+    out.push(`<ellipse cx="${cx}" cy="${f(bot + 2)}" rx="${f(bw * .9)}" ry="7" fill="#1c2a20" opacity=".18"/>
+      <path d="M${f(cx - tw / 2)} ${f(top)} L${f(cx - bw / 2)} ${f(bot)} Q${cx} ${f(bot + 8)} ${f(cx + bw / 2)} ${f(bot)} L${f(cx + tw / 2)} ${f(top)}Z" fill="#ffffff" opacity=".55" stroke="#ffffff" stroke-width="2"/>
+      <path d="M${f(cx - tw / 2 * .93)} ${f(top + h * .1)} L${f(cx - bw / 2 * .93)} ${f(bot - 3)} Q${cx} ${f(bot + 4)} ${f(cx + bw / 2 * .93)} ${f(bot - 3)} L${f(cx + tw / 2 * .93)} ${f(top + h * .1)}Z" fill="${fill}"/>
+      <path d="M${f(cx - tw / 2 * .93 + 4)} ${f(top + h * .12)} L${f(cx - bw / 2 * .93 + 4)} ${f(bot - 8)}" stroke="#fff" stroke-width="5" opacity=".35" stroke-linecap="round"/>
+      <rect x="${f(cx + tw * .12)}" y="${f(top - h * .12)}" width="6" height="${f(h * .5)}" rx="3" fill="#e07a52" transform="rotate(14 ${f(cx + tw * .12)} ${f(top)})"/>`);
+    const tops = pl.items.filter((i) => i.color !== fill).slice(0, 4);
+    const g = tops.map((it, k) => drawItem({ ...it, amount: Math.min(2, it.amount) }, cx - tw * .25 + k * tw * .17, top + h * .1, h * .14, R, f));
+    out.push(`<g filter="url(#${id}s)">${g.join("")}</g><rect width="${w}" height="${h}" fill="url(#${id}l)"/>`);
+    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Serviervorschlag (Illustration)">${defs}${out.join("")}</svg>`;
+  }
+
+
+
+  const DISHES = [
+    { name: "Ofenlachs mit Zitronen-Kartoffeln", desc: "Knusprige Haut, Dill, Brokkoli aus dem Vorrat.", min: 30, kcal: 640, p: 42, c: 48, f: 28,
+      plating: { vessel: "teller", base: "", items: [{ name: "Lachs", shape: "fillet", color: "#e9906a", amount: 1 }, { name: "Kartoffeln", shape: "chunks", color: "#e8c46a", amount: 3 }, { name: "Brokkoli", shape: "leaves", color: "#3f8a3a", amount: 3 }, { name: "Zitrone", shape: "slices", color: "#f2d64b", amount: 1 }, { name: "Dill", shape: "crumbs", color: "#4c7d34", amount: 2 }] } },
+    { name: "Hähnchen-Quinoa-Bowl", desc: "Paprika, Joghurt-Dip und geröstetem Sesam.", min: 25, kcal: 610, p: 46, c: 58, f: 18,
+      plating: { vessel: "schüssel", base: "#efe6cf", items: [{ name: "Quinoa", shape: "grains", color: "#e9dcb8", amount: 3 }, { name: "Paprika", shape: "strips", color: "#d9452f", amount: 3 }, { name: "Hähnchen", shape: "chunks", color: "#d9a46a", amount: 3 }, { name: "Joghurt", shape: "dollop", color: "#f6f3ea", amount: 2 }, { name: "Gurke", shape: "slices", color: "#9cc06a", amount: 2 }, { name: "Sesam", shape: "crumbs", color: "#f2e6c8", amount: 2 }] } },
+    { name: "Vollkorn-Spaghetti Bolognese", desc: "Linsen-Hack-Soße, Parmesan, frisches Basilikum.", min: 35, kcal: 660, p: 38, c: 74, f: 20,
+      plating: { vessel: "teller", base: "", items: [{ name: "Spaghetti", shape: "noodles", color: "#e2bb6e", amount: 4 }, { name: "Bolognese", shape: "dollop", color: "#a33a22", amount: 4 }, { name: "Parmesan", shape: "crumbs", color: "#f5ecd0", amount: 3 }, { name: "Basilikum", shape: "leaves", color: "#3d8a3a", amount: 1 }] } },
+  ];
+  const mark = `<span class="m-mark" aria-hidden="true"><span class="m-glyph">A<span class="pow"></span></span></span>`;
+  const word = `<span class="m-word">e<span class="a">A</span><span class="pow"></span>t</span>`;
+  const brand = `<span class="m-brand" aria-label="eAit">${mark}${word}</span>`;
+  const ICONS = {
+    Mahlzeit: '<path d="M7 3v18M4.5 3v5a2.5 2.5 0 0 0 5 0V3M17.5 21V3c-2.2 1.2-3.5 3.6-3.5 7v3h3.5"/>',
+    Woche: '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    Training: '<path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/>',
+    Einkauf: '<path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+    Vorrat: '<rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M6 10h12M9.5 6v2M9.5 13v3"/>',
+    Profil: '<circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.4-3.6 4.4-5.5 7.5-5.5s6.1 1.9 7.5 5.5"/>',
+  };
+  const nav = (cls) => `<nav class="mnav ${cls}" aria-hidden="true">${Object.entries(ICONS).map(([k, v], i) => `<span class="${i ? "" : "on"}"><svg viewBox="0 0 24 24">${v}</svg>${k}</span>`).join("")}</nav>`;
+
+  // ---------- A · Aurora ----------
+  $("#mock-a").innerHTML = `
+    <div class="aurora" aria-hidden="true"><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
+    <div class="bar" id="a-bar">${brand}<span class="avatar">N</span></div>
+    <div class="body">
+      <h2 class="hello" id="a-hello">Guten Abend.<br><em>Worauf hast du Lust?</em></h2>
+      <div class="glass goal">
+        <div class="ringA" style="--p:66%"><div><strong>650</strong><span>kcal frei</span></div></div>
+        <div><strong>Tagesziel 1.940 kcal</strong><div class="muted">Per Waage angepasst · −0,4 kg/Woche, auf Kurs</div></div>
+      </div>
+      <div class="chips"><span>Frühstück</span><span>Mittag</span><span class="on">Abendessen</span><span>Snack</span></div>
+      <button class="cta" type="button">3 Ideen holen</button>
+      <h3>Für dein Abendessen</h3>
+      ${DISHES.map((d) => `<article class="dcard">
+        <div class="dishbox">${dishSvg(d.plating, d.name, 400, 240)}</div>
+        <div class="info"><strong>${d.name}</strong><span class="muted">${d.desc}</span>
+          <div class="row"><span class="pill hot">${d.kcal} kcal</span><span class="pill">${d.p} g Protein</span><span class="pill">${d.min} Min.</span></div></div>
+      </article>`).join("")}
+      <div class="glass train">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><strong>Training heute</strong><span class="muted">2 von 3 diese Woche</span></div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:1.4rem;font-weight:800">Ganzkörper B · 45 Min.</div>
+        <div class="bars">${[1, 0, 1, 0, 0, 0, 0].map((x, i) => `<i class="${x ? "done" : ""}" style="height:${[60, 20, 85, 20, 70, 20, 20][i]}%"></i>`).join("")}</div>
+      </div>
+      <div class="pad-nav"></div>
+    </div>`;
+
+  // ---------- B · Editorial ----------
+  $("#mock-b").innerHTML = `
+    <div class="bar" id="b-bar">${brand}<span class="date">Do · 8. Okt.</span><span class="progress" id="b-prog"></span></div>
+    <div class="head">
+      <span class="date">Abendessen · 650 kcal frei</span>
+      <h2 class="mega" id="b-mega"><span>Heute</span><span class="t">Abend</span><span>essen.</span></h2>
+      <p class="lede">Drei Ideen, abgestimmt auf <b>1.940 kcal</b> und deinen Vorrat. Brokkoli und Joghurt sollten weg.</p>
+    </div>
+    <div class="marquee" aria-hidden="true"><div id="b-marq">${"Brokkoli <b>✦</b> Lachs <b>✦</b> Quinoa <b>✦</b> Linsen <b>✦</b> Skyr <b>✦</b> Paprika <b>✦</b> Basilikum <b>✦</b> ".repeat(4)}</div></div>
+    <div class="tabs"><span>Frühstück</span><span>Mittag</span><span class="on">Abend</span><span>Snack</span></div>
+    <div class="stack" id="b-stack">
+      ${DISHES.map((d, i) => `<article class="scard" style="top:${64 + i * 14}px">
+        <span class="num">${["I", "II", "III"][i]}</span>
+        <div class="dishbox">${dishSvg(d.plating, d.name + "b", 400, 240)}</div>
+        <div class="info"><h3>${d.name}</h3><span style="color:var(--b-mut);font-size:.88rem">${d.desc}</span>
+          <div class="facts"><div><strong>${d.kcal}</strong><span>kcal</span></div><div><strong>${d.p} g</strong><span>Protein</span></div><div><strong>${d.c} g</strong><span>Kohlenh.</span></div><div><strong>${d.min}′</strong><span>Zeit</span></div></div></div>
+      </article>`).join("")}
+    </div>
+    <div class="section">
+      <h3 class="kicker">Training<br>diese Woche</h3>
+      <div class="rule"><b>Mo</b><span>Ganzkörper A · 45 Min. · erledigt</span></div>
+      <div class="rule"><b>Mi</b><span>Lockerer Lauf · 30 Min. · erledigt</span></div>
+      <div class="rule"><b>Fr</b><span>Ganzkörper B · 45 Min. · <strong style="color:var(--b-tomato)">heute</strong></span></div>
+    </div>
+    <div class="section">
+      <h3 class="kicker">Fortschritt</h3>
+      <div style="display:flex;gap:14px;align-items:baseline"><span class="bignum" id="b-num">−1,6</span><span>kg in 4 Wochen<br><span style="color:var(--b-mut);font-size:.85rem">Muskelmasse stabil · Ziel angepasst</span></span></div>
+    </div>
+    <div class="pad-nav"></div>`;
+
+  // ---------- C · Bento ----------
+  const ringC = (pct) => { const r = 40, c = 2 * Math.PI * r; return `<svg class="ringC" viewBox="0 0 92 92" aria-hidden="true"><circle cx="46" cy="46" r="${r}" stroke="#2a3142"/><circle cx="46" cy="46" r="${r}" stroke="#0fd1bd" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - pct)}" transform="rotate(-90 46 46)" id="c-ring"/></svg>`; };
+  $("#mock-c").innerHTML = `
+    <div class="bar">${brand}<span class="sring" id="c-sring"><i>eA</i></span></div>
+    <div class="body">
+      <h1>Guten Abend.<br>Noch <span><span class="count" data-to="650">0</span> kcal</span> für heute.</h1>
+      <div class="bento" id="c-bento">
+        <div class="tile wide t-goal"><div><span class="lab">Tagesziel · per Waage angepasst</span><div class="big"><span class="count" data-to="1940">0</span> <small>kcal</small></div>
+          <div class="macro"><div><span>P</span><i><b style="--w:72%;background:#c98bbd"></b></i><span>131 g</span></div><div><span>KH</span><i><b style="--w:55%;background:#f0c35e"></b></i><span>98 g</span></div><div><span>F</span><i><b style="--w:61%;background:#a6cf6c"></b></i><span>40 g</span></div></div></div>
+          ${ringC(.66)}</div>
+        <div class="tile t-train"><span class="lab">Training</span><div class="big"><span class="count" data-to="2">0</span><small> / 3</small></div><span style="font-weight:700;font-size:.85rem">Heute: Ganzkörper B</span></div>
+        <div class="tile t-scale"><span class="lab">Waage</span><div class="big">−0,4<small> kg/Wo</small></div>
+          <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,6 20,10 40,12 60,19 80,24 100,28" fill="none" stroke="#0aa596" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linecap="round"/></svg></div>
+      </div>
+      <div class="chips"><span>Frühstück</span><span>Mittag</span><span class="on">Abendessen</span><span>Snack</span></div>
+      <div class="sec"><h2>3 Ideen</h2><span>wischen</span></div>
+      <div class="carousel" id="c-car">${DISHES.map((d) => `<article class="ccard"><div class="dishbox">${dishSvg(d.plating, d.name + "c", 400, 240)}</div>
+        <div class="info"><h3>${d.name}</h3><div class="m"><span>${d.kcal} kcal</span><span>· ${d.p} g P</span><span>· ${d.min} Min.</span></div></div></article>`).join("")}</div>
+      <div class="dots" id="c-dots">${DISHES.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>
+      <div class="bento">
+        <div class="tile"><span class="lab">Vorrat</span><div class="big"><span class="count" data-to="14">0</span></div><span style="font-size:.8rem;color:var(--c-mut)">2 bald verbrauchen</span></div>
+        <div class="tile"><span class="lab">Einkauf</span><div class="big"><span class="count" data-to="6">0</span></div><span style="font-size:.8rem;color:var(--c-mut)">Artikel offen</span></div>
+      </div>
+      <div class="pad-nav"></div>
+    </div>`;
+
+  // ---------- Beschreibungen ----------
+  const ABOUT = {
+    a: { name: "A · Aurora Glass", sw: ["#06120c", "#1f8f5f", "#6fe0a3", "#ff9a73", "#eaf5ee"],
+      text: "Dunkel und edel: weiche Farbnebel bewegen sich langsam im Hintergrund, darüber liegen Karten aus mattiertem Glas. Wirkt wie eine Premium-Fitness-App.",
+      fx: ["Kopfzeile wird beim Scrollen zu einer Glasleiste, das Logo schrumpft", "Begrüßung gleitet nach oben weg und blendet aus", "Gerichtsbilder bewegen sich langsamer als die Karten (Parallax)", "Karten kippen beim Hereinscrollen leicht in 3D und richten sich auf"] },
+    b: { name: "B · Editorial Fresh", sw: ["#fafaf7", "#121412", "#e5432a", "#1f6b45", "#e4e5df"],
+      text: "Wie ein modernes Food-Magazin: sehr große, kräftige Schrift, klare Linien, viel Weißraum. Die Gerichte sind die Titelgeschichte.",
+      fx: ["Die Riesen-Überschrift staucht und verschiebt sich beim Scrollen", "Zutaten-Laufband läuft mit der Scrollbewegung mit", "Rezeptkarten stapeln sich: jede bleibt hängen, die nächste schiebt sich darüber", "Lesefortschritt als rote Linie unter der Kopfzeile"] },
+    c: { name: "C · Bento Motion", sw: ["#f2f4f7", "#0f1420", "#0aa596", "#ff6b4a", "#dff3f0"],
+      text: "Hell, sportlich und datenstark: Ziel, Training und Waage als Kacheln auf einen Blick, Gerichte als Karussell zum Wischen.",
+      fx: ["Zahlen zählen hoch, sobald sie sichtbar werden", "Kacheln neigen sich zum Mauszeiger bzw. Finger (3D)", "Gericht in der Mitte des Karussells wird groß, die anderen treten zurück", "Scroll-Fortschritt als Ring oben rechts"] },
+  };
+  function renderAbout(d) {
+    const a = ABOUT[d];
+    $("#about").innerHTML = `<span class="label">Richtung</span><h2>${a.name}</h2><p>${a.text}</p>
+      <div class="swatches" aria-label="Farben">${a.sw.map((c) => `<span style="background:${c}" title="${c}"></span>`).join("")}</div>
+      <span class="label">Bewegung beim Scrollen</span><ul>${a.fx.map((x) => `<li>${x}</li>`).join("")}</ul>`;
+  }
+
+  // ---------- Umschalten ----------
+  const scroller = $("#scroller");
+  let cur = "a";
+  function show(d) {
+    cur = d;
+    document.querySelectorAll(".switch button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.d === d)));
+    document.querySelectorAll(".mock").forEach((m) => m.classList.toggle("on", m.id === "mock-" + d));
+    $("#navslot").innerHTML = nav("nav-" + d);
+    scroller.scrollTop = 0; counted.clear(); renderAbout(d); onScroll();
+  }
+  document.querySelectorAll(".switch button").forEach((b) => b.addEventListener("click", () => show(b.dataset.d)));
+
+  // ---------- Effekte ----------
+  const counted = new Set();
+  function countUp(el) {
+    if (counted.has(el)) return; counted.add(el);
+    const to = num(el.dataset.to), t0 = performance.now(), dur = reduce ? 0 : 900;
+    const step = (t) => { const k = dur ? Math.min(1, (t - t0) / dur) : 1, e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e).toLocaleString("de-DE"); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+  let ticking = false;
+  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(apply); } }
+  scroller.addEventListener("scroll", onScroll, { passive: true });
+
+  function apply() {
+    ticking = false;
+    const st = scroller.scrollTop, H = scroller.clientHeight, max = Math.max(1, scroller.scrollHeight - H), prog = st / max;
+    const top0 = scroller.getBoundingClientRect().top;
+    if (cur === "a") {
+      $("#a-bar").classList.toggle("scrolled", st > 10);
+      if (!reduce) {
+        const h = $("#a-hello"); h.style.transform = `translateY(${-st * .35}px)`; h.style.opacity = String(Math.max(0, 1 - st / 220));
+        document.querySelectorAll("#mock-a .dcard").forEach((c) => {
+          const r = c.getBoundingClientRect(), y = r.top - top0, k = Math.max(-1, Math.min(1, (y - H * .45) / H));
+          c.style.setProperty("--par", (k * -28 - 24).toFixed(1) + "px");
+          const tilt = Math.max(0, Math.min(1, (y - H * .55) / (H * .45)));
+          c.style.transform = `perspective(900px) rotateX(${(tilt * 14).toFixed(2)}deg) scale(${(1 - tilt * .06).toFixed(3)})`;
+          c.querySelector(".dishbox svg").style.transform = `translateY(var(--par))`;
+        });
+      }
+    } else if (cur === "b") {
+      $("#b-prog").style.setProperty("--sp", (prog * 100).toFixed(1) + "%");
+      if (!reduce) {
+        const w = Math.max(62, 125 - st * .25);
+        $("#b-mega").style.setProperty("--w", w.toFixed(0));
+        $("#b-mega").querySelectorAll("span").forEach((s, i) => (s.style.transform = `translateX(${(st * (i % 2 ? .25 : -.12)).toFixed(1)}px)`));
+        $("#b-marq").style.setProperty("--mx", (-st * .6).toFixed(1) + "px");
+        const cards = [...document.querySelectorAll("#mock-b .scard")];
+        cards.forEach((c, i) => {
+          const next = cards[i + 1]; if (!next) { c.style.transform = ""; return; }
+          const d = next.getBoundingClientRect().top - c.getBoundingClientRect().top, k = Math.max(0, Math.min(1, 1 - d / c.offsetHeight));
+          c.style.transform = `scale(${(1 - k * .06).toFixed(3)})`; c.style.filter = `brightness(${(1 - k * .12).toFixed(3)})`;
+        });
+      }
+    } else {
+      $("#c-sring").style.setProperty("--sp", (prog * 100).toFixed(1) + "%");
+      document.querySelectorAll("#mock-c .count").forEach((el) => { const y = el.getBoundingClientRect().top - top0; if (y < H - 40) countUp(el); });
+      if (!reduce) document.querySelectorAll("#mock-c .tile").forEach((t) => {
+        const y = t.getBoundingClientRect().top - top0, k = Math.max(0, Math.min(1, (y - H * .7) / (H * .3)));
+        t.style.setProperty("--ty", (k * 30).toFixed(1) + "px"); t.style.setProperty("--sc", (1 - k * .05).toFixed(3));
+      });
+    }
+  }
+
+  // C: Karussell – Mitte groß, Punkte
+  const car = $("#c-car");
+  function carFx() {
+    const r = car.getBoundingClientRect(), mid = r.left + r.width / 2; let best = 0, bd = 1e9;
+    car.querySelectorAll(".ccard").forEach((c, i) => {
+      const cr = c.getBoundingClientRect(), d = Math.abs(cr.left + cr.width / 2 - mid), k = Math.min(1, d / r.width);
+      c.style.setProperty("--cs", (1 - k * .14).toFixed(3)); c.style.setProperty("--co", (1 - k * .55).toFixed(3));
+      if (d < bd) { bd = d; best = i; }
+    });
+    document.querySelectorAll("#c-dots i").forEach((dt, i) => dt.classList.toggle("on", i === best));
+  }
+  car.addEventListener("scroll", () => requestAnimationFrame(carFx), { passive: true });
+  // C: Kacheln neigen sich zum Zeiger
+  if (!reduce) document.querySelectorAll("#mock-c .tile").forEach((t) => {
+    t.addEventListener("pointermove", (e) => { const r = t.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; t.style.setProperty("--ry", (x * 10).toFixed(2) + "deg"); t.style.setProperty("--rx", (-y * 10).toFixed(2) + "deg"); });
+    t.addEventListener("pointerleave", () => { t.style.setProperty("--ry", "0deg"); t.style.setProperty("--rx", "0deg"); });
+  });
+
+  const start = (() => { try { return localStorage.getItem("eait-design") || "a"; } catch { return "a"; } })();
+  document.querySelectorAll(".switch button").forEach((b) => b.addEventListener("click", () => { try { localStorage.setItem("eait-design", b.dataset.d); } catch { /* egal */ } }));
+  show(["a", "b", "c"].includes(start) ? start : "a");
+  carFx();
+})();
+</script>
