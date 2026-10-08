@@ -440,13 +440,13 @@
   .fridge-actions label.btn.primary { background: linear-gradient(180deg, #7ff0b2, #3fb878); color: #04140b; box-shadow: 0 12px 26px -14px rgb(111 224 163 / .8); }
 
   /* Zeitplan (gesamt 0,95 s, damit iOS die Kamera danach noch automatisch öffnet):
-     Tür auf 0,04–0,46 s · Licht an 0,18–0,40 s · Flug ins Licht 0,46–0,95 s mit Blendung und Weißblende */
-  .fridge-ov.go .f-door { animation: f-open .42s cubic-bezier(.3, .7, .2, 1) .04s forwards; }
-  .fridge-ov.go .f-light { animation: f-light .22s ease-out .18s forwards; }
-  .fridge-ov.go .f-glow { animation: f-glow .5s cubic-bezier(.6, 0, .9, .4) .42s forwards; }
-  .fridge-ov.go .fridge { animation: f-fly .49s cubic-bezier(.7, 0, .95, .35) .46s forwards; }
-  .fridge-ov.go .f-flash { animation: f-flash .3s ease-in .65s forwards; }
-  .fridge-ov.go .fridge-msg { animation: f-fade .2s ease-in .46s forwards; }
+     Tür auf 0,04–0,60 s · Licht an 0,26–0,52 s · Flug ins Licht 0,60–0,95 s mit Blendung und Weißblende */
+  .fridge-ov.go .f-door { animation: f-open .56s cubic-bezier(.4, .2, .25, 1) .04s forwards; }
+  .fridge-ov.go .f-light { animation: f-light .26s ease-out .26s forwards; }
+  .fridge-ov.go .f-glow { animation: f-glow .4s cubic-bezier(.6, 0, .9, .4) .55s forwards; }
+  .fridge-ov.go .fridge { animation: f-fly .35s cubic-bezier(.7, 0, .95, .35) .6s forwards; }
+  .fridge-ov.go .f-flash { animation: f-flash .22s ease-in .73s forwards; }
+  .fridge-ov.go .fridge-msg { animation: f-fade .2s ease-in .6s forwards; }
   .fridge-ov.wait .fridge, .fridge-ov.wait .f-glow, .fridge-ov.wait .f-flash, .fridge-ov.wait .fridge-msg { animation: none; }
   .fridge-ov.wait .f-door { animation: none; transform: rotateY(-112deg); }
   .fridge-ov.wait .f-light { animation: none; opacity: 1; }
