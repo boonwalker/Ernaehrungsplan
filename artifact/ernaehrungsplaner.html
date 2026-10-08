@@ -745,11 +745,7 @@
       </div>
     </div>
   </div>
-  <p class="fridge-msg" id="fridge-msg">Kühlschrank öffnet …</p>
-  <div class="row fridge-actions" id="fridge-actions" hidden>
-    <label class="btn primary" for="photos">Kamera öffnen</label>
-    <button class="btn ghost" type="button" id="fridge-cancel">Abbrechen</button>
-  </div>
+  <p class="fridge-msg" id="fridge-msg">Kühlschrank öffnet … Kamera startet</p>
 </div>
 
 
@@ -2291,42 +2287,24 @@ Antworte NUR mit JSON (fehlende Angaben weglassen):
   // Nach jedem Neuzeichnen neue Karten erfassen
   new MutationObserver(requestFx).observe(document.querySelector(".wrap"), { childList: true, subtree: true });
 
-  // ---------------- Kühlschrank öffnet sich, dann Kamera ----------------
+  // ---------------- Kühlschrank-Animation als Übergang zur Kamera ----------------
+  // Die Kamera öffnet direkt beim ersten Tippen (normales Verhalten des Feldes); die Animation läuft parallel dazu.
   (() => {
     const ov = $("#fridge-ov"), input = $("#photos"), drop = $(".drop");
-    let timers = [];
-    const clear = () => { timers.forEach(clearTimeout); timers = []; };
-    function close() { clear(); ov.hidden = true; ov.classList.remove("go", "wait"); $("#fridge-actions").hidden = true; }
-    function waitForTap() {
-      // Kamera ging nicht automatisch auf: offener Kühlschrank bleibt stehen, der Knopf öffnet sie per direktem Tippen.
-      ov.classList.remove("go"); ov.classList.add("wait");
-      $("#fridge-msg").textContent = "Der Kühlschrank ist offen – jetzt fotografieren:";
-      $("#fridge-actions").hidden = false;
-    }
+    const RUN = 1400;
+    let started = 0, timer = null;
+    function close() { clearTimeout(timer); ov.hidden = true; ov.classList.remove("go"); }
+    function closeAfterAnimation() { clearTimeout(timer); timer = setTimeout(close, Math.max(0, RUN - (Date.now() - started))); }
     drop.addEventListener("click", (e) => {
-      if (e.target === input) return;               // programmatischer Klick auf das Feld selbst
-      if (reduceMotion) return;                     // ohne Animation direkt die Kamera
-      e.preventDefault();
-      clear();
-      $("#fridge-msg").textContent = "Kühlschrank öffnet …";
-      $("#fridge-actions").hidden = true;
-      ov.classList.remove("go", "wait"); ov.hidden = false; void ov.offsetWidth; ov.classList.add("go");
-      timers.push(setTimeout(() => {
-        let opened = false;
-        const mark = () => { opened = true; };
-        window.addEventListener("blur", mark, { once: true });
-        document.addEventListener("visibilitychange", mark, { once: true });
-        try { input.click(); } catch { /* blockiert */ }
-        timers.push(setTimeout(() => {
-          window.removeEventListener("blur", mark); document.removeEventListener("visibilitychange", mark);
-          if (opened) close(); else waitForTap();
-        }, 650));
-      }, 1050));
+      if (e.target === input || reduceMotion) return; // kein preventDefault: die Kamera geht sofort auf
+      started = Date.now();
+      ov.classList.remove("go"); ov.hidden = false; void ov.offsetWidth; ov.classList.add("go");
+      clearTimeout(timer); timer = setTimeout(close, RUN + 1200); // falls kein Ereignis zurückkommt
     });
-    input.addEventListener("change", close);
-    $("#fridge-cancel").addEventListener("click", close);
-    ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !ov.hidden) close(); });
+    input.addEventListener("change", closeAfterAnimation);
+    input.addEventListener("cancel", closeAfterAnimation);
+    window.addEventListener("focus", () => { if (!ov.hidden) closeAfterAnimation(); });
+    ov.addEventListener("click", close);
   })();
 
   // ---------------- Start ----------------
