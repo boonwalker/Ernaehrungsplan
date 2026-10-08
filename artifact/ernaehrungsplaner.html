@@ -178,15 +178,42 @@
   </header>
 
   <nav class="tabs" role="tablist">
-    <button role="tab" id="t-plan" data-tab="plan" aria-selected="true">Wochenplan</button>
+    <button role="tab" id="t-meal" data-tab="meal" aria-selected="true">Mahlzeit</button>
+    <button role="tab" id="t-plan" data-tab="plan" aria-selected="false">Wochenplan</button>
     <button role="tab" id="t-shop" data-tab="shop" aria-selected="false">Einkauf</button>
     <button role="tab" id="t-fridge" data-tab="fridge" aria-selected="false">Kühlschrank</button>
-    <button role="tab" id="t-cook" data-tab="cook" aria-selected="false">Jetzt kochen</button>
     <button role="tab" id="t-profile" data-tab="profile" aria-selected="false">Profil</button>
   </nav>
 
+  <!-- MAHLZEIT -->
+  <section class="tab" id="tab-meal">
+    <div class="card">
+      <h2>Was gibt's zu essen?</h2>
+      <p class="muted small" id="meal-hint"></p>
+      <div class="grid2">
+        <label for="meal-type">Mahlzeit
+          <select id="meal-type"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select>
+        </label>
+        <label for="meal-mode">Vorrat
+          <select id="meal-mode">
+            <option value="prefer">Vorrat bevorzugt verwerten</option>
+            <option value="only">Nur mit meinem Vorrat, ohne Einkaufen</option>
+            <option value="ignore">Vorrat egal</option>
+          </select>
+        </label>
+      </div>
+      <label for="meal-wishes">Wünsche <span class="hint">(optional)</span>
+        <input id="meal-wishes" placeholder="z. B. warm, höchstens 20 Minuten, etwas Asiatisches" />
+      </label>
+      <div class="row"><button class="btn primary" id="btn-meal">3 Ideen holen</button></div>
+      <div id="meal-status"></div>
+    </div>
+    <div id="meal-ideas" class="stack"></div>
+    <div id="meal-recipe" class="stack"></div>
+  </section>
+
   <!-- WOCHENPLAN -->
-  <section class="tab" id="tab-plan">
+  <section class="tab" id="tab-plan" hidden>
     <div class="card">
       <h2>Neue Woche planen</h2>
       <p class="muted small" id="plan-hint"></p>
@@ -252,28 +279,6 @@
         </span>
       </div>
     </div>
-  </section>
-
-  <!-- JETZT KOCHEN -->
-  <section class="tab" id="tab-cook" hidden>
-    <div class="card">
-      <h2>Was kann ich jetzt kochen?</h2>
-      <p class="muted small">Nur mit dem, was du zu Hause hast. Verderbliches kommt zuerst dran.</p>
-      <div class="grid2">
-        <label for="cook-type">Mahlzeit
-          <select id="cook-type"><option value="">egal</option><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select>
-        </label>
-        <label for="cook-count">Vorschläge
-          <select id="cook-count"><option>2</option><option selected>3</option><option>4</option></select>
-        </label>
-      </div>
-      <label for="cook-wishes">Wünsche <span class="hint">(optional)</span>
-        <input id="cook-wishes" placeholder="z. B. warm, höchstens 15 Minuten" />
-      </label>
-      <div class="row"><button class="btn primary" id="btn-cook">Vorschläge holen</button></div>
-      <div id="cook-status"></div>
-    </div>
-    <div id="cook-out" class="stack"></div>
   </section>
 
   <!-- PROFIL -->
@@ -364,8 +369,8 @@
   };
 
   // ---------------- Zustand & Speicherung ----------------
-  const KEYS = ["profile", "pantry", "plan", "shopping", "cook"];
-  const DEFAULTS = { profile: {}, pantry: [], plan: null, shopping: [], cook: null };
+  const KEYS = ["profile", "pantry", "plan", "shopping", "meal"];
+  const DEFAULTS = { profile: {}, pantry: [], plan: null, shopping: [], meal: null };
   const state = {};
   for (const k of KEYS) state[k] = local.get(k, DEFAULTS[k]);
 
@@ -527,7 +532,7 @@
   form.addEventListener("input", () => renderTargets(readForm()));
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    state.profile = readForm(); persist("profile"); renderHint(); toast("Profil gespeichert");
+    state.profile = readForm(); persist("profile"); renderHint(); renderMealHint(); toast("Profil gespeichert");
   });
 
   function renderHint() {
@@ -915,69 +920,198 @@ Antworte NUR mit JSON: {"items":[{"name":"Paprika rot","quantity":"2 Stück","co
     });
   }
 
-  // ---------------- Jetzt kochen ----------------
-  function renderCook() {
-    const out = $("#cook-out");
-    const recipes = arr(state.cook && state.cook.recipes);
-    out.innerHTML = recipes.map((r, i) => `<article class="card">
-        <h3><button class="linkish" data-cook="${i}">${esc(r.name)}</button></h3>
-        <p class="small">${esc(r.description)}</p>
-        <p class="muted small">${esc(r.prep_minutes)} Min. · ${esc(r.servings)} ${num(r.servings) === 1 ? "Portion" : "Portionen"}</p>
-        ${macroHtml(r.per_serving)}
-        ${arr(r.uses_soon).length ? `<p class="small"><strong>Verwertet:</strong> ${esc(r.uses_soon.join(", "))}</p>` : ""}
-      </article>`).join("");
-    out.querySelectorAll("[data-cook]").forEach((b) => b.addEventListener("click", () => openRecipe(recipes[b.dataset.cook])));
+  // ---------------- Mahlzeit: erst 3 kurze Ideen, dann nur das gewählte Rezept ausarbeiten ----------------
+  const STATUS = ["vorhanden", "teilweise", "fehlt"];
+
+  // Anteil einer Mahlzeit am Tagesziel: Snacks ca. 10 %, der Rest verteilt sich auf die Hauptmahlzeiten.
+  function mealKcal(p, type) {
+    const t = targets(p);
+    const day = t ? t.kcal : 2000;
+    const meals = Math.max(2, num(p.mealsPerDay, 3));
+    const snacks = Math.max(0, meals - 3);
+    const mains = meals - snacks;
+    const share = type === "Snack" ? 0.1 : (1 - 0.1 * snacks) / mains;
+    return { kcal: Math.round((day * share) / 10) * 10, exact: !!t };
   }
-  $("#btn-cook").addEventListener("click", async () => {
-    const st = $("#cook-status"), btn = $("#btn-cook");
-    if (!state.pantry.length) {
+  function defaultMealType() {
+    const h = new Date().getHours();
+    return h < 10 ? "Frühstück" : h < 15 ? "Mittagessen" : h < 17 ? "Snack" : "Abendessen";
+  }
+  function renderMealHint() {
+    const p = prof(), type = $("#meal-type").value, mk = mealKcal(p, type);
+    $("#meal-hint").textContent = mk.exact
+      ? `Ziel für dein ${type}: ca. ${mk.kcal} kcal pro Portion (${GOAL_SHORT[p.goal]}).`
+      : `Ohne Körperdaten plant Claude normale Portionen, ca. ${mk.kcal} kcal.`;
+  }
+  $("#meal-type").addEventListener("change", renderMealHint);
+
+  const MODE_RULE = {
+    prefer: "Verwende bevorzugt Zutaten aus dem Vorrat (vor allem Verderbliches); fehlende Zutaten sind erlaubt.",
+    only: "Verwende AUSSCHLIESSLICH Zutaten aus Vorrat und Basisvorrat, Mengen dürfen den Vorrat nicht übersteigen. Nichts einkaufen.",
+    ignore: "Der Vorrat spielt keine Rolle.",
+  };
+
+  function renderMeal() {
+    const m = state.meal;
+    const ideasEl = $("#meal-ideas"), recEl = $("#meal-recipe");
+    $("#btn-meal").textContent = m && arr(m.ideas).length ? "3 neue Ideen" : "3 Ideen holen";
+    if (!m || !arr(m.ideas).length) {
+      ideasEl.innerHTML = `<article class="card example">
+        <header class="row" style="justify-content:space-between"><span class="eyebrow">Abendessen</span><span class="tag-example">Beispiel</span></header>
+        <h3>Ofen-Gnocchi mit Kirschtomaten und Feta</h3>
+        <p class="small">Alles auf ein Blech, nach 25 Minuten fertig.</p>
+        ${macroHtml({ kcal: 620, protein_g: 24, carbs_g: 78, fat_g: 22 })}
+        <p class="muted small">So sehen deine Ideen aus. Erst wenn du eine auswählst, schreibt Claude das ganze Rezept – das spart Nutzung.</p>
+      </article>`;
+      recEl.innerHTML = "";
+      return;
+    }
+    ideasEl.innerHTML = `<span class="eyebrow">${esc(m.type)} · 3 Ideen</span>` + m.ideas.map((r, i) => `
+      <article class="card">
+        <h3>${esc(r.name)}</h3>
+        <p class="small">${esc(r.description)}</p>
+        <p class="muted small">${esc(r.prep_minutes)} Min.${arr(r.uses_pantry).length ? " · aus dem Vorrat: " + esc(r.uses_pantry.join(", ")) : ""}</p>
+        ${macroHtml(r.per_serving)}
+        <div class="row"><button class="btn sm ${m.recipe && m.recipe.idea === i ? "primary" : ""}" data-pick="${i}">${m.recipe && m.recipe.idea === i ? "Ausgewählt" : "Dieses Rezept"}</button></div>
+      </article>`).join("");
+    ideasEl.querySelectorAll("[data-pick]").forEach((b) => b.addEventListener("click", () => pickIdea(Number(b.dataset.pick))));
+
+    const r = m.recipe;
+    if (!r) { recEl.innerHTML = ""; return; }
+    const ing = arr(r.ingredients);
+    const missing = ing.filter((i) => i.status !== "vorhanden");
+    recEl.innerHTML = `<article class="card" id="meal-recipe-card">
+      <span class="eyebrow">Rezept · ${esc(r.servings)} ${num(r.servings) === 1 ? "Portion" : "Portionen"} · ${esc(r.prep_minutes)} Min.</span>
+      <h2>${esc(r.name)}</h2>
+      <p>${esc(r.description)}</p>
+      <div><span class="eyebrow">Pro Portion</span>${macroHtml(r.per_serving)}</div>
+      ${LEGEND}
+      <h3>Zutaten</h3>
+      <div>${ing.map((i) => `<div class="item" style="grid-template-columns:minmax(0,1fr) auto;cursor:default">
+          <span class="name">${esc(i.name)}${i.status === "vorhanden" ? `<span class="pill have">zu Hause</span>` : i.status === "teilweise" ? `<span class="pill part">teilweise da</span>` : ""}
+            ${i.note && i.status === "teilweise" ? `<span class="note">${esc(i.note)}</span>` : ""}</span>
+          <span class="amt">${esc(fmt(i.amount))} ${esc(i.unit)}</span></div>`).join("")}</div>
+      <p class="small"><strong>${missing.length ? `Noch zu kaufen: ${missing.length} ${missing.length === 1 ? "Zutat" : "Zutaten"}` : "Alles zu Hause – du kannst direkt loslegen."}</strong></p>
+      ${missing.length ? `<div class="row"><button class="btn sm" id="btn-meal-shop">Auf die Einkaufsliste</button></div>` : ""}
+      <h3>Zubereitung</h3>
+      <ol style="margin:0;padding-left:1.2rem;display:grid;gap:6px">${arr(r.steps).map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
+      ${r.tip ? `<p class="small muted">Tipp: ${esc(r.tip)}</p>` : ""}
+    </article>`;
+    const shopBtn = $("#btn-meal-shop");
+    if (shopBtn) shopBtn.addEventListener("click", () => {
+      let added = 0;
+      for (const i of missing) {
+        const ex = state.shopping.find((s) => s.name.toLowerCase() === i.name.toLowerCase() && s.unit === i.unit);
+        if (ex) { ex.amount += i.amount; ex.checked = false; }
+        else { state.shopping.push({ name: i.name, amount: i.amount, unit: i.unit, category: i.category || "Sonstiges", status: i.status, note: i.note, checked: false }); }
+        added++;
+      }
+      persist("shopping"); renderShop(); toast(`${added} ${added === 1 ? "Zutat" : "Zutaten"} auf die Einkaufsliste gesetzt`);
+    });
+  }
+
+  $("#btn-meal").addEventListener("click", async () => {
+    const st = $("#meal-status"), btn = $("#btn-meal");
+    const p = prof(), type = $("#meal-type").value, mode = $("#meal-mode").value, wishes = $("#meal-wishes").value.trim();
+    if (mode === "only" && !state.pantry.length) {
       st.innerHTML = `<p class="small">Dein Vorrat ist leer. <button class="linkish" data-goto="fridge">Kühlschrank scannen</button></p>`;
       return;
     }
-    const p = prof();
-    const count = Number($("#cook-count").value), type = $("#cook-type").value, wishes = $("#cook-wishes").value.trim();
+    const prev = state.meal;
+    const seen = prev && prev.type === type ? arr(prev.seen).slice(-12) : [];
+    const mk = mealKcal(p, type);
     btn.disabled = true;
-    st.innerHTML = `<ul class="steps"><li class="active"><span class="dot"></span>Suche Rezepte aus deinem Vorrat …</li></ul>`;
+    st.innerHTML = `<ul class="steps"><li class="active"><span class="dot"></span>Claude sammelt 3 Ideen …</li></ul>`;
     try {
-      const res = await askJson(`Du bist Köchin. Ich will jetzt kochen, OHNE einzukaufen. Schlage ${count} unterschiedliche Gerichte${type ? " (" + type + ")" : ""} auf Deutsch vor,
-die ich NUR mit meinem Vorrat und dem Basisvorrat zubereiten kann.
-
-VORRAT
-${pantryText(state.pantry)}
-
-BASISVORRAT: ${staplesText(p)}
+      const res = await askJson(`Du bist Köchin und Ernährungsberaterin. Schlage 3 deutlich unterschiedliche, gesunde und leckere Gerichte für ${type} vor, auf Deutsch.
 
 PROFIL
 ${profileText(p)}
-${wishes ? "\nWÜNSCHE: " + wishes + "\n" : ""}
-REGELN
-- Jede Zutat muss im Vorrat oder Basisvorrat stehen, Mengen dürfen den Vorrat nicht übersteigen.
-- Verderbliches (frisches Gemüse, Milchprodukte, Fleisch) zuerst verwerten und in uses_soon nennen.
-- servings = ${p.persons}. Nicht vorhandene, optionale Extras nur in missing_optional.
+Ziel pro Portion: ca. ${mk.kcal} kcal.
 
-Antworte NUR mit JSON: {"recipes":[{"name":"…","description":"1 Satz","prep_minutes":20,"servings":${p.persons},
-"per_serving":{"kcal":0,"protein_g":0,"carbs_g":0,"fat_g":0},"ingredients":[{"name":"…","amount":1,"unit":"Stück"}],
-"steps":["…"],"tags":["…"],"uses_soon":["…"],"missing_optional":["…"]}]}`, { cache: false });
-      const recipes = arr(res && res.recipes).filter((r) => r && r.name);
-      if (!recipes.length) throw new AskError("empty", "Mit dem aktuellen Vorrat wurde nichts gefunden. Ergänze ein paar Lebensmittel.");
-      state.cook = { recipes }; persist("cook"); renderCook(); st.innerHTML = "";
+VORRAT
+${pantryText(mode === "ignore" ? [] : state.pantry)}
+BASISVORRAT: ${staplesText(p)}
+${MODE_RULE[mode]}
+${wishes ? "WÜNSCHE: " + wishes : ""}
+${seen.length ? "Bitte NICHT erneut vorschlagen: " + seen.join("; ") : ""}
+
+Nur eine Kurzfassung, KEINE Zutatenliste und KEINE Schritte.
+Antworte NUR mit JSON: {"ideas":[{"name":"…","description":"1 Satz","prep_minutes":20,"per_serving":{"kcal":0,"protein_g":0,"carbs_g":0,"fat_g":0},"uses_pantry":["Zutaten aus dem Vorrat"]}]}`,
+        { modelTier: "quick", cache: false });
+      const ideas = arr(res && res.ideas).filter((i) => i && i.name).slice(0, 3).map((i) => ({
+        name: str(i.name), description: str(i.description), prep_minutes: num(i.prep_minutes), per_serving: i.per_serving, uses_pantry: arr(i.uses_pantry).map(str),
+      }));
+      if (!ideas.length) throw new AskError("empty", "Claude hat keine Ideen geliefert. Bitte erneut versuchen.");
+      state.meal = { type, mode, wishes, ideas, recipe: null, seen: [...seen, ...ideas.map((i) => i.name)] };
+      persist("meal"); renderMeal(); st.innerHTML = "";
     } catch (e) {
       st.innerHTML = `<p class="error small">${esc(e.message)}</p>`;
     } finally { btn.disabled = false; }
   });
 
+  let picking = false;
+  async function pickIdea(idx) {
+    const m = state.meal, idea = m && m.ideas[idx];
+    if (!idea || picking) return;
+    if (m.recipe && m.recipe.idea === idx) { $("#meal-recipe-card").scrollIntoView({ behavior: "smooth" }); return; }
+    const p = prof();
+    picking = true;
+    document.querySelectorAll("[data-pick]").forEach((b) => (b.disabled = true));
+    $("#meal-recipe").innerHTML = `<div class="card"><ul class="steps"><li class="active"><span class="dot"></span>Claude schreibt das Rezept für „${esc(idea.name)}“ …</li></ul></div>`;
+    $("#meal-recipe").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    try {
+      const r = await askJson(`Du bist Köchin. Schreibe das vollständige Rezept für dieses Gericht, auf Deutsch:
+"${idea.name}" – ${idea.description} (${m.type}, ca. ${Math.round(num(idea.per_serving && idea.per_serving.kcal))} kcal pro Portion)
+
+PROFIL (Allergien strikt beachten)
+${profileText(p)}
+servings = ${p.persons}
+
+VORRAT
+${pantryText(m.mode === "ignore" ? [] : state.pantry)}
+BASISVORRAT (gilt als vorhanden): ${staplesText(p)}
+${MODE_RULE[m.mode]}
+${m.wishes ? "WÜNSCHE: " + m.wishes : ""}
+
+Für jede Zutat: Menge für alle Portionen, category (Obst & Gemüse, Brot & Backwaren, Kühlregal, Fleisch & Fisch, Tiefkühl, Trockenwaren, Konserven, Gewürze & Öle, Getränke, Sonstiges)
+und status laut Vorrat: "vorhanden", "teilweise" (note: wie viel noch kaufen) oder "fehlt". Einheiten: g, ml, Stück, EL, TL, Prise, Bund, Dose, Packung.
+Antworte NUR mit JSON: {"name":"…","description":"1–2 Sätze","prep_minutes":20,"servings":${p.persons},"per_serving":{"kcal":0,"protein_g":0,"carbs_g":0,"fat_g":0},
+"ingredients":[{"name":"…","amount":1,"unit":"Stück","category":"Obst & Gemüse","status":"fehlt","note":""}],"steps":["…"],"tip":"optionaler Tipp oder leer"}`,
+        { cache: false });
+      const ingredients = arr(r && r.ingredients).filter((i) => i && i.name).map((i) => ({
+        name: str(i.name), amount: num(i.amount), unit: str(i.unit), category: str(i.category) || "Sonstiges",
+        status: STATUS.includes(i.status) ? i.status : "fehlt", note: str(i.note),
+      }));
+      if (!ingredients.length || !arr(r.steps).length) throw new AskError("invalid_json", "Das Rezept war unvollständig. Bitte erneut auswählen.");
+      m.recipe = {
+        idea: idx, name: str(r.name) || idea.name, description: str(r.description) || idea.description,
+        prep_minutes: num(r.prep_minutes, idea.prep_minutes), servings: num(r.servings, p.persons),
+        per_serving: r.per_serving || idea.per_serving, ingredients, steps: arr(r.steps).map(str), tip: str(r.tip),
+      };
+      persist("meal"); renderMeal();
+      $("#meal-recipe-card").scrollIntoView({ behavior: "smooth" });
+    } catch (e) {
+      $("#meal-recipe").innerHTML = `<div class="card"><p class="error small">${esc(e.message)}</p></div>`;
+      document.querySelectorAll("[data-pick]").forEach((b) => (b.disabled = false));
+    } finally { picking = false; }
+  }
+
+  $("#meal-type").value = (state.meal && state.meal.type) || defaultMealType();
+  if (state.meal && state.meal.mode) $("#meal-mode").value = state.meal.mode;
+
   // ---------------- Start ----------------
-  function renderAll() { fillForm(); renderHint(); renderPlan(); renderShop(); renderPantry(); renderCook(); }
+  function renderAll() { fillForm(); renderHint(); renderMealHint(); renderPlan(); renderShop(); renderPantry(); renderMeal(); }
   $("#hide-have").checked = !!local.get("hideHave", false);
   renderAll();
-  showTab(local.get("tab", "plan"));
+  { const t = local.get("tab", "meal"); showTab(["meal", "plan", "shop", "fridge", "profile"].includes(t) ? t : "meal"); }
   initRemote();
 
   getSample().then(async (sample) => {
     if (!sample) {
-      for (const id of ["#btn-plan", "#btn-cook", "#btn-match"]) $(id).disabled = true;
+      for (const id of ["#btn-plan", "#btn-meal", "#btn-match"]) $(id).disabled = true;
       $("#btn-scan").hidden = true; $(".drop").hidden = true; $("#scan-unavailable").hidden = false;
-      $("#plan-hint").insertAdjacentHTML("afterend", `<p class="error small">Öffne diese Seite in Claude, damit Claude Pläne erstellen kann.</p>`);
+      for (const h of ["#plan-hint", "#meal-hint"]) $(h).insertAdjacentHTML("afterend", `<p class="error small">Öffne diese Seite in Claude, damit Claude Rezepte erstellen kann.</p>`);
       return;
     }
     const lim = await sample.limits().catch(() => null);
